@@ -4,6 +4,7 @@ import 'package:kifepool/core/models/wallet_models.dart';
 import 'package:kifepool/core/models/transfer_models.dart';
 import 'package:kifepool/core/models/transaction_history_models.dart';
 import 'package:kifepool/core/models/xcm_transfer_models.dart';
+import 'package:kifepool/core/models/news_models.dart';
 
 /// Database service for managing wallet account metadata
 class DatabaseService {
@@ -21,6 +22,8 @@ class DatabaseService {
       NftTransferSchema,
       TransactionHistorySchema,
       XcmTransferSchema,
+      NewsArticleSchema,
+      FeaturedProjectSchema,
     ], directory: dir.path);
   }
 
@@ -35,7 +38,7 @@ class DatabaseService {
     }
     return _isar!;
   }
-  
+
   /// Close database
   static Future<void> close() async {
     await _isar?.close();
@@ -732,6 +735,209 @@ class DatabaseService {
   static Future<void> deleteXcmTransfer(int id) async {
     await isar.writeTxn(() async {
       await isar.xcmTransfers.delete(id);
+    });
+  }
+
+  // News Article Operations
+
+  /// Save news articles
+  static Future<void> saveNewsArticles(List<NewsArticle> articles) async {
+    await isar.writeTxn(() async {
+      await isar.newsArticles.putAll(articles);
+    });
+  }
+
+  /// Get news articles with filtering
+  static Future<List<NewsArticle>> getNewsArticles({NewsFilter? filter}) async {
+    // For now, return all articles and filter in memory
+    // TODO: Implement proper Isar filtering
+    final allArticles = await isar.newsArticles
+        .where()
+        .sortByPublishedAtDesc()
+        .findAll();
+
+    // Apply filters in memory
+    var filteredArticles = allArticles;
+
+    if (filter != null) {
+      if (filter.source != null) {
+        filteredArticles = filteredArticles
+            .where((a) => a.newsSource == filter.source)
+            .toList();
+      }
+
+      if (filter.category != null) {
+        filteredArticles = filteredArticles
+            .where((a) => a.category == filter.category)
+            .toList();
+      }
+
+      if (filter.fromDate != null) {
+        filteredArticles = filteredArticles
+            .where((a) => a.publishedAt.isAfter(filter.fromDate!))
+            .toList();
+      }
+
+      if (filter.toDate != null) {
+        filteredArticles = filteredArticles
+            .where((a) => a.publishedAt.isBefore(filter.toDate!))
+            .toList();
+      }
+
+      if (filter.searchQuery != null && filter.searchQuery!.isNotEmpty) {
+        final query = filter.searchQuery!.toLowerCase();
+        filteredArticles = filteredArticles
+            .where(
+              (a) =>
+                  a.title.toLowerCase().contains(query) ||
+                  a.excerpt.toLowerCase().contains(query) ||
+                  a.content.toLowerCase().contains(query),
+            )
+            .toList();
+      }
+
+      if (filter.bookmarkedOnly == true) {
+        filteredArticles = filteredArticles
+            .where((a) => a.isBookmarked)
+            .toList();
+      }
+
+      if (filter.unreadOnly == true) {
+        filteredArticles = filteredArticles.where((a) => !a.isRead).toList();
+      }
+
+      // Apply pagination
+      final start = filter.offset;
+      final end = start + filter.limit;
+
+      filteredArticles = filteredArticles.sublist(
+        start,
+        end > filteredArticles.length ? filteredArticles.length : end,
+      );
+    }
+
+    return filteredArticles;
+  }
+
+  /// Get news article by ID
+  static Future<NewsArticle?> getNewsArticleById(String articleId) async {
+    // For now, get all articles and filter in memory
+    // TODO: Implement proper Isar query
+    final allArticles = await isar.newsArticles.where().findAll();
+    try {
+      return allArticles.firstWhere((a) => a.articleId == articleId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Mark news article as read
+  static Future<void> markNewsArticleAsRead(String articleId) async {
+    final article = await getNewsArticleById(articleId);
+    if (article != null) {
+      article.isRead = true;
+      article.updatedAt = DateTime.now();
+      await isar.writeTxn(() async {
+        await isar.newsArticles.put(article);
+      });
+    }
+  }
+
+  /// Toggle news article bookmark
+  static Future<void> toggleNewsArticleBookmark(String articleId) async {
+    final article = await getNewsArticleById(articleId);
+    if (article != null) {
+      article.isBookmarked = !article.isBookmarked;
+      article.updatedAt = DateTime.now();
+      await isar.writeTxn(() async {
+        await isar.newsArticles.put(article);
+      });
+    }
+  }
+
+  /// Update news article
+  static Future<void> updateNewsArticle(NewsArticle article) async {
+    await isar.writeTxn(() async {
+      await isar.newsArticles.put(article);
+    });
+  }
+
+  /// Delete news article
+  static Future<void> deleteNewsArticle(int id) async {
+    await isar.writeTxn(() async {
+      await isar.newsArticles.delete(id);
+    });
+  }
+
+  // Featured Project Operations
+
+  /// Save featured projects
+  static Future<void> saveFeaturedProjects(
+    List<FeaturedProject> projects,
+  ) async {
+    await isar.writeTxn(() async {
+      await isar.featuredProjects.putAll(projects);
+    });
+  }
+
+  /// Get featured projects
+  static Future<List<FeaturedProject>> getFeaturedProjects() async {
+    return await isar.featuredProjects.where().sortByPriority().findAll();
+  }
+
+  /// Get featured project by ID
+  static Future<FeaturedProject?> getFeaturedProjectById(
+    String projectId,
+  ) async {
+    // For now, get all projects and filter in memory
+    // TODO: Implement proper Isar query
+    final allProjects = await isar.featuredProjects.where().findAll();
+    try {
+      return allProjects.firstWhere((p) => p.projectId == projectId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Increment featured project view count
+  static Future<void> incrementFeaturedProjectViewCount(
+    String projectId,
+  ) async {
+    final project = await getFeaturedProjectById(projectId);
+    if (project != null) {
+      project.viewCount++;
+      project.updatedAt = DateTime.now();
+      await isar.writeTxn(() async {
+        await isar.featuredProjects.put(project);
+      });
+    }
+  }
+
+  /// Increment featured project click count
+  static Future<void> incrementFeaturedProjectClickCount(
+    String projectId,
+  ) async {
+    final project = await getFeaturedProjectById(projectId);
+    if (project != null) {
+      project.clickCount++;
+      project.updatedAt = DateTime.now();
+      await isar.writeTxn(() async {
+        await isar.featuredProjects.put(project);
+      });
+    }
+  }
+
+  /// Update featured project
+  static Future<void> updateFeaturedProject(FeaturedProject project) async {
+    await isar.writeTxn(() async {
+      await isar.featuredProjects.put(project);
+    });
+  }
+
+  /// Delete featured project
+  static Future<void> deleteFeaturedProject(int id) async {
+    await isar.writeTxn(() async {
+      await isar.featuredProjects.delete(id);
     });
   }
 }

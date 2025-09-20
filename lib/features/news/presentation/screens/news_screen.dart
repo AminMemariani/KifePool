@@ -1,121 +1,463 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../../../shared/providers/theme_provider.dart';
+import 'package:kifepool/core/models/news_models.dart';
+import 'package:kifepool/core/theme/app_spacing.dart';
+import 'package:kifepool/core/theme/app_typography.dart';
+import 'package:kifepool/features/news/presentation/widgets/featured_projects_carousel.dart';
+import 'package:kifepool/features/news/presentation/widgets/news_article_card.dart';
+import 'package:kifepool/features/news/presentation/widgets/news_filter_dialog.dart';
+import 'package:kifepool/shared/providers/news_provider.dart';
 
-class NewsScreen extends StatelessWidget {
+/// Main news screen with featured projects and articles
+class NewsScreen extends StatefulWidget {
   const NewsScreen({super.key});
 
   @override
+  State<NewsScreen> createState() => _NewsScreenState();
+}
+
+class _NewsScreenState extends State<NewsScreen> {
+  final ScrollController _scrollController = ScrollController();
+  bool _isLoadingMore = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+
+    // Initialize news provider
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final newsProvider = Provider.of<NewsProvider>(context, listen: false);
+      newsProvider.initialize();
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      _loadMoreArticles();
+    }
+  }
+
+  Future<void> _loadMoreArticles() async {
+    if (_isLoadingMore) return;
+
+    setState(() {
+      _isLoadingMore = true;
+    });
+
+    final newsProvider = Provider.of<NewsProvider>(context, listen: false);
+    await newsProvider.loadMoreArticles();
+
+    setState(() {
+      _isLoadingMore = false;
+    });
+  }
+
+  Future<void> _refreshNews() async {
+    final newsProvider = Provider.of<NewsProvider>(context, listen: false);
+    await newsProvider.refreshNewsFeed();
+  }
+
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => NewsFilterDialog(
+        currentFilter: Provider.of<NewsProvider>(
+          context,
+          listen: false,
+        ).currentFilter,
+        onFilterApplied: (filter) {
+          final newsProvider = Provider.of<NewsProvider>(
+            context,
+            listen: false,
+          );
+          newsProvider.applyFilter(filter);
+        },
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Crypto News'),
+        title: const Text('Ecosystem News'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              // TODO: Implement news search
-            },
+            icon: const Icon(Icons.filter_list),
+            onPressed: _showFilterDialog,
+            tooltip: 'Filter News',
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () {
-              // TODO: Refresh news
-            },
+            onPressed: _refreshNews,
+            tooltip: 'Refresh',
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // News Categories
-          Container(
-            height: 50,
-            margin: const EdgeInsets.all(AppSpacing.lg),
-            decoration: BoxDecoration(
-              color: themeProvider.isDarkMode 
-                  ? AppColors.darkSurfaceVariant 
-                  : AppColors.lightSurfaceVariant,
-              borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _buildCategoryTab('All', true),
+      body: Consumer<NewsProvider>(
+        builder: (context, newsProvider, child) {
+          if (newsProvider.isLoading && newsProvider.articles.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (newsProvider.error != null && newsProvider.articles.isEmpty) {
+            return _buildErrorState(newsProvider.error!);
+          }
+
+          return RefreshIndicator(
+            onRefresh: _refreshNews,
+            child: CustomScrollView(
+              controller: _scrollController,
+              slivers: [
+                // Featured projects carousel
+                if (newsProvider.featuredProjects.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: FeaturedProjectsCarousel(
+                      projects: newsProvider.featuredProjects,
+                      onProjectTap: (project) {
+                        newsProvider.incrementProjectViewCount(
+                          project.projectId,
+                        );
+                      },
+                    ),
+                  ),
+
+                // News stats
+                if (newsProvider.stats != null)
+                  SliverToBoxAdapter(
+                    child: _buildNewsStats(newsProvider.stats!),
+                  ),
+
+                // News articles header
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Latest News',
+                          style: AppTypography.headlineSmall.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        if (newsProvider.lastRefresh != null)
+                          Text(
+                            'Updated ${_formatLastRefresh(newsProvider.lastRefresh!)}',
+                            style: AppTypography.bodySmall.copyWith(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withOpacity(0.6),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
-                Expanded(
-                  child: _buildCategoryTab('Bitcoin', false),
-                ),
-                Expanded(
-                  child: _buildCategoryTab('Ethereum', false),
-                ),
-                Expanded(
-                  child: _buildCategoryTab('DeFi', false),
-                ),
-                Expanded(
-                  child: _buildCategoryTab('NFTs', false),
-                ),
+
+                // News articles list
+                if (newsProvider.articles.isEmpty)
+                  SliverFillRemaining(child: _buildEmptyState())
+                else
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        if (index < newsProvider.articles.length) {
+                          final article = newsProvider.articles[index];
+                          return NewsArticleCard(
+                            article: article,
+                            onTap: () {
+                              newsProvider.markArticleAsRead(article.articleId);
+                              _showArticleDetail(article);
+                            },
+                            onBookmark: () {
+                              newsProvider.toggleArticleBookmark(
+                                article.articleId,
+                              );
+                            },
+                            onShare: () {
+                              _shareArticle(article);
+                            },
+                          );
+                        } else if (_isLoadingMore) {
+                          return const Padding(
+                            padding: EdgeInsets.all(AppSpacing.lg),
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                      childCount:
+                          newsProvider.articles.length +
+                          (_isLoadingMore ? 1 : 0),
+                    ),
+                  ),
+
+                // Loading indicator for refresh
+                if (newsProvider.isRefreshing)
+                  const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.all(AppSpacing.lg),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  ),
               ],
             ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildNewsStats(NewsStats stats) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceVariant,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildStatItem('Total', stats.totalArticles.toString()),
+          _buildStatItem('Unread', stats.unreadArticles.toString()),
+          _buildStatItem('Bookmarked', stats.bookmarkedArticles.toString()),
+          _buildStatItem('Projects', stats.featuredProjectsCount.toString()),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatItem(String label, String value) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: AppTypography.titleLarge.copyWith(
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.primary,
           ),
-          
-          // News List
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+        ),
+        Text(
+          label,
+          style: AppTypography.bodySmall.copyWith(
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildErrorState(String error) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              'Error Loading News', style: AppTypography.headlineSmall),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              error,
+              style: AppTypography.bodyMedium.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            ElevatedButton(onPressed: _refreshNews, child: const Text('Retry')),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.newspaper_outlined,
+              size: 64,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              'No News Articles', style: AppTypography.headlineSmall),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              'Pull down to refresh and load the latest news from the ecosystem.',
+              style: AppTypography.bodyMedium.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            ElevatedButton.icon(
+              onPressed: _refreshNews,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Refresh'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showArticleDetail(NewsArticle article) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.8,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (context, scrollController) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(AppSpacing.radiusLg),
+                ),
+              ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Latest News',
-                    style: AppTypography.titleLarge,
+                  // Drag handle
+                  Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
-                  const SizedBox(height: AppSpacing.lg),
-                  
-                  // Empty state
+
+                  // Header
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Article Details',
+                          style: AppTypography.headlineSmall,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const Divider(),
+
+                  // Content
                   Expanded(
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(AppSpacing.xxl),
-                      decoration: BoxDecoration(
-                        color: themeProvider.isDarkMode 
-                            ? AppColors.darkSurfaceVariant 
-                            : AppColors.lightSurfaceVariant,
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                      ),
+                    child: SingleChildScrollView(
+                      controller: scrollController,
+                      padding: const EdgeInsets.all(AppSpacing.lg),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            Icons.newspaper_outlined,
-                            size: 64,
-                            color: AppColors.grey400,
-                          ),
-                          const SizedBox(height: AppSpacing.lg),
                           Text(
-                            'No news available',
-                            style: AppTypography.titleMedium.copyWith(
-                              color: AppColors.grey500,
+                            article.title,
+                            style: AppTypography.headlineSmall.copyWith(
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                           const SizedBox(height: AppSpacing.sm),
-                          Text(
-                            'Latest cryptocurrency news will appear here',
-                            style: AppTypography.bodyMedium.copyWith(
-                              color: AppColors.grey400,
-                            ),
-                            textAlign: TextAlign.center,
+                          Row(
+                            children: [
+                              Text(
+                                article.author,
+                                style: AppTypography.bodyMedium.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.7),
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.sm),
+                              Text(
+                                '•',
+                                style: AppTypography.bodyMedium.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.5),
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.sm),
+                              Text(
+                                _formatDate(article.publishedAt),
+                                style: AppTypography.bodyMedium.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.7),
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: AppSpacing.lg),
-                          ElevatedButton(
-                            onPressed: () {
-                              // TODO: Refresh news
-                            },
-                            child: const Text('Refresh'),
+                          if (article.imageUrl != null) ...[
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(
+                                AppSpacing.radiusMd,
+                              ),
+                              child: Image.network(
+                                article.imageUrl!,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    height: 200,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceVariant,
+                                    child: Icon(
+                                      Icons.image_not_supported,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface.withOpacity(0.3),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.lg),
+                          ],
+                          Text(
+                            article.content,
+                            style: AppTypography.bodyMedium.copyWith(
+                              height: 1.6,
+                            ),
                           ),
                         ],
                       ),
@@ -123,29 +465,55 @@ class NewsScreen extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-          ),
-        ],
-      ),
+            );
+          },
+        );
+      },
     );
   }
 
-  Widget _buildCategoryTab(String title, bool isSelected) {
-    return Container(
-      margin: const EdgeInsets.all(AppSpacing.xs),
-      decoration: BoxDecoration(
-        color: isSelected ? AppColors.primary : Colors.transparent,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-      ),
-      child: Center(
-        child: Text(
-          title,
-          style: AppTypography.labelMedium.copyWith(
-            color: isSelected ? Colors.white : AppColors.grey500,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-          ),
-        ),
-      ),
+  void _shareArticle(NewsArticle article) {
+    // TODO: Implement share functionality
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Share functionality coming soon!')),
     );
+  }
+
+  String _formatLastRefresh(DateTime lastRefresh) {
+    final now = DateTime.now();
+    final difference = now.difference(lastRefresh);
+
+    if (difference.inMinutes < 1) {
+      return 'just now';
+    } else if (difference.inMinutes < 60) {
+      return '${difference.inMinutes}m ago';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours}h ago';
+    } else {
+      return '${difference.inDays}d ago';
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays == 0) {
+      if (difference.inHours == 0) {
+        if (difference.inMinutes == 0) {
+          return 'Just now';
+        } else {
+          return '${difference.inMinutes}m ago';
+        }
+      } else {
+        return '${difference.inHours}h ago';
+      }
+    } else if (difference.inDays == 1) {
+      return 'Yesterday';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays}d ago';
+    } else {
+      return '${date.day}/${date.month}/${date.year}';
+    }
   }
 }
