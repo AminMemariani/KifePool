@@ -2,6 +2,7 @@ import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:kifepool/core/models/wallet_models.dart';
 import 'package:kifepool/core/models/transfer_models.dart';
+import 'package:kifepool/core/models/transaction_history_models.dart';
 
 /// Database service for managing wallet account metadata
 class DatabaseService {
@@ -17,6 +18,7 @@ class DatabaseService {
       MnemonicWalletSchema,
       TokenTransferSchema,
       NftTransferSchema,
+      TransactionHistorySchema,
     ], directory: dir.path);
   }
 
@@ -500,5 +502,141 @@ class DatabaseService {
       'totalTransfers': totalTokenTransfers + totalNftTransfers,
       'pendingTransfers': pendingTokenTransfers + pendingNftTransfers,
     };
+  }
+
+  // Transaction History Operations
+
+  /// Save transaction
+  static Future<void> saveTransaction(TransactionHistory transaction) async {
+    await isar.writeTxn(() async {
+      await isar.transactionHistorys.put(transaction);
+    });
+  }
+
+  /// Get transaction by hash
+  static Future<TransactionHistory?> getTransactionByHash(String hash) async {
+    // For now, get all transactions and filter in memory
+    // TODO: Implement proper Isar query
+    final allTransactions = await isar.transactionHistorys.where().findAll();
+    try {
+      return allTransactions.firstWhere((tx) => tx.hash == hash);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Get transaction history with filtering
+  static Future<List<TransactionHistory>> getTransactionHistory({
+    String? address,
+    String? chain,
+    TransactionType? type,
+    TransactionStatus? status,
+    TransactionDirection? direction,
+    DateTime? fromDate,
+    DateTime? toDate,
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    // For now, return all transactions and filter in memory
+    // TODO: Implement proper Isar filtering
+    final allTransactions = await isar.transactionHistorys
+        .where()
+        .sortByTimestampDesc()
+        .findAll();
+
+    // Apply filters in memory
+    var filteredTransactions = allTransactions;
+
+    if (address != null) {
+      filteredTransactions = filteredTransactions
+          .where((tx) => tx.fromAddress == address || tx.toAddress == address)
+          .toList();
+    }
+
+    if (chain != null) {
+      filteredTransactions = filteredTransactions
+          .where((tx) => tx.chain == chain)
+          .toList();
+    }
+
+    if (type != null) {
+      filteredTransactions = filteredTransactions
+          .where((tx) => tx.type == type)
+          .toList();
+    }
+
+    if (status != null) {
+      filteredTransactions = filteredTransactions
+          .where((tx) => tx.status == status)
+          .toList();
+    }
+
+    if (direction != null) {
+      filteredTransactions = filteredTransactions
+          .where((tx) => tx.direction == direction)
+          .toList();
+    }
+
+    if (fromDate != null) {
+      filteredTransactions = filteredTransactions
+          .where((tx) => tx.timestamp.isAfter(fromDate))
+          .toList();
+    }
+
+    if (toDate != null) {
+      filteredTransactions = filteredTransactions
+          .where((tx) => tx.timestamp.isBefore(toDate))
+          .toList();
+    }
+
+    // Apply pagination
+    final startIndex = offset;
+    final endIndex = startIndex + limit;
+
+    return filteredTransactions.sublist(
+      startIndex,
+      endIndex > filteredTransactions.length
+          ? filteredTransactions.length
+          : endIndex,
+    );
+  }
+
+  /// Update transaction
+  static Future<void> updateTransaction(TransactionHistory transaction) async {
+    await isar.writeTxn(() async {
+      await isar.transactionHistorys.put(transaction);
+    });
+  }
+
+  /// Delete transaction
+  static Future<void> deleteTransaction(int id) async {
+    await isar.writeTxn(() async {
+      await isar.transactionHistorys.delete(id);
+    });
+  }
+
+  /// Clear transaction cache for address
+  static Future<void> clearTransactionCache(String address) async {
+    await isar.writeTxn(() async {
+      await isar.transactionHistorys
+          .filter()
+          .fromAddressEqualTo(address)
+          .or()
+          .toAddressEqualTo(address)
+          .deleteAll();
+    });
+  }
+
+  /// Get cache timestamp
+  static Future<DateTime?> getCacheTimestamp(String key) async {
+    // This would typically be stored in a separate cache table
+    // For now, we'll return null to indicate no cache
+    return null;
+  }
+
+  /// Set cache timestamp
+  static Future<void> setCacheTimestamp(String key, DateTime timestamp) async {
+    // This would typically be stored in a separate cache table
+    // For now, we'll do nothing
   }
 }
