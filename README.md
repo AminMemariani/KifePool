@@ -327,7 +327,7 @@ For support, email support@kifepool.com or join our Discord community.
 - [ ] **Integration Tests**: Fixing provider and navigation test issues
 - [ ] **Performance Optimization**: Memory management and rendering improvements
 
-### 📋 Short Term (Q1 2025)
+### 📋 Short Term (Q3 2025)
 - [ ] **Wallet Features**: Send/receive functionality, transaction signing
 - [ ] **Staking Interface**: Validator selection, nomination pools, reward tracking
 - [ ] **NFT Management**: Collection viewing, metadata display, basic trading
@@ -336,7 +336,7 @@ For support, email support@kifepool.com or join our Discord community.
 - [ ] **Security Enhancements**: Biometric authentication, secure key storage
 - [ ] **Error Handling**: Comprehensive error states and user feedback
 
-### 🎯 Medium Term (Q2-Q3 2025)
+### 🎯 Medium Term (Q4 2025)
 - [ ] **Advanced Staking**: Parachain staking, crowdloan participation
 - [ ] **DeFi Integration**: DEX integration, liquidity provision, yield farming
 - [ ] **Hardware Wallet Support**: Ledger, Trezor integration
@@ -345,7 +345,7 @@ For support, email support@kifepool.com or join our Discord community.
 - [ ] **Backup & Recovery**: Cloud backup, mnemonic recovery flows
 - [ ] **Multi-Account Support**: Multiple wallet management, account switching
 
-### 🌟 Long Term (Q4 2025+)
+### 🌟 Long Term (Q1-Q2 2026)
 - [ ] **Social Features**: Contact management, transaction sharing
 - [ ] **Advanced Trading**: Order book, limit orders, DEX aggregation
 - [ ] **Governance**: Polkadot/Kusama governance participation
@@ -355,7 +355,7 @@ For support, email support@kifepool.com or join our Discord community.
 - [ ] **Enterprise Features**: Multi-sig wallets, institutional tools
 - [ ] **API & SDK**: Public API for third-party integrations
 
-### 🔮 Future Vision
+### 🔮 Future Vision (Q3 2026+)
 - [ ] **AI Integration**: Smart transaction suggestions, risk assessment
 - [ ] **Cross-Chain Bridge**: Direct bridge to other ecosystems (Ethereum, Solana)
 - [ ] **NFT Marketplace**: Built-in NFT trading and discovery
