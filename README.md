@@ -1,6 +1,6 @@
-# KifePool - Polkadot Wallet App
+# KifePool - Polkadot & Kusama Wallet App
 
-A comprehensive Flutter application for managing cryptocurrencies, featuring wallet functionality, staking, NFTs, transactions, and cross-chain operations.
+A comprehensive Flutter application for managing cryptocurrencies in the Polkadot and Kusama ecosystems, featuring wallet functionality, staking, NFTs, transactions, and cross-chain operations.
 
 ## 🚀 Features
 
@@ -9,9 +9,22 @@ A comprehensive Flutter application for managing cryptocurrencies, featuring wal
 - **NFTs**: Manage and trade non-fungible tokens
 - **Transactions**: Send, receive, and track cryptocurrency transactions
 - **News**: Stay updated with the latest crypto news
-- **Cross-Chain**: Support for multiple blockchain networks
+- **Cross-Chain**: Support for Polkadot and Kusama parachains via XCM
 - **Dark Mode**: Beautiful dark theme with toggle functionality
 - **Offline-First**: Local data persistence with Isar database
+
+## 🌐 Supported Ecosystems
+
+### Polkadot Ecosystem
+- **Polkadot**: Main relay chain
+- **Parachains**: Statemint, Acala, Moonbeam, Astar, Bifrost, Centrifuge, Parallel, Equilibrium, Composable, HydraDX, Phala, Integritee, Darwinia, Litentry, Crust, OriginTrail, Efinity, Nodle, Bitgreen, Encointer, Pendulum, Amplitude, Interlay, Kylin, Pichiu, Polkadex, Coinversation, InvArch, Oak, Robonomics, Turing, Zeitgeist, SubDAO, Ajuna, Altair, Basilisk, Calamari, Heiko, Kintsugi, Picasso, Quartz, Unique, Genshiro, Karura, Khala, Kilt, Sakura, Shadow, Shiden
+
+### Kusama Ecosystem
+- **Kusama**: Canary network relay chain
+- **Parachains**: Statemine, Karura, Bifrost, Khala, Shiden, Robonomics, Trustbase, Altair, Heiko, Kintsugi, Pichiu, Calamari, Basilisk, Turing, Litentry, Kilt, Sakura, Quartz, Unique, Genshiro, Subgame, Zeitgeist, Integritee, Nodle, Polkasmith, Dora, Crust, Litmus, Kabocha, Mangata, GM, Tinkernet, Listen, Pioneer, BitCountry, Subsocial, Parallel, Picasso, Composable, Amplitude, Pendulum, InvArch, Kylin, Polkadex, Coinversation, Efinity, Centrifuge, OriginTrail, Equilibrium, HydraDX, Phala, Darwinia
+
+### Dynamic Parachain Detection
+The app automatically detects and supports all active parachains in both ecosystems through real-time RPC queries, ensuring users always have access to the latest parachains without app updates.
 
 ## 🏗️ Architecture
 
@@ -19,7 +32,7 @@ A comprehensive Flutter application for managing cryptocurrencies, featuring wal
 - **State Management**: Provider pattern for reactive state management
 - **Local Database**: Isar for offline-first data persistence
 - **Networking**: Dio for HTTP requests and API communication
-- **Blockchain Integration**: Direct RPC connections to blockchain networks
+- **Blockchain Integration**: Direct RPC connections to Polkadot and Kusama networks
 
 ## 📁 Project Structure
 
@@ -56,7 +69,7 @@ KifePool/
 - **Provider**: State management solution
 - **Isar**: Local NoSQL database
 - **Dio**: HTTP client for networking
-- **WebSocket**: Real-time blockchain communication
+- **WebSocket**: Real-time Polkadot/Kusama blockchain communication
 - **Google Fonts**: Typography system
 - **Material Design 3**: Modern UI components
 
@@ -128,26 +141,26 @@ KifePool/
 
 ### App Configuration
 Update `lib/core/constants/app_constants.dart` with your configuration:
-- Blockchain RPC URLs
+- Polkadot and Kusama RPC URLs
 - Database settings
 - Feature flags
-- Supported cryptocurrencies
+- Supported parachains
 
 ## 📱 Features Overview
 
 ### Wallet
-- Multi-asset support (BTC, ETH, BNB, ADA, SOL, etc.)
-- Secure key management
-- Balance tracking
+- Multi-asset support (DOT, KSM, and parachain tokens)
+- Secure key management with mnemonic phrases
+- Balance tracking across parachains
 - Send/Receive functionality
 - Transaction history
 
 ### Staking
-- Multiple staking pools
-- APY tracking
-- Reward calculation
-- Staking history
-- Unstaking functionality
+- Validator staking on Polkadot and Kusama
+- Nomination pool staking
+- Dynamic parachain support
+- APY tracking and reward calculation
+- Staking history and unstaking functionality
 
 ### NFTs
 - NFT collection management
@@ -158,7 +171,7 @@ Update `lib/core/constants/app_constants.dart` with your configuration:
 
 ### Transactions
 - Real-time transaction tracking
-- Multi-network support
+- Polkadot and Kusama parachain support
 - Transaction filtering
 - Export functionality
 - Status monitoring
@@ -196,16 +209,16 @@ flutter test --coverage
 ### Integration Tests
 ```bash
 # Run all integration tests
-flutter test integration_test/
+flutter test test/
 
 # Run specific integration test
-flutter test integration_test/blockchain_service_integration_test.dart
+flutter test test/app_integration_test.dart
 
 # Run with verbose output
-flutter test integration_test/ --verbose
+flutter test test/ --verbose
 
 # Run with coverage
-flutter test integration_test/ --coverage
+flutter test test/ --coverage
 
 # Use the test runner script
 ./scripts/run_integration_tests.sh
@@ -217,7 +230,7 @@ flutter test integration_test/ --coverage
 dart run lib/core/services/blockchain_service_test.dart
 
 # Run blockchain integration tests
-flutter test integration_test/blockchain_service_integration_test.dart
+flutter test test/blockchain_service_integration_test.dart
 ```
 
 ### Test Coverage
@@ -228,23 +241,24 @@ genhtml coverage/lcov.info -o coverage/html
 open coverage/html/index.html
 ```
 
-### Integration Test Structure
+### Test Structure
 ```
-integration_test/
-├── blockchain_service_integration_test.dart  # Blockchain functionality
-├── wallet_integration_test.dart             # Wallet UI and interactions
-├── theme_integration_test.dart              # Theme management
-├── app_navigation_integration_test.dart     # Navigation and routing
+test/
 ├── app_integration_test.dart                # Complete app experience
-└── README.md                                # Test documentation
+├── app_navigation_integration_test.dart     # Navigation and routing
+├── blockchain_service_integration_test.dart # Blockchain functionality
+├── theme_integration_test.dart              # Theme management
+├── wallet_integration_test.dart             # Wallet UI and interactions
+└── widget_test.dart                         # Widget unit tests
 ```
 
 ### Test Categories
-- **🔗 Network Tests**: Real blockchain network interactions
+- **🔗 Network Tests**: Real Polkadot/Kusama blockchain network interactions
 - **🎨 UI Tests**: User interface and navigation
 - **⚡ Performance Tests**: App performance and responsiveness
 - **🔒 Error Handling Tests**: Error scenarios and recovery
 - **📱 Platform Tests**: Cross-platform compatibility
+- **🏗️ Integration Tests**: Combined unit and integration tests in unified structure
 
 ## 📦 Deployment
 
@@ -280,13 +294,15 @@ For support, email support@kifepool.com or join our Discord community.
 ## 🗺️ Roadmap
 
 - [ ] Multi-language support
-- [ ] Advanced trading features
-- [ ] DeFi protocol integration
+- [ ] Advanced parachain staking features
+- [ ] DeFi protocol integration on parachains
 - [ ] Hardware wallet support
-- [ ] Advanced analytics
+- [ ] Advanced analytics for Polkadot/Kusama
 - [ ] Social features
 - [ ] Mobile app optimization
 - [ ] Web platform expansion
+- [ ] XCM cross-chain transfer improvements
+- [ ] Parachain auction participation
 
 ---
 
