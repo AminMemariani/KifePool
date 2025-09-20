@@ -19,13 +19,7 @@ A comprehensive Flutter application for managing cryptocurrencies, featuring wal
 - **State Management**: Provider pattern for reactive state management
 - **Local Database**: Isar for offline-first data persistence
 - **Networking**: Dio for HTTP requests and API communication
-- **Backend Integration**: Serverpod for seamless backend communication
-
-### Backend (Serverpod)
-- **API Server**: Dart-based backend with Serverpod framework
-- **Database**: PostgreSQL with Redis for caching
-- **Authentication**: Secure user authentication and authorization
-- **Deployment**: Docker containerization for easy deployment
+- **Blockchain Integration**: Direct RPC connections to blockchain networks
 
 ## 📁 Project Structure
 
@@ -34,7 +28,7 @@ KifePool/
 ├── lib/
 │   ├── core/                    # Core functionality
 │   │   ├── constants/          # App constants and configuration
-│   │   ├── services/           # Core services (database, network)
+│   │   ├── services/           # Core services (database, network, blockchain)
 │   │   ├── theme/              # App theming and styling
 │   │   └── utils/              # Utility functions
 │   ├── features/               # Feature-based modules
@@ -52,10 +46,6 @@ KifePool/
 │   │   ├── providers/          # Shared state providers
 │   │   └── models/             # Shared data models
 │   └── main.dart               # App entry point
-├── kifepool_server/            # Serverpod backend
-│   ├── kifepool_server_server/ # Server implementation
-│   ├── kifepool_server_client/ # Client SDK
-│   └── kifepool_server_flutter/ # Flutter client
 └── README.md                   # This file
 ```
 
@@ -66,23 +56,15 @@ KifePool/
 - **Provider**: State management solution
 - **Isar**: Local NoSQL database
 - **Dio**: HTTP client for networking
+- **WebSocket**: Real-time blockchain communication
 - **Google Fonts**: Typography system
 - **Material Design 3**: Modern UI components
-
-### Backend
-- **Serverpod**: Dart-based backend framework
-- **PostgreSQL**: Primary database
-- **Redis**: Caching and session storage
-- **Docker**: Containerization
-- **Docker Compose**: Multi-container orchestration
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 - Flutter SDK (3.8.1 or higher)
 - Dart SDK (3.0.0 or higher)
-- Docker and Docker Compose
-- Serverpod CLI
 
 ### Installation
 
@@ -97,11 +79,9 @@ KifePool/
    flutter pub get
    ```
 
-3. **Set up the backend**
+3. **Generate code**
    ```bash
-   cd kifepool_server/kifepool_server_server
-   docker compose up --build --detach
-   dart bin/main.dart --apply-migrations
+   dart run build_runner build
    ```
 
 4. **Run the Flutter app**
@@ -111,23 +91,13 @@ KifePool/
 
 ### Development Setup
 
-1. **Install Serverpod CLI**
+1. **Generate code**
    ```bash
-   dart pub global activate serverpod_cli
+   dart run build_runner build
    ```
 
-2. **Generate code**
+2. **Run in development mode**
    ```bash
-   serverpod generate
-   ```
-
-3. **Run in development mode**
-   ```bash
-   # Backend
-   cd kifepool_server/kifepool_server_server
-   dart bin/main.dart --apply-migrations
-   
-   # Frontend
    flutter run
    ```
 
@@ -156,18 +126,9 @@ KifePool/
 
 ## 🔧 Configuration
 
-### Environment Variables
-Create a `.env` file in the backend directory:
-```env
-DATABASE_URL=postgresql://username:password@localhost:5432/kifepool
-REDIS_URL=redis://localhost:6379
-JWT_SECRET=your-jwt-secret
-API_KEY=your-api-key
-```
-
 ### App Configuration
 Update `lib/core/constants/app_constants.dart` with your configuration:
-- API URLs
+- Blockchain RPC URLs
 - Database settings
 - Feature flags
 - Supported cryptocurrencies
@@ -232,10 +193,10 @@ flutter test integration_test/
 flutter test test/widget_test.dart
 ```
 
-### Backend Testing
+### Blockchain Service Testing
 ```bash
-cd kifepool_server/kifepool_server_server
-dart test
+# Run blockchain service tests
+dart run lib/core/services/blockchain_service_test.dart
 ```
 
 ## 📦 Deployment
@@ -245,13 +206,12 @@ dart test
 - **iOS**: Build for App Store Connect
 - **Web**: Deploy to web hosting platform
 
-### Backend Deployment
+### App Deployment
 ```bash
-# Build Docker image
-docker build -t kifepool-server .
-
-# Deploy with Docker Compose
-docker compose up --build --detach
+# Build for production
+flutter build apk --release  # Android
+flutter build ios --release  # iOS
+flutter build web --release  # Web
 ```
 
 ## 🤝 Contributing
@@ -283,4 +243,4 @@ For support, email support@kifepool.com or join our Discord community.
 
 ---
 
-**Built with ❤️ using Flutter and Serverpod**
+**Built with ❤️ using Flutter**
