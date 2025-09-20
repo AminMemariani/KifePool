@@ -20,6 +20,7 @@ class WalletProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get hasWallet => _hasWallet;
+  bool get hasActiveWallet => _activeAccount != null;
 
   /// Initialize wallet provider
   Future<void> initialize() async {

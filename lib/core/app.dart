@@ -4,7 +4,6 @@ import '../shared/providers/theme_provider.dart';
 import '../shared/providers/wallet_provider.dart';
 import '../shared/providers/staking_provider.dart';
 import '../shared/providers/news_provider.dart';
-import '../shared/providers/auth_provider.dart';
 import '../shared/providers/language_provider.dart';
 import '../core/services/serverpod_client.dart';
 import '../l10n/app_localizations.dart';
@@ -18,7 +17,7 @@ import '../features/nfts/presentation/screens/nfts_screen.dart';
 import '../features/transactions/presentation/screens/transactions_screen.dart';
 import '../features/cross_chain/presentation/screens/xcm_transfer_history_screen.dart';
 import '../features/news/presentation/screens/news_screen.dart';
-import '../features/auth/presentation/screens/auth_screen.dart';
+import '../features/wallet/presentation/screens/wallet_selection_screen.dart';
 import 'theme/app_theme.dart';
 
 class KifePoolApp extends StatefulWidget {
@@ -62,19 +61,19 @@ class _KifePoolAppState extends State<KifePoolApp>
       await ServerpodClient.initialize();
 
       // Initialize providers
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final walletProvider = Provider.of<WalletProvider>(context, listen: false);
       final languageProvider = Provider.of<LanguageProvider>(
         context,
         listen: false,
       );
 
       // Initialize providers without using context after async gap
-      await authProvider.initialize();
+      await walletProvider.initialize();
       await languageProvider.initialize();
       
       setState(() {
         _isInitialized = true;
-        _showOnboarding = !authProvider.isAuthenticated;
+        _showOnboarding = !walletProvider.hasActiveWallet;
       });
     } catch (e) {
       debugPrint('App initialization error: $e');
@@ -90,16 +89,14 @@ class _KifePoolAppState extends State<KifePoolApp>
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
         ChangeNotifierProvider(create: (_) => WalletProvider()),
         ChangeNotifierProvider(create: (_) => StakingProvider()),
         ChangeNotifierProvider(create: (_) => NewsProvider()),
       ],
       child:
-          Consumer4<
+          Consumer3<
             ThemeProvider,
-            AuthProvider,
             LanguageProvider,
             WalletProvider
           >(
@@ -107,7 +104,6 @@ class _KifePoolAppState extends State<KifePoolApp>
                 (
                   context,
                   themeProvider,
-                  authProvider,
                   languageProvider,
                   walletProvider,
                   child,
@@ -127,7 +123,7 @@ class _KifePoolAppState extends State<KifePoolApp>
                     body: Center(child: CircularProgressIndicator()),
                   )
                 : _showOnboarding
-                ? const AuthScreen()
+                ? const WalletSelectionScreen()
                 : Scaffold(
                             body: PageView(
                               controller: _pageController,
