@@ -1,7 +1,7 @@
 # KifePool - Polkadot & Kusama Wallet App
 
 [![Tests](https://img.shields.io/badge/Tests-Basic%20Tests%20Passing-brightgreen.svg)](https://github.com/cyberhonig/KifePool)
-[![Coverage](https://img.shields.io/badge/Coverage-Unit%20Tests%20Working-blue.svg)](https://github.com/cyberhonig/KifePool)
+[![Coverage](https://img.shields.io/badge/Coverage-18%25-yellow.svg)](https://github.com/cyberhonig/KifePool)
 [![Flutter](https://img.shields.io/badge/Flutter-3.8.1+-blue.svg)](https://flutter.dev/)
 [![Dart](https://img.shields.io/badge/Dart-3.0.0+-blue.svg)](https://dart.dev/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -202,13 +202,15 @@ Update `lib/core/constants/app_constants.dart` with your configuration:
 ## 🧪 Testing
 
 ### Current Test Status
-- ✅ **Unit Tests**: Basic theme provider tests passing
+- ✅ **Unit Tests**: 6 tests passing (Theme Provider, App Spacing, App Colors)
+- 📊 **Coverage**: ~18% (Core theme components tested)
 - ⚠️ **Integration Tests**: Some tests have dependency conflicts (carousel_slider package)
 - ⚠️ **Network Tests**: Require RPC node configuration
 - 🔧 **Known Issues**: 
   - CarouselController naming conflict with Flutter's built-in controller
   - WebSocket stream management in BlockchainService
   - UI layout constraints in some widgets
+  - Google Fonts binding issues in test environment
 
 ### Unit Tests
 ```bash
