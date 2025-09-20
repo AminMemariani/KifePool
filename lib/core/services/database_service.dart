@@ -3,6 +3,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:kifepool/core/models/wallet_models.dart';
 import 'package:kifepool/core/models/transfer_models.dart';
 import 'package:kifepool/core/models/transaction_history_models.dart';
+import 'package:kifepool/core/models/xcm_transfer_models.dart';
 
 /// Database service for managing wallet account metadata
 class DatabaseService {
@@ -19,6 +20,7 @@ class DatabaseService {
       TokenTransferSchema,
       NftTransferSchema,
       TransactionHistorySchema,
+      XcmTransferSchema,
     ], directory: dir.path);
   }
 
@@ -638,5 +640,98 @@ class DatabaseService {
   static Future<void> setCacheTimestamp(String key, DateTime timestamp) async {
     // This would typically be stored in a separate cache table
     // For now, we'll do nothing
+  }
+
+  // XCM Transfer Operations
+
+  /// Save XCM transfer
+  static Future<void> saveXcmTransfer(XcmTransfer transfer) async {
+    await isar.writeTxn(() async {
+      await isar.xcmTransfers.put(transfer);
+    });
+  }
+
+  /// Get XCM transfer by transfer ID
+  static Future<XcmTransfer?> getXcmTransferByTransferId(
+    String transferId,
+  ) async {
+    // For now, get all transfers and filter in memory
+    // TODO: Implement proper Isar query
+    final allTransfers = await isar.xcmTransfers.where().findAll();
+    try {
+      return allTransfers.firstWhere((t) => t.transferId == transferId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Get XCM transfer history with filtering
+  static Future<List<XcmTransfer>> getXcmTransferHistory({
+    String? address,
+    String? chain,
+    XcmTransferType? type,
+    XcmTransferStatus? status,
+    int limit = 50,
+    int offset = 0,
+  }) async {
+    // For now, return all transfers and filter in memory
+    // TODO: Implement proper Isar filtering
+    final allTransfers = await isar.xcmTransfers
+        .where()
+        .sortByTimestampDesc()
+        .findAll();
+
+    // Apply filters in memory
+    var filteredTransfers = allTransfers;
+
+    if (address != null) {
+      filteredTransfers = filteredTransfers
+          .where(
+            (t) =>
+                t.sourceAddress == address || t.destinationAddress == address,
+          )
+          .toList();
+    }
+
+    if (chain != null) {
+      filteredTransfers = filteredTransfers
+          .where((t) => t.sourceChain == chain || t.destinationChain == chain)
+          .toList();
+    }
+
+    if (type != null) {
+      filteredTransfers = filteredTransfers
+          .where((t) => t.type == type)
+          .toList();
+    }
+
+    if (status != null) {
+      filteredTransfers = filteredTransfers
+          .where((t) => t.status == status)
+          .toList();
+    }
+
+    // Apply pagination
+    final startIndex = offset;
+    final endIndex = startIndex + limit;
+
+    return filteredTransfers.sublist(
+      startIndex,
+      endIndex > filteredTransfers.length ? filteredTransfers.length : endIndex,
+    );
+  }
+
+  /// Update XCM transfer
+  static Future<void> updateXcmTransfer(XcmTransfer transfer) async {
+    await isar.writeTxn(() async {
+      await isar.xcmTransfers.put(transfer);
+    });
+  }
+
+  /// Delete XCM transfer
+  static Future<void> deleteXcmTransfer(int id) async {
+    await isar.writeTxn(() async {
+      await isar.xcmTransfers.delete(id);
+    });
   }
 }

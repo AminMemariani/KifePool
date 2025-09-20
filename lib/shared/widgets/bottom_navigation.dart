@@ -70,6 +70,11 @@ class AppBottomNavigation extends StatelessWidget {
             label: 'Transactions',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.compare_arrows_outlined),
+            activeIcon: Icon(Icons.compare_arrows),
+            label: 'Cross-Chain',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.newspaper_outlined),
             activeIcon: Icon(Icons.newspaper),
             label: 'News',

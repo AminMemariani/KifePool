@@ -12,6 +12,8 @@ import '../features/wallet/presentation/screens/seed_phrase_backup_screen.dart';
 import '../features/staking/presentation/screens/staking_screen.dart';
 import '../features/nfts/presentation/screens/nfts_screen.dart';
 import '../features/transactions/presentation/screens/transactions_screen.dart';
+import '../features/cross_chain/presentation/screens/cross_chain_transfer_screen.dart';
+import '../features/cross_chain/presentation/screens/xcm_transfer_history_screen.dart';
 import '../features/news/presentation/screens/news_screen.dart';
 import 'theme/app_theme.dart';
 
@@ -31,6 +33,7 @@ class _KifePoolAppState extends State<KifePoolApp> {
     const StakingScreen(),
     const NFTsScreen(),
     const TransactionsScreen(),
+    const CrossChainTransferScreen(),
     const NewsScreen(),
   ];
 
@@ -101,6 +104,8 @@ class _KifePoolAppState extends State<KifePoolApp> {
                   walletName: args['walletName'],
                 );
               },
+              '/cross-chain/history': (context) =>
+                  const XcmTransferHistoryScreen(),
             },
           );
         },
