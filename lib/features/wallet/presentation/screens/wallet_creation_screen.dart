@@ -6,6 +6,7 @@ import 'package:kifepool/core/theme/app_typography.dart';
 import 'package:kifepool/shared/providers/wallet_provider.dart';
 import 'package:kifepool/features/wallet/presentation/widgets/rpc_node_selector_widget.dart';
 import 'package:kifepool/features/wallet/presentation/screens/rpc_node_management_screen.dart';
+import 'package:kifepool/shared/widgets/dynamic_chain_selector.dart';
 
 /// Wallet creation screen
 class WalletCreationScreen extends StatefulWidget {
@@ -18,48 +19,23 @@ class WalletCreationScreen extends StatefulWidget {
 class _WalletCreationScreenState extends State<WalletCreationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _chainController = TextEditingController();
 
-  String _selectedChain = 'polkadot';
+  String? _selectedChainId;
   int _wordCount = 12;
   bool _isCreating = false;
   String? _generatedMnemonic;
   bool _showMnemonic = false;
 
-  List<String> _supportedChains = [
-    'polkadot',
-    'kusama',
-  ];
-
   @override
   void initState() {
     super.initState();
-    _chainController.text = _selectedChain;
-    _loadSupportedChains();
-  }
-
-  Future<void> _loadSupportedChains() async {
-    try {
-      final walletProvider = Provider.of<WalletProvider>(
-        context,
-        listen: false,
-      );
-      final chains = await walletProvider.getSupportedChains();
-      if (mounted) {
-        setState(() {
-          _supportedChains = chains;
-        });
-      }
-    } catch (e) {
-      // Fallback to basic chains if loading fails
-      debugPrint('Failed to load supported chains: $e');
-    }
+    // Set default chain to Polkadot
+    _selectedChainId = 'polkadot';
   }
 
   @override
   void dispose() {
     _nameController.dispose();
-    _chainController.dispose();
     super.dispose();
   }
 
@@ -121,24 +97,14 @@ class _WalletCreationScreenState extends State<WalletCreationScreen> {
             const SizedBox(height: AppSpacing.lg),
 
             // Chain selection
-            DropdownButtonFormField<String>(
-              value: _selectedChain,
-              decoration: const InputDecoration(
-                labelText: 'Blockchain',
-                prefixIcon: Icon(Icons.account_balance),
-              ),
-              items: _supportedChains.map((chain) {
-                return DropdownMenuItem(
-                  value: chain,
-                  child: Text(chain.toUpperCase()),
-                );
-              }).toList(),
-              onChanged: (value) {
+            DynamicChainSelector(
+              selectedChainId: _selectedChainId,
+              onChainChanged: (chainId) {
                 setState(() {
-                  _selectedChain = value!;
-                  _chainController.text = value;
+                  _selectedChainId = chainId;
                 });
               },
+              label: 'Blockchain',
             ),
 
             const SizedBox(height: AppSpacing.lg),
@@ -165,7 +131,7 @@ class _WalletCreationScreenState extends State<WalletCreationScreen> {
             const SizedBox(height: AppSpacing.sm),
 
             RpcNodeSelectorWidget(
-              network: _selectedChain,
+              network: _selectedChainId ?? 'polkadot',
               onNodeSelected: (node) {
                 // Node selection is handled automatically
               },
@@ -505,7 +471,7 @@ class _WalletCreationScreenState extends State<WalletCreationScreen> {
     try {
       final result = await walletProvider.createWallet(
         name: _nameController.text,
-        chain: _selectedChain,
+        chain: _selectedChainId ?? 'polkadot',
         wordCount: _wordCount,
       );
 

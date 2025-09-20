@@ -4,6 +4,7 @@ import 'package:kifepool/core/theme/app_spacing.dart';
 import 'package:kifepool/core/theme/app_typography.dart';
 import 'package:kifepool/shared/providers/wallet_provider.dart';
 import 'package:kifepool/core/models/wallet_models.dart';
+import 'package:kifepool/shared/widgets/dynamic_chain_selector.dart';
 
 /// Wallet import screen
 class WalletImportScreen extends StatefulWidget {
@@ -19,17 +20,16 @@ class _WalletImportScreenState extends State<WalletImportScreen> {
   final _mnemonicController = TextEditingController();
   final _privateKeyController = TextEditingController();
 
-  String _selectedChain = 'polkadot';
+  String? _selectedChainId;
   String _importType = 'mnemonic'; // 'mnemonic' or 'private_key'
   bool _isImporting = false;
 
-  final List<String> _supportedChains = [
-    'polkadot',
-    'kusama',
-    'moonbeam',
-    'astar',
-    'acala',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    // Set default chain to Polkadot
+    _selectedChainId = 'polkadot';
+  }
 
   @override
   void dispose() {
@@ -137,23 +137,14 @@ class _WalletImportScreenState extends State<WalletImportScreen> {
               const SizedBox(height: AppSpacing.lg),
 
               // Chain selection
-              DropdownButtonFormField<String>(
-                value: _selectedChain,
-                decoration: const InputDecoration(
-                  labelText: 'Blockchain',
-                  prefixIcon: Icon(Icons.account_balance),
-                ),
-                items: _supportedChains.map((chain) {
-                  return DropdownMenuItem(
-                    value: chain,
-                    child: Text(chain.toUpperCase()),
-                  );
-                }).toList(),
-                onChanged: (value) {
+              DynamicChainSelector(
+                selectedChainId: _selectedChainId,
+                onChainChanged: (chainId) {
                   setState(() {
-                    _selectedChain = value!;
+                    _selectedChainId = chainId;
                   });
                 },
+                label: 'Blockchain',
               ),
 
               const SizedBox(height: AppSpacing.lg),
@@ -281,13 +272,13 @@ class _WalletImportScreenState extends State<WalletImportScreen> {
         result = await walletProvider.importWalletFromMnemonic(
           mnemonic: _mnemonicController.text.trim(),
           name: _nameController.text,
-          chain: _selectedChain,
+          chain: _selectedChainId ?? 'polkadot',
         );
       } else {
         result = await walletProvider.importWalletFromPrivateKey(
           privateKey: _privateKeyController.text.trim(),
           name: _nameController.text,
-          chain: _selectedChain,
+          chain: _selectedChainId ?? 'polkadot',
         );
       }
 
