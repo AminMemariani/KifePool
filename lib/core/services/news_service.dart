@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -7,8 +6,6 @@ import 'package:kifepool/core/services/database_service.dart';
 
 /// Service for managing news articles and featured projects
 class NewsService {
-  static const Duration _cacheExpiry = Duration(hours: 1);
-  static const Duration _featuredCacheExpiry = Duration(hours: 6);
 
   // RSS feed URLs
   static const Map<NewsSource, String> _rssFeeds = {

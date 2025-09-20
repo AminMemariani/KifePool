@@ -53,3 +53,6 @@ server_shared/
 **/serverpod_client_flutter.dart
 server-*.log
 server_*.log
+SERVERPOD_SETUP.md
+serverpod_*
+*.serverpod
