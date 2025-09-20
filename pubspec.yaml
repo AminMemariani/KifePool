@@ -57,8 +57,13 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  # Code Generation
+  # Integration Testing
+  integration_test:
+    sdk: flutter
+  mockito: ^5.4.4
   build_runner: ^2.4.7
+
+  # Code Generation
   isar_generator: ^3.1.0+1
   json_serializable: ^6.7.1
 

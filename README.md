@@ -181,23 +181,70 @@ Update `lib/core/constants/app_constants.dart` with your configuration:
 
 ## 🧪 Testing
 
-### Frontend Testing
+### Unit Tests
 ```bash
-# Unit tests
+# Run all unit tests
 flutter test
 
-# Integration tests
+# Run specific test file
+flutter test test/widget_test.dart
+
+# Run with coverage
+flutter test --coverage
+```
+
+### Integration Tests
+```bash
+# Run all integration tests
 flutter test integration_test/
 
-# Widget tests
-flutter test test/widget_test.dart
+# Run specific integration test
+flutter test integration_test/blockchain_service_integration_test.dart
+
+# Run with verbose output
+flutter test integration_test/ --verbose
+
+# Run with coverage
+flutter test integration_test/ --coverage
+
+# Use the test runner script
+./scripts/run_integration_tests.sh
 ```
 
 ### Blockchain Service Testing
 ```bash
 # Run blockchain service tests
 dart run lib/core/services/blockchain_service_test.dart
+
+# Run blockchain integration tests
+flutter test integration_test/blockchain_service_integration_test.dart
 ```
+
+### Test Coverage
+```bash
+# Generate coverage report
+flutter test --coverage
+genhtml coverage/lcov.info -o coverage/html
+open coverage/html/index.html
+```
+
+### Integration Test Structure
+```
+integration_test/
+├── blockchain_service_integration_test.dart  # Blockchain functionality
+├── wallet_integration_test.dart             # Wallet UI and interactions
+├── theme_integration_test.dart              # Theme management
+├── app_navigation_integration_test.dart     # Navigation and routing
+├── app_integration_test.dart                # Complete app experience
+└── README.md                                # Test documentation
+```
+
+### Test Categories
+- **🔗 Network Tests**: Real blockchain network interactions
+- **🎨 UI Tests**: User interface and navigation
+- **⚡ Performance Tests**: App performance and responsiveness
+- **🔒 Error Handling Tests**: Error scenarios and recovery
+- **📱 Platform Tests**: Cross-platform compatibility
 
 ## 📦 Deployment
 
