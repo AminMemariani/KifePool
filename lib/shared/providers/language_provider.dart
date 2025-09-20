@@ -4,9 +4,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 class LanguageProvider extends ChangeNotifier {
   Locale _currentLocale = const Locale('en', '');
   bool _isLoading = false;
+  bool _isInitialized = false;
 
   Locale get currentLocale => _currentLocale;
   bool get isLoading => _isLoading;
+  bool get isInitialized => _isInitialized;
 
   /// Initialize the language provider
   Future<void> initialize() async {
@@ -22,6 +24,7 @@ class LanguageProvider extends ChangeNotifier {
       _currentLocale = const Locale('en', '');
     } finally {
       _isLoading = false;
+      _isInitialized = true;
       notifyListeners();
     }
   }

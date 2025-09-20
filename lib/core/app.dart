@@ -59,21 +59,10 @@ class _KifePoolAppState extends State<KifePoolApp>
     try {
       // Initialize Serverpod client
       await ServerpodClient.initialize();
-
-      // Initialize providers
-      final walletProvider = Provider.of<WalletProvider>(context, listen: false);
-      final languageProvider = Provider.of<LanguageProvider>(
-        context,
-        listen: false,
-      );
-
-      // Initialize providers without using context after async gap
-      await walletProvider.initialize();
-      await languageProvider.initialize();
       
       setState(() {
         _isInitialized = true;
-        _showOnboarding = !walletProvider.hasActiveWallet;
+        _showOnboarding = true; // Will be updated by the Consumer
       });
     } catch (e) {
       debugPrint('App initialization error: $e');
@@ -108,6 +97,15 @@ class _KifePoolAppState extends State<KifePoolApp>
                   walletProvider,
                   child,
                 ) {
+              // Initialize providers when they become available
+              WidgetsBinding.instance.addPostFrameCallback((_) async {
+                if (!languageProvider.isInitialized) {
+                  await languageProvider.initialize();
+                }
+                if (!walletProvider.isInitialized) {
+                  await walletProvider.initialize();
+                }
+              });
           return MaterialApp(
             title: 'KifePool',
             debugShowCheckedModeBanner: false,
@@ -122,7 +120,7 @@ class _KifePoolAppState extends State<KifePoolApp>
                 ? const Scaffold(
                     body: Center(child: CircularProgressIndicator()),
                   )
-                : _showOnboarding
+                : !walletProvider.hasActiveWallet
                 ? const WalletSelectionScreen()
                 : Scaffold(
                             body: PageView(

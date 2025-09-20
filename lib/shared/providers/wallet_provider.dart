@@ -12,6 +12,7 @@ class WalletProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
   bool _hasWallet = false;
+  bool _isInitialized = false;
 
   // Getters
   List<WalletAccount> get accounts => _accounts;
@@ -21,6 +22,7 @@ class WalletProvider extends ChangeNotifier {
   String? get error => _error;
   bool get hasWallet => _hasWallet;
   bool get hasActiveWallet => _activeAccount != null;
+  bool get isInitialized => _isInitialized;
 
   /// Initialize wallet provider
   Future<void> initialize() async {
@@ -33,6 +35,8 @@ class WalletProvider extends ChangeNotifier {
       _setError('Failed to initialize wallet: $e');
     } finally {
       _setLoading(false);
+      _isInitialized = true;
+      notifyListeners();
     }
   }
 
