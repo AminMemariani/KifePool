@@ -24,11 +24,11 @@ A comprehensive Flutter application for managing cryptocurrencies in the Polkado
 
 ### Polkadot Ecosystem
 - **Polkadot**: Main relay chain
-- **Parachains**: Statemint, Acala, Moonbeam, Astar, Bifrost, Centrifuge, Parallel, Equilibrium, Composable, HydraDX, Phala, Integritee, Darwinia, Litentry, Crust, OriginTrail, Efinity, Nodle, Bitgreen, Encointer, Pendulum, Amplitude, Interlay, Kylin, Pichiu, Polkadex, Coinversation, InvArch, Oak, Robonomics, Turing, Zeitgeist, SubDAO, Ajuna, Altair, Basilisk, Calamari, Heiko, Kintsugi, Picasso, Quartz, Unique, Genshiro, Karura, Khala, Kilt, Sakura, Shadow, Shiden
+- **Parachains**: Statemint, Acala, Moonbeam, Astar, Bifrost, Centrifuge, Parallel, Equilibrium, Composable, Hydration, Phala, Integritee, Darwinia, Litentry, Crust, OriginTrail, Efinity, Nodle, Bitgreen, Encointer, Pendulum, Amplitude, Interlay, Kylin, Pichiu, Polkadex, Coinversation, InvArch, Oak, Robonomics, Turing, Zeitgeist, SubDAO, Ajuna, Altair, Basilisk, Calamari, Heiko, Kintsugi, Picasso, Quartz, Unique, Genshiro, Karura, Khala, Kilt, Sakura, Shadow, Shiden
 
 ### Kusama Ecosystem
 - **Kusama**: Canary network relay chain
-- **Parachains**: Statemine, Karura, Bifrost, Khala, Shiden, Robonomics, Trustbase, Altair, Heiko, Kintsugi, Pichiu, Calamari, Basilisk, Turing, Litentry, Kilt, Sakura, Quartz, Unique, Genshiro, Subgame, Zeitgeist, Integritee, Nodle, Polkasmith, Dora, Crust, Litmus, Kabocha, Mangata, GM, Tinkernet, Listen, Pioneer, BitCountry, Subsocial, Parallel, Picasso, Composable, Amplitude, Pendulum, InvArch, Kylin, Polkadex, Coinversation, Efinity, Centrifuge, OriginTrail, Equilibrium, HydraDX, Phala, Darwinia
+- **Parachains**: Statemine, Karura, Bifrost, Khala, Shiden, Robonomics, Trustbase, Altair, Heiko, Kintsugi, Pichiu, Calamari, Basilisk, Turing, Litentry, Kilt, Sakura, Quartz, Unique, Genshiro, Subgame, Zeitgeist, Integritee, Nodle, Polkasmith, Dora, Crust, Litmus, Kabocha, Mangata, GM, Tinkernet, Listen, Pioneer, BitCountry, Subsocial, Parallel, Picasso, Composable, Amplitude, Pendulum, InvArch, Kylin, Polkadex, Coinversation, Efinity, Centrifuge, OriginTrail, Equilibrium, Hydration, Phala, Darwinia
 
 ### Dynamic Parachain Detection
 The app automatically detects and supports all active parachains in both ecosystems through real-time RPC queries, ensuring users always have access to the latest parachains without app updates.

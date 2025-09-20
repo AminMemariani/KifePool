@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 /// Model for parachain information
@@ -78,6 +79,11 @@ class ParachainService {
       final polkadotParachains = await _fetchPolkadotParachains();
       final kusamaParachains = await _fetchKusamaParachains();
 
+      // If both API calls failed, return fallback data
+      if (polkadotParachains.isEmpty && kusamaParachains.isEmpty) {
+        return _getFallbackParachains();
+      }
+
       // Combine and deduplicate
       final allParachains = <ParachainInfo>[];
       final seenIds = <String>{};
@@ -87,6 +93,11 @@ class ParachainService {
           allParachains.add(parachain);
           seenIds.add(parachain.id);
         }
+      }
+
+      // If no parachains were found, return fallback data
+      if (allParachains.isEmpty) {
+        return _getFallbackParachains();
       }
 
       // Cache the results
@@ -125,6 +136,7 @@ class ParachainService {
       print('Error fetching Polkadot parachains: $e');
     }
 
+    // Return empty list - fallback will be handled by main method
     return [];
   }
 
@@ -150,9 +162,10 @@ class ParachainService {
         return parachains;
       }
     } catch (e) {
-      print('Error fetching Kusama parachains: $e');
+      debugPrint('Error fetching Kusama parachains: $e');
     }
 
+    // Return empty list - fallback will be handled by main method
     return [];
   }
 

@@ -274,7 +274,7 @@ class XcmTransferService {
         },
         {
           'id': 'hydradx',
-          'name': 'HydraDX',
+          'name': 'Hydration',
           'symbol': 'HDX',
           'rpcUrl': 'wss://rpc.hydradx.cloud',
           'explorerUrl': 'https://hydradx.subscan.io',

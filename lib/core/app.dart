@@ -30,7 +30,6 @@ class KifePoolApp extends StatefulWidget {
 class _KifePoolAppState extends State<KifePoolApp>
     with TickerProviderStateMixin {
   int _currentIndex = 0;
-  bool _showOnboarding = true;
   bool _isInitialized = false;
   late PageController _pageController;
 
@@ -62,13 +61,11 @@ class _KifePoolAppState extends State<KifePoolApp>
       
       setState(() {
         _isInitialized = true;
-        _showOnboarding = true; // Will be updated by the Consumer
       });
     } catch (e) {
       debugPrint('App initialization error: $e');
       setState(() {
         _isInitialized = true;
-        _showOnboarding = true;
       });
     }
   }
