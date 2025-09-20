@@ -1,5 +1,5 @@
-import 'package:isar/isar.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
 import 'package:kifepool/core/models/wallet_models.dart';
 import 'package:kifepool/core/models/transfer_models.dart';
 import 'package:kifepool/core/models/transaction_history_models.dart';
@@ -8,936 +8,1188 @@ import 'package:kifepool/core/models/news_models.dart';
 
 /// Database service for managing wallet account metadata
 class DatabaseService {
-  static Isar? _isar;
+  static Database? _database;
   
-  /// Initialize Isar database
+  /// Initialize SQLite database
   static Future<void> initialize() async {
-    if (_isar != null) return;
+    if (_database != null) return;
     
-    final dir = await getApplicationDocumentsDirectory();
-    _isar = await Isar.open([
-      WalletAccountSchema,
-      MnemonicWalletSchema,
-      TokenTransferSchema,
-      NftTransferSchema,
-      TransactionHistorySchema,
-      XcmTransferSchema,
-      NewsArticleSchema,
-      FeaturedProjectSchema,
-    ], directory: dir.path);
+    final databasesPath = await getDatabasesPath();
+    final path = join(databasesPath, 'kifepool.db');
+    
+    _database = await openDatabase(path, version: 1, onCreate: _createTables);
   }
 
-  /// Get Isar instance
-  static Isar get isar {
-    if (_isar == null) {
-      throw const WalletException(
-        type: WalletErrorType.storageError,
-        message:
-            'Database not initialized. Call DatabaseService.initialize() first.',
-      );
+  /// Create database tables
+  static Future<void> _createTables(Database db, int version) async {
+    // Wallet accounts table
+    await db.execute('''
+      CREATE TABLE wallet_accounts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        address TEXT NOT NULL,
+        public_key TEXT,
+        account_type TEXT NOT NULL,
+        is_active INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+    ''');
+
+    // Mnemonic wallets table
+    await db.execute('''
+      CREATE TABLE mnemonic_wallets (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        encrypted_mnemonic TEXT NOT NULL,
+        word_count INTEGER NOT NULL,
+        name TEXT NOT NULL,
+        account_count INTEGER NOT NULL DEFAULT 0,
+        is_active INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+    ''');
+
+    // Token transfers table
+    await db.execute('''
+      CREATE TABLE token_transfers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        from_address TEXT NOT NULL,
+        to_address TEXT NOT NULL,
+        amount TEXT NOT NULL,
+        token_symbol TEXT NOT NULL,
+        token_name TEXT NOT NULL,
+        chain TEXT NOT NULL,
+        block_number TEXT,
+        transaction_hash TEXT NOT NULL,
+        status TEXT NOT NULL,
+        direction TEXT NOT NULL,
+        gas_fee TEXT,
+        gas_used TEXT,
+        timestamp TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT
+      )
+    ''');
+
+    // NFT transfers table
+    await db.execute('''
+      CREATE TABLE nft_transfers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        from_address TEXT NOT NULL,
+        to_address TEXT NOT NULL,
+        nft_id TEXT NOT NULL,
+        collection_id TEXT NOT NULL,
+        nft_name TEXT NOT NULL,
+        nft_image TEXT,
+        chain TEXT NOT NULL,
+        block_number TEXT,
+        transaction_hash TEXT NOT NULL,
+        status TEXT NOT NULL,
+        direction TEXT NOT NULL,
+        gas_fee TEXT,
+        gas_used TEXT,
+        timestamp TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT
+      )
+    ''');
+
+    // Transaction history table
+    await db.execute('''
+      CREATE TABLE transaction_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        hash TEXT NOT NULL UNIQUE,
+        from_address TEXT NOT NULL,
+        to_address TEXT NOT NULL,
+        amount TEXT NOT NULL,
+        token_symbol TEXT NOT NULL,
+        transaction_type TEXT NOT NULL,
+        status TEXT NOT NULL,
+        direction TEXT NOT NULL,
+        block_number INTEGER NOT NULL,
+        chain TEXT NOT NULL,
+        timestamp TEXT NOT NULL,
+        gas_used TEXT NOT NULL,
+        gas_fee TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT
+      )
+    ''');
+
+    // XCM transfers table
+    await db.execute('''
+      CREATE TABLE xcm_transfers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        transfer_id TEXT NOT NULL UNIQUE,
+        from_chain TEXT NOT NULL,
+        to_chain TEXT NOT NULL,
+        from_address TEXT NOT NULL,
+        to_address TEXT NOT NULL,
+        amount TEXT NOT NULL,
+        token_symbol TEXT NOT NULL,
+        status TEXT NOT NULL,
+        type TEXT NOT NULL,
+        direction TEXT NOT NULL,
+        source_transaction_hash TEXT,
+        destination_transaction_hash TEXT,
+        xcm_message_hash TEXT,
+        transfer_fee TEXT,
+        xcm_fee TEXT,
+        timestamp TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT
+      )
+    ''');
+
+    // News articles table
+    await db.execute('''
+      CREATE TABLE news_articles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        article_id TEXT NOT NULL UNIQUE,
+        title TEXT NOT NULL,
+        excerpt TEXT,
+        content TEXT,
+        author TEXT,
+        source TEXT,
+        source_url TEXT,
+        article_url TEXT,
+        image_url TEXT,
+        published_at TEXT NOT NULL,
+        fetched_at TEXT NOT NULL,
+        category TEXT NOT NULL,
+        news_source TEXT NOT NULL,
+        is_read INTEGER NOT NULL DEFAULT 0,
+        is_bookmarked INTEGER NOT NULL DEFAULT 0,
+        view_count INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+    ''');
+
+    // Featured projects table
+    await db.execute('''
+      CREATE TABLE featured_projects (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        project_id TEXT NOT NULL UNIQUE,
+        name TEXT NOT NULL,
+        description TEXT,
+        short_description TEXT,
+        logo_url TEXT,
+        banner_url TEXT,
+        website_url TEXT,
+        twitter_url TEXT,
+        discord_url TEXT,
+        github_url TEXT,
+        tags TEXT,
+        category TEXT NOT NULL,
+        status TEXT NOT NULL,
+        chain TEXT,
+        featured_at TEXT,
+        is_active INTEGER NOT NULL DEFAULT 1,
+        priority INTEGER NOT NULL DEFAULT 0,
+        view_count INTEGER NOT NULL DEFAULT 0,
+        click_count INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+    ''');
+  }
+
+  /// Get database instance
+  static Database get database {
+    if (_database == null) {
+      throw Exception('Database not initialized. Call initialize() first.');
     }
-    return _isar!;
+    return _database!;
   }
 
-  /// Close database
-  static Future<void> close() async {
-    await _isar?.close();
-    _isar = null;
-  }
-
-  // Wallet Account Operations
-
-  /// Save wallet account
+  // Wallet Account Methods
   static Future<void> saveWalletAccount(WalletAccount account) async {
-    await isar.writeTxn(() async {
-      await isar.walletAccounts.put(account);
-    });
+    await database.insert('wallet_accounts', {
+      'name': account.name,
+      'address': account.address,
+      'public_key': account.publicKey,
+      'account_type': account.walletType,
+      'is_active': account.isActive ? 1 : 0,
+      'created_at': account.createdAt.toIso8601String(),
+      'updated_at': account.lastUsed.toIso8601String(),
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  /// Get all wallet accounts
-  static Future<List<WalletAccount>> getAllWalletAccounts() async {
-    return await isar.walletAccounts.where().findAll();
+  static Future<List<WalletAccount>> getWalletAccounts() async {
+    final List<Map<String, dynamic>> maps = await database.query(
+      'wallet_accounts',
+    );
+    return maps
+        .map(
+          (map) => WalletAccount()
+            ..name = map['name'] as String
+            ..address = map['address'] as String
+            ..publicKey = map['public_key'] as String? ?? ''
+            ..walletType = map['account_type'] as String
+            ..isActive = (map['is_active'] as int) == 1
+            ..createdAt = DateTime.parse(map['created_at'] as String)
+            ..lastUsed = DateTime.parse(map['updated_at'] as String),
+        )
+        .toList();
   }
 
-  /// Get active wallet accounts
+  static Future<void> deleteWalletAccount(String address) async {
+    await database.delete(
+      'wallet_accounts',
+      where: 'address = ?',
+      whereArgs: [address],
+    );
+  }
+
   static Future<List<WalletAccount>> getActiveWalletAccounts() async {
-    return await isar.walletAccounts.filter().isActiveEqualTo(true).findAll();
+    final List<Map<String, dynamic>> maps = await database.query(
+      'wallet_accounts',
+      where: 'is_active = 1',
+    );
+    return maps
+        .map(
+          (map) => WalletAccount()
+            ..name = map['name'] as String
+            ..address = map['address'] as String
+            ..publicKey = map['public_key'] as String? ?? ''
+            ..walletType = map['account_type'] as String
+            ..isActive = (map['is_active'] as int) == 1
+            ..createdAt = DateTime.parse(map['created_at'] as String)
+            ..lastUsed = DateTime.parse(map['updated_at'] as String),
+        )
+        .toList();
   }
 
-  /// Get wallet account by address
-  static Future<WalletAccount?> getWalletAccountByAddress(
-    String address,
-  ) async {
-    return await isar.walletAccounts
-        .where()
-        .addressEqualTo(address)
-        .findFirst();
-  }
-
-  /// Get wallet account by ID
-  static Future<WalletAccount?> getWalletAccountById(int id) async {
-    return await isar.walletAccounts.get(id);
-  }
-
-  /// Update wallet account
-  static Future<void> updateWalletAccount(WalletAccount account) async {
-    await isar.writeTxn(() async {
-      await isar.walletAccounts.put(account);
-    });
-  }
-
-  /// Delete wallet account
-  static Future<void> deleteWalletAccount(int id) async {
-    await isar.writeTxn(() async {
-      await isar.walletAccounts.delete(id);
-    });
-  }
-
-  /// Set active wallet account
-  static Future<void> setActiveWalletAccount(String address) async {
-    await isar.writeTxn(() async {
-      // Deactivate all accounts
-      final allAccounts = await isar.walletAccounts.where().findAll();
-      for (final account in allAccounts) {
-        account.isActive = false;
-        await isar.walletAccounts.put(account);
-      }
-
-      // Activate selected account
-      final targetAccount = await isar.walletAccounts
-          .where()
-          .addressEqualTo(address)
-          .findFirst();
-
-      if (targetAccount != null) {
-        targetAccount.isActive = true;
-        targetAccount.lastUsed = DateTime.now();
-        await isar.walletAccounts.put(targetAccount);
-      }
-    });
-  }
-
-  /// Get active wallet account
   static Future<WalletAccount?> getActiveWalletAccount() async {
-    return await isar.walletAccounts.filter().isActiveEqualTo(true).findFirst();
-  }
-
-  /// Get accounts by wallet type
-  static Future<List<WalletAccount>> getAccountsByType(
-    String walletType,
-  ) async {
-    return await isar.walletAccounts
-        .filter()
-        .walletTypeEqualTo(walletType)
-        .findAll();
-  }
-
-  /// Get accounts by mnemonic ID
-  static Future<List<WalletAccount>> getAccountsByMnemonicId(
-    String mnemonicId,
-  ) async {
-    return await isar.walletAccounts
-        .filter()
-        .mnemonicIdEqualTo(mnemonicId)
-        .findAll();
-  }
-
-  // Mnemonic Wallet Operations
-
-  /// Save mnemonic wallet
-  static Future<void> saveMnemonicWallet(MnemonicWallet mnemonicWallet) async {
-    await isar.writeTxn(() async {
-      await isar.mnemonicWallets.put(mnemonicWallet);
-    });
-  }
-
-  /// Get all mnemonic wallets
-  static Future<List<MnemonicWallet>> getAllMnemonicWallets() async {
-    return await isar.mnemonicWallets.where().findAll();
-  }
-  
-  /// Get active mnemonic wallets
-  static Future<List<MnemonicWallet>> getActiveMnemonicWallets() async {
-    return await isar.mnemonicWallets.filter().isActiveEqualTo(true).findAll();
-  }
-  
-  /// Get mnemonic wallet by ID
-  static Future<MnemonicWallet?> getMnemonicWalletById(int id) async {
-    return await isar.mnemonicWallets.get(id);
-  }
-  
-  /// Update mnemonic wallet
-  static Future<void> updateMnemonicWallet(
-    MnemonicWallet mnemonicWallet,
-  ) async {
-    await isar.writeTxn(() async {
-      await isar.mnemonicWallets.put(mnemonicWallet);
-    });
-  }
-  
-  /// Delete mnemonic wallet
-  static Future<void> deleteMnemonicWallet(int id) async {
-    await isar.writeTxn(() async {
-      await isar.mnemonicWallets.delete(id);
-    });
-  }
-  
-  /// Update account count for mnemonic wallet
-  static Future<void> updateMnemonicAccountCount(
-    int mnemonicId,
-    int count,
-  ) async {
-    await isar.writeTxn(() async {
-      final mnemonicWallet = await isar.mnemonicWallets.get(mnemonicId);
-      if (mnemonicWallet != null) {
-        mnemonicWallet.accountCount = count;
-        mnemonicWallet.lastUsed = DateTime.now();
-        await isar.mnemonicWallets.put(mnemonicWallet);
-      }
-    });
-  }
-  
-  // Utility Operations
-
-  /// Get wallet statistics
-  static Future<Map<String, dynamic>> getWalletStatistics() async {
-    final totalAccounts = await isar.walletAccounts.count();
-    final activeAccounts = await isar.walletAccounts
-        .filter()
-        .isActiveEqualTo(true)
-        .count();
-    final mnemonicAccounts = await isar.walletAccounts
-        .filter()
-        .walletTypeEqualTo('mnemonic')
-        .count();
-    final privateKeyAccounts = await isar.walletAccounts
-        .filter()
-        .walletTypeEqualTo('private_key')
-        .count();
-    final totalMnemonicWallets = await isar.mnemonicWallets.count();
-
-    return {
-      'totalAccounts': totalAccounts,
-      'activeAccounts': activeAccounts,
-      'mnemonicAccounts': mnemonicAccounts,
-      'privateKeyAccounts': privateKeyAccounts,
-      'totalMnemonicWallets': totalMnemonicWallets,
-    };
-  }
-  
-  /// Clear all wallet data
-  static Future<void> clearAllWalletData() async {
-    await isar.writeTxn(() async {
-      await isar.walletAccounts.clear();
-      await isar.mnemonicWallets.clear();
-    });
-  }
-  
-  /// Export wallet data (for backup)
-  static Future<Map<String, dynamic>> exportWalletData() async {
-    final accounts = await getAllWalletAccounts();
-    final mnemonicWallets = await getAllMnemonicWallets();
-
-    return {
-      'accounts': accounts
-          .map(
-            (a) => {
-              'id': a.id,
-              'address': a.address,
-              'name': a.name,
-              'publicKey': a.publicKey,
-              'derivationPath': a.derivationPath,
-              'accountIndex': a.accountIndex,
-              'createdAt': a.createdAt.toIso8601String(),
-              'lastUsed': a.lastUsed.toIso8601String(),
-              'isActive': a.isActive,
-              'walletType': a.walletType,
-              'mnemonicId': a.mnemonicId,
-            },
-          )
-          .toList(),
-      'mnemonicWallets': mnemonicWallets
-          .map(
-            (m) => {
-              'id': m.id,
-              'wordCount': m.wordCount,
-              'name': m.name,
-              'createdAt': m.createdAt.toIso8601String(),
-              'lastUsed': m.lastUsed.toIso8601String(),
-              'isActive': m.isActive,
-              'accountCount': m.accountCount,
-            },
-          )
-          .toList(),
-      'exportedAt': DateTime.now().toIso8601String(),
-    };
-  }
-
-  /// Search accounts by name or address
-  static Future<List<WalletAccount>> searchAccounts(String query) async {
-    if (query.isEmpty) return await getAllWalletAccounts();
-
-    final nameResults = await isar.walletAccounts
-        .filter()
-        .nameContains(query, caseSensitive: false)
-        .findAll();
-
-    final addressResults = await isar.walletAccounts
-        .filter()
-        .addressContains(query, caseSensitive: false)
-        .findAll();
-
-    // Combine and remove duplicates
-    final allResults = <WalletAccount>[];
-    final seenIds = <int>{};
-
-    for (final account in [...nameResults, ...addressResults]) {
-      if (!seenIds.contains(account.id)) {
-        allResults.add(account);
-        seenIds.add(account.id);
-      }
-    }
+    final List<Map<String, dynamic>> maps = await database.query(
+      'wallet_accounts',
+      where: 'is_active = 1',
+      limit: 1,
+    );
     
-    return allResults;
+    if (maps.isEmpty) return null;
+    
+    final map = maps.first;
+    return WalletAccount()
+      ..name = map['name'] as String
+      ..address = map['address'] as String
+      ..publicKey = map['public_key'] as String? ?? ''
+      ..walletType = map['account_type'] as String
+      ..isActive = (map['is_active'] as int) == 1
+      ..createdAt = DateTime.parse(map['created_at'] as String)
+      ..lastUsed = DateTime.parse(map['updated_at'] as String);
   }
 
-  // Token Transfer Operations
+  static Future<void> setActiveWalletAccount(String address) async {
+    // First, set all accounts to inactive
+    await database.update('wallet_accounts', {'is_active': 0});
+    
+    // Then set the specified account as active
+    await database.update(
+      'wallet_accounts',
+      {'is_active': 1, 'updated_at': DateTime.now().toIso8601String()},
+      where: 'address = ?',
+      whereArgs: [address],
+    );
+  }
 
-  /// Save token transfer
+  static Future<WalletAccount?> getWalletAccountById(String address) async {
+    final List<Map<String, dynamic>> maps = await database.query(
+      'wallet_accounts',
+      where: 'address = ?',
+      whereArgs: [address],
+    );
+    
+    if (maps.isEmpty) return null;
+    
+    final map = maps.first;
+    return WalletAccount()
+      ..name = map['name'] as String
+      ..address = map['address'] as String
+      ..publicKey = map['public_key'] as String? ?? ''
+      ..walletType = map['account_type'] as String
+      ..isActive = (map['is_active'] as int) == 1
+      ..createdAt = DateTime.parse(map['created_at'] as String)
+      ..lastUsed = DateTime.parse(map['updated_at'] as String);
+  }
+
+  static Future<void> updateWalletAccount(WalletAccount account) async {
+    await database.update(
+      'wallet_accounts',
+      {
+        'name': account.name,
+        'public_key': account.publicKey,
+        'account_type': account.walletType,
+        'is_active': account.isActive ? 1 : 0,
+        'updated_at': account.lastUsed.toIso8601String(),
+      },
+      where: 'address = ?',
+      whereArgs: [account.address],
+    );
+  }
+
+  static Future<void> clearAllWalletData() async {
+    await database.delete('wallet_accounts');
+    await database.delete('mnemonic_wallets');
+  }
+
+  // Mnemonic Wallet Methods
+  static Future<void> saveMnemonicWallet(MnemonicWallet wallet) async {
+    await database.insert('mnemonic_wallets', {
+      'encrypted_mnemonic': wallet.encryptedMnemonic,
+      'word_count': wallet.wordCount,
+      'name': wallet.name,
+      'account_count': wallet.accountCount,
+      'is_active': wallet.isActive ? 1 : 0,
+      'created_at': wallet.createdAt.toIso8601String(),
+      'updated_at': wallet.lastUsed.toIso8601String(),
+    },
+      conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  static Future<MnemonicWallet?> getMnemonicWallet(String name) async {
+    final List<Map<String, dynamic>> maps = await database.query(
+      'mnemonic_wallets',
+      where: 'name = ?',
+      whereArgs: [name],
+    );
+    
+    if (maps.isEmpty) return null;
+    
+    final map = maps.first;
+    return MnemonicWallet()
+      ..encryptedMnemonic = map['encrypted_mnemonic'] as String
+      ..wordCount = map['word_count'] as int
+      ..name = map['name'] as String
+      ..accountCount = map['account_count'] as int
+      ..isActive = (map['is_active'] as int) == 1
+      ..createdAt = DateTime.parse(map['created_at'] as String)
+      ..lastUsed = DateTime.parse(map['updated_at'] as String);
+  }
+
+  // Token Transfer Methods
   static Future<void> saveTokenTransfer(TokenTransfer transfer) async {
-    await isar.writeTxn(() async {
-      await isar.tokenTransfers.put(transfer);
-    });
+    await database.insert('token_transfers', {
+      'from_address': transfer.fromAddress,
+      'to_address': transfer.toAddress,
+      'amount': transfer.amount,
+      'token_symbol': transfer.tokenSymbol,
+      'token_name': transfer.tokenName,
+      'chain': transfer.chain,
+      'block_number': transfer.blockNumber,
+      'transaction_hash': transfer.transactionHash,
+      'status': transfer.status.name,
+      'direction': transfer.direction.name,
+      'gas_fee': transfer.gasFee,
+      'gas_used': transfer.gasUsed,
+      'timestamp': transfer.timestamp.toIso8601String(),
+      'created_at': transfer.createdAt.toIso8601String(),
+      'updated_at': transfer.updatedAt?.toIso8601String(),
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  /// Get token transfer by hash
-  static Future<TokenTransfer?> getTokenTransferByHash(
-    String transactionHash,
-  ) async {
-    return await isar.tokenTransfers
-        .where()
-        .transactionHashEqualTo(transactionHash)
-        .findFirst();
+  static Future<List<TokenTransfer>> getTokenTransfers() async {
+    final List<Map<String, dynamic>> maps = await database.query(
+      'token_transfers',
+      orderBy: 'created_at DESC',
+    );
+    
+    return maps
+        .map(
+          (map) => TokenTransfer()
+            ..fromAddress = map['from_address'] as String
+            ..toAddress = map['to_address'] as String
+            ..amount = map['amount'] as String
+            ..tokenSymbol = map['token_symbol'] as String
+            ..tokenName = map['token_name'] as String
+            ..chain = map['chain'] as String
+            ..blockNumber = map['block_number'] as String?
+            ..transactionHash = map['transaction_hash'] as String
+            ..status = TransferStatus.values.firstWhere(
+              (e) => e.name == map['status'],
+              orElse: () => TransferStatus.pending,
+            )
+            ..direction = TransferDirection.values.firstWhere(
+              (e) => e.name == map['direction'],
+              orElse: () => TransferDirection.send,
+            )
+            ..gasFee = map['gas_fee'] as String?
+            ..gasUsed = map['gas_used'] as String?
+            ..timestamp = DateTime.parse(map['timestamp'] as String)
+            ..createdAt = DateTime.parse(map['created_at'] as String)
+            ..updatedAt = map['updated_at'] != null
+                ? DateTime.parse(map['updated_at'] as String)
+                : DateTime.now(),
+        )
+        .toList();
   }
 
-  /// Get token transfer history
   static Future<List<TokenTransfer>> getTokenTransferHistory({
     String? address,
     String? chain,
-    int limit = 50,
+    String? type,
+    String? status,
+    String? direction,
+    DateTime? fromDate,
+    DateTime? toDate,
+    int? limit,
+    int? offset,
   }) async {
-    if (address != null && chain != null) {
-      return await isar.tokenTransfers
-          .filter()
-          .fromAddressEqualTo(address)
-          .or()
-          .toAddressEqualTo(address)
-          .and()
-          .chainEqualTo(chain)
-          .sortByTimestampDesc()
-          .limit(limit)
-          .findAll();
-    } else if (address != null) {
-      return await isar.tokenTransfers
-          .filter()
-          .fromAddressEqualTo(address)
-          .or()
-          .toAddressEqualTo(address)
-          .sortByTimestampDesc()
-          .limit(limit)
-          .findAll();
-    } else if (chain != null) {
-      return await isar.tokenTransfers
-          .filter()
-          .chainEqualTo(chain)
-          .sortByTimestampDesc()
-          .limit(limit)
-          .findAll();
-    } else {
-      return await isar.tokenTransfers
-          .where()
-          .sortByTimestampDesc()
-          .limit(limit)
-          .findAll();
-    }
+    // For now, just return all transfers
+    // TODO: Implement filtering based on parameters
+    return getTokenTransfers();
   }
 
-  /// Update token transfer
+  static Future<TokenTransfer?> getTokenTransferByHash(String hash) async {
+    final List<Map<String, dynamic>> maps = await database.query(
+      'token_transfers',
+      where: 'transaction_hash = ?',
+      whereArgs: [hash],
+    );
+
+    if (maps.isEmpty) return null;
+
+    final map = maps.first;
+    return TokenTransfer()
+      ..fromAddress = map['from_address'] as String
+      ..toAddress = map['to_address'] as String
+      ..amount = map['amount'] as String
+      ..tokenSymbol = map['token_symbol'] as String
+      ..tokenName = map['token_name'] as String
+      ..chain = map['chain'] as String
+      ..blockNumber = map['block_number'] as String?
+      ..transactionHash = map['transaction_hash'] as String
+      ..status = TransferStatus.values.firstWhere(
+        (e) => e.name == map['status'],
+        orElse: () => TransferStatus.pending,
+      )
+      ..direction = TransferDirection.values.firstWhere(
+        (e) => e.name == map['direction'],
+        orElse: () => TransferDirection.send,
+      )
+      ..gasFee = map['gas_fee'] as String?
+      ..gasUsed = map['gas_used'] as String?
+      ..timestamp = DateTime.parse(map['timestamp'] as String)
+      ..createdAt = DateTime.parse(map['created_at'] as String)
+      ..updatedAt = map['updated_at'] != null
+          ? DateTime.parse(map['updated_at'] as String)
+          : DateTime.now();
+  }
+
   static Future<void> updateTokenTransfer(TokenTransfer transfer) async {
-    await isar.writeTxn(() async {
-      await isar.tokenTransfers.put(transfer);
-    });
+    await database.update(
+      'token_transfers',
+      {
+        'from_address': transfer.fromAddress,
+        'to_address': transfer.toAddress,
+        'amount': transfer.amount,
+        'token_symbol': transfer.tokenSymbol,
+        'token_name': transfer.tokenName,
+        'chain': transfer.chain,
+        'block_number': transfer.blockNumber,
+        'status': transfer.status.name,
+        'direction': transfer.direction.name,
+        'gas_fee': transfer.gasFee,
+        'gas_used': transfer.gasUsed,
+        'timestamp': transfer.timestamp.toIso8601String(),
+        'updated_at': transfer.updatedAt?.toIso8601String(),
+      },
+      where: 'transaction_hash = ?',
+      whereArgs: [transfer.transactionHash],
+    );
   }
 
-  /// Delete token transfer
-  static Future<void> deleteTokenTransfer(int id) async {
-    await isar.writeTxn(() async {
-      await isar.tokenTransfers.delete(id);
-    });
-  }
-
-  // NFT Transfer Operations
-
-  /// Save NFT transfer
+  // NFT Transfer Methods
   static Future<void> saveNftTransfer(NftTransfer transfer) async {
-    await isar.writeTxn(() async {
-      await isar.nftTransfers.put(transfer);
-    });
+    await database.insert('nft_transfers', {
+      'from_address': transfer.fromAddress,
+      'to_address': transfer.toAddress,
+      'nft_id': transfer.nftId,
+      'collection_id': transfer.collectionId,
+      'nft_name': transfer.nftName,
+      'nft_image': transfer.nftImage,
+      'chain': transfer.chain,
+      'block_number': transfer.blockNumber,
+      'transaction_hash': transfer.transactionHash,
+      'status': transfer.status.name,
+      'direction': transfer.direction.name,
+      'gas_fee': transfer.gasFee,
+      'gas_used': transfer.gasUsed,
+      'timestamp': transfer.timestamp.toIso8601String(),
+      'created_at': transfer.createdAt.toIso8601String(),
+      'updated_at': transfer.updatedAt?.toIso8601String(),
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  /// Get NFT transfer by hash
-  static Future<NftTransfer?> getNftTransferByHash(
-    String transactionHash,
-  ) async {
-    return await isar.nftTransfers
-        .where()
-        .transactionHashEqualTo(transactionHash)
-        .findFirst();
+  static Future<List<NftTransfer>> getNftTransfers() async {
+    final List<Map<String, dynamic>> maps = await database.query(
+      'nft_transfers',
+      orderBy: 'created_at DESC',
+    );
+    
+    return maps
+        .map(
+          (map) => NftTransfer()
+            ..fromAddress = map['from_address'] as String
+            ..toAddress = map['to_address'] as String
+            ..nftId = map['nft_id'] as String
+            ..collectionId = map['collection_id'] as String
+            ..nftName = map['nft_name'] as String
+            ..nftImage = map['nft_image'] as String?
+            ..chain = map['chain'] as String
+            ..blockNumber = map['block_number'] as String?
+            ..transactionHash = map['transaction_hash'] as String
+            ..status = TransferStatus.values.firstWhere(
+              (e) => e.name == map['status'],
+              orElse: () => TransferStatus.pending,
+            )
+            ..direction = TransferDirection.values.firstWhere(
+              (e) => e.name == map['direction'],
+              orElse: () => TransferDirection.send,
+            )
+            ..gasFee = map['gas_fee'] as String?
+            ..gasUsed = map['gas_used'] as String?
+            ..timestamp = DateTime.parse(map['timestamp'] as String)
+            ..createdAt = DateTime.parse(map['created_at'] as String)
+            ..updatedAt = map['updated_at'] != null
+                ? DateTime.parse(map['updated_at'] as String)
+                : DateTime.now(),
+        )
+        .toList();
   }
 
-  /// Get NFT transfer history
   static Future<List<NftTransfer>> getNftTransferHistory({
     String? address,
     String? chain,
-    int limit = 50,
-  }) async {
-    if (address != null && chain != null) {
-      return await isar.nftTransfers
-          .filter()
-          .fromAddressEqualTo(address)
-          .or()
-          .toAddressEqualTo(address)
-          .and()
-          .chainEqualTo(chain)
-          .sortByTimestampDesc()
-          .limit(limit)
-          .findAll();
-    } else if (address != null) {
-      return await isar.nftTransfers
-          .filter()
-          .fromAddressEqualTo(address)
-          .or()
-          .toAddressEqualTo(address)
-          .sortByTimestampDesc()
-          .limit(limit)
-          .findAll();
-    } else if (chain != null) {
-      return await isar.nftTransfers
-          .filter()
-          .chainEqualTo(chain)
-          .sortByTimestampDesc()
-          .limit(limit)
-          .findAll();
-    } else {
-      return await isar.nftTransfers
-          .where()
-          .sortByTimestampDesc()
-          .limit(limit)
-          .findAll();
-    }
-  }
-
-  /// Update NFT transfer
-  static Future<void> updateNftTransfer(NftTransfer transfer) async {
-    await isar.writeTxn(() async {
-      await isar.nftTransfers.put(transfer);
-    });
-  }
-
-  /// Delete NFT transfer
-  static Future<void> deleteNftTransfer(int id) async {
-    await isar.writeTxn(() async {
-      await isar.nftTransfers.delete(id);
-    });
-  }
-
-  /// Get all transfers (tokens and NFTs) for an address
-  static Future<List<dynamic>> getAllTransfers({
-    required String address,
-    String? chain,
-    int limit = 50,
-  }) async {
-    final tokenTransfers = await getTokenTransferHistory(
-      address: address,
-      chain: chain,
-      limit: limit,
-    );
-
-    final nftTransfers = await getNftTransferHistory(
-      address: address,
-      chain: chain,
-      limit: limit,
-    );
-
-    // Combine and sort by timestamp
-    final allTransfers = <dynamic>[...tokenTransfers, ...nftTransfers];
-    allTransfers.sort((a, b) {
-      final aTime = a is TokenTransfer
-          ? a.timestamp
-          : (a as NftTransfer).timestamp;
-      final bTime = b is TokenTransfer
-          ? b.timestamp
-          : (b as NftTransfer).timestamp;
-      return bTime.compareTo(aTime);
-    });
-
-    return allTransfers.take(limit).toList();
-  }
-
-  /// Get transfer statistics
-  static Future<Map<String, dynamic>> getTransferStatistics() async {
-    final totalTokenTransfers = await isar.tokenTransfers.count();
-    final totalNftTransfers = await isar.nftTransfers.count();
-
-    final pendingTokenTransfers = await isar.tokenTransfers
-        .filter()
-        .statusEqualTo(TransferStatus.pending)
-        .count();
-
-    final pendingNftTransfers = await isar.nftTransfers
-        .filter()
-        .statusEqualTo(TransferStatus.pending)
-        .count();
-
-    return {
-      'totalTokenTransfers': totalTokenTransfers,
-      'totalNftTransfers': totalNftTransfers,
-      'pendingTokenTransfers': pendingTokenTransfers,
-      'pendingNftTransfers': pendingNftTransfers,
-      'totalTransfers': totalTokenTransfers + totalNftTransfers,
-      'pendingTransfers': pendingTokenTransfers + pendingNftTransfers,
-    };
-  }
-
-  // Transaction History Operations
-
-  /// Save transaction
-  static Future<void> saveTransaction(TransactionHistory transaction) async {
-    await isar.writeTxn(() async {
-      await isar.transactionHistorys.put(transaction);
-    });
-  }
-
-  /// Get transaction by hash
-  static Future<TransactionHistory?> getTransactionByHash(String hash) async {
-    // For now, get all transactions and filter in memory
-    // TODO: Implement proper Isar query
-    final allTransactions = await isar.transactionHistorys.where().findAll();
-    try {
-      return allTransactions.firstWhere((tx) => tx.hash == hash);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  /// Get transaction history with filtering
-  static Future<List<TransactionHistory>> getTransactionHistory({
-    String? address,
-    String? chain,
-    TransactionType? type,
-    TransactionStatus? status,
-    TransactionDirection? direction,
+    String? type,
+    String? status,
+    String? direction,
     DateTime? fromDate,
     DateTime? toDate,
-    int limit = 50,
-    int offset = 0,
+    int? limit,
+    int? offset,
   }) async {
-    // For now, return all transactions and filter in memory
-    // TODO: Implement proper Isar filtering
-    final allTransactions = await isar.transactionHistorys
-        .where()
-        .sortByTimestampDesc()
-        .findAll();
+    // For now, just return all transfers
+    // TODO: Implement filtering based on parameters
+    return getNftTransfers();
+  }
 
-    // Apply filters in memory
-    var filteredTransactions = allTransactions;
+  static Future<NftTransfer?> getNftTransferByHash(String hash) async {
+    final List<Map<String, dynamic>> maps = await database.query(
+      'nft_transfers',
+      where: 'transaction_hash = ?',
+      whereArgs: [hash],
+    );
+    
+    if (maps.isEmpty) return null;
+    
+    final map = maps.first;
+    return NftTransfer()
+      ..fromAddress = map['from_address'] as String
+      ..toAddress = map['to_address'] as String
+      ..nftId = map['nft_id'] as String
+      ..collectionId = map['collection_id'] as String
+      ..nftName = map['nft_name'] as String
+      ..nftImage = map['nft_image'] as String?
+      ..chain = map['chain'] as String
+      ..blockNumber = map['block_number'] as String?
+      ..transactionHash = map['transaction_hash'] as String
+      ..status = TransferStatus.values.firstWhere(
+        (e) => e.name == map['status'],
+        orElse: () => TransferStatus.pending,
+      )
+      ..direction = TransferDirection.values.firstWhere(
+        (e) => e.name == map['direction'],
+        orElse: () => TransferDirection.send,
+      )
+      ..gasFee = map['gas_fee'] as String?
+      ..gasUsed = map['gas_used'] as String?
+      ..timestamp = DateTime.parse(map['timestamp'] as String)
+      ..createdAt = DateTime.parse(map['created_at'] as String)
+      ..updatedAt = map['updated_at'] != null
+          ? DateTime.parse(map['updated_at'] as String)
+          : DateTime.now();
+  }
 
-    if (address != null) {
-      filteredTransactions = filteredTransactions
-          .where((tx) => tx.fromAddress == address || tx.toAddress == address)
-          .toList();
-    }
-
-    if (chain != null) {
-      filteredTransactions = filteredTransactions
-          .where((tx) => tx.chain == chain)
-          .toList();
-    }
-
-    if (type != null) {
-      filteredTransactions = filteredTransactions
-          .where((tx) => tx.type == type)
-          .toList();
-    }
-
-    if (status != null) {
-      filteredTransactions = filteredTransactions
-          .where((tx) => tx.status == status)
-          .toList();
-    }
-
-    if (direction != null) {
-      filteredTransactions = filteredTransactions
-          .where((tx) => tx.direction == direction)
-          .toList();
-    }
-
-    if (fromDate != null) {
-      filteredTransactions = filteredTransactions
-          .where((tx) => tx.timestamp.isAfter(fromDate))
-          .toList();
-    }
-
-    if (toDate != null) {
-      filteredTransactions = filteredTransactions
-          .where((tx) => tx.timestamp.isBefore(toDate))
-          .toList();
-    }
-
-    // Apply pagination
-    final startIndex = offset;
-    final endIndex = startIndex + limit;
-
-    return filteredTransactions.sublist(
-      startIndex,
-      endIndex > filteredTransactions.length
-          ? filteredTransactions.length
-          : endIndex,
+  static Future<void> updateNftTransfer(NftTransfer transfer) async {
+    await database.update(
+      'nft_transfers',
+      {
+        'from_address': transfer.fromAddress,
+        'to_address': transfer.toAddress,
+        'nft_id': transfer.nftId,
+        'collection_id': transfer.collectionId,
+        'nft_name': transfer.nftName,
+        'nft_image': transfer.nftImage,
+        'chain': transfer.chain,
+        'block_number': transfer.blockNumber,
+        'status': transfer.status.name,
+        'direction': transfer.direction.name,
+        'gas_fee': transfer.gasFee,
+        'gas_used': transfer.gasUsed,
+        'timestamp': transfer.timestamp.toIso8601String(),
+        'updated_at': transfer.updatedAt?.toIso8601String(),
+      },
+      where: 'transaction_hash = ?',
+      whereArgs: [transfer.transactionHash],
     );
   }
 
-  /// Update transaction
-  static Future<void> updateTransaction(TransactionHistory transaction) async {
-    await isar.writeTxn(() async {
-      await isar.transactionHistorys.put(transaction);
+  static Future<List<dynamic>> getAllTransfers({
+    String? address,
+    String? chain,
+    String? type,
+    String? status,
+    String? direction,
+    DateTime? fromDate,
+    DateTime? toDate,
+    int? limit,
+    int? offset,
+  }) async {
+    // Combine token and NFT transfers
+    final tokenTransfers = await getTokenTransfers();
+    final nftTransfers = await getNftTransfers();
+    
+    final allTransfers = <dynamic>[];
+    allTransfers.addAll(tokenTransfers);
+    allTransfers.addAll(nftTransfers);
+    
+    // Sort by timestamp
+    allTransfers.sort((a, b) {
+      DateTime aTime, bTime;
+      if (a is TokenTransfer) {
+        aTime = a.timestamp;
+      } else if (a is NftTransfer) {
+        aTime = a.timestamp;
+      } else {
+        return 0;
+      }
+      
+      if (b is TokenTransfer) {
+        bTime = b.timestamp;
+      } else if (b is NftTransfer) {
+        bTime = b.timestamp;
+      } else {
+        return 0;
+      }
+      
+      return bTime.compareTo(aTime);
     });
+    
+    return allTransfers;
   }
 
-  /// Delete transaction
-  static Future<void> deleteTransaction(int id) async {
-    await isar.writeTxn(() async {
-      await isar.transactionHistorys.delete(id);
-    });
+  // Transaction History Methods
+  static Future<void> saveTransactionHistory(
+    TransactionHistory transaction,
+  ) async {
+    await database.insert('transaction_history', {
+      'hash': transaction.hash,
+      'from_address': transaction.fromAddress,
+      'to_address': transaction.toAddress,
+      'amount': transaction.amount,
+      'token_symbol': transaction.tokenSymbol,
+      'transaction_type': transaction.type.name,
+      'status': transaction.status.name,
+      'direction': transaction.direction.name,
+      'block_number': transaction.blockNumber,
+      'chain': transaction.chain,
+      'timestamp': transaction.timestamp.toIso8601String(),
+      'gas_used': transaction.gasUsed,
+      'gas_fee': transaction.gasFee,
+      'created_at': transaction.createdAt.toIso8601String(),
+      'updated_at': transaction.updatedAt.toIso8601String(),
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  /// Clear transaction cache for address
-  static Future<void> clearTransactionCache(String address) async {
-    await isar.writeTxn(() async {
-      await isar.transactionHistorys
-          .filter()
-          .fromAddressEqualTo(address)
-          .or()
-          .toAddressEqualTo(address)
-          .deleteAll();
-    });
+  static Future<List<TransactionHistory>> getTransactionHistory() async {
+    final List<Map<String, dynamic>> maps = await database.query(
+      'transaction_history',
+      orderBy: 'timestamp DESC',
+    );
+    
+    return maps
+        .map(
+          (map) => TransactionHistory()
+            ..hash = map['hash'] as String
+            ..fromAddress = map['from_address'] as String
+            ..toAddress = map['to_address'] as String
+            ..amount = map['amount'] as String
+            ..tokenSymbol = map['token_symbol'] as String
+            ..type = TransactionType.values.firstWhere(
+              (e) => e.name == map['transaction_type'],
+              orElse: () => TransactionType.transfer,
+            )
+            ..status = TransactionStatus.values.firstWhere(
+              (e) => e.name == map['status'],
+              orElse: () => TransactionStatus.pending,
+            )
+            ..direction = TransactionDirection.values.firstWhere(
+              (e) => e.name == map['direction'],
+              orElse: () => TransactionDirection.outgoing,
+            )
+            ..blockNumber = map['block_number'] as int
+            ..chain = map['chain'] as String
+            ..timestamp = DateTime.parse(map['timestamp'] as String)
+            ..gasUsed = map['gas_used'] as String
+            ..gasFee = map['gas_fee'] as String
+            ..createdAt = DateTime.parse(map['created_at'] as String)
+            ..updatedAt = map['updated_at'] != null
+                ? DateTime.parse(map['updated_at'] as String)
+                : DateTime.now(),
+        )
+        .toList();
   }
 
-  /// Get cache timestamp
+  static Future<TransactionHistory?> getTransactionByHash(String hash) async {
+    final List<Map<String, dynamic>> maps = await database.query(
+      'transaction_history',
+      where: 'hash = ?',
+      whereArgs: [hash],
+    );
+    
+    if (maps.isEmpty) return null;
+    
+    final map = maps.first;
+    return TransactionHistory()
+      ..hash = map['hash'] as String
+      ..fromAddress = map['from_address'] as String
+      ..toAddress = map['to_address'] as String
+      ..amount = map['amount'] as String
+      ..tokenSymbol = map['token_symbol'] as String
+      ..type = TransactionType.values.firstWhere(
+        (e) => e.name == map['transaction_type'],
+        orElse: () => TransactionType.transfer,
+      )
+      ..status = TransactionStatus.values.firstWhere(
+        (e) => e.name == map['status'],
+        orElse: () => TransactionStatus.pending,
+      )
+      ..direction = TransactionDirection.values.firstWhere(
+        (e) => e.name == map['direction'],
+        orElse: () => TransactionDirection.outgoing,
+      )
+      ..blockNumber = map['block_number'] as int
+      ..chain = map['chain'] as String
+      ..timestamp = DateTime.parse(map['timestamp'] as String)
+      ..gasUsed = map['gas_used'] as String
+      ..gasFee = map['gas_fee'] as String
+      ..createdAt = DateTime.parse(map['created_at'] as String)
+      ..updatedAt = map['updated_at'] != null
+          ? DateTime.parse(map['updated_at'] as String)
+          : DateTime.now();
+  }
+
+  static Future<List<TransactionHistory>> getTransactionHistoryWithFilters({
+    String? address,
+    String? chain,
+    String? type,
+    String? status,
+    String? direction,
+    DateTime? fromDate,
+    DateTime? toDate,
+    int? limit,
+    int? offset,
+  }) async {
+    // For now, just return all transactions
+    // TODO: Implement filtering based on parameters
+    return getTransactionHistory();
+  }
+
+  static Future<void> saveTransaction(TransactionHistory transaction) async {
+    await saveTransactionHistory(transaction);
+  }
+
   static Future<DateTime?> getCacheTimestamp(String key) async {
-    // This would typically be stored in a separate cache table
-    // For now, we'll return null to indicate no cache
+    // Simple cache timestamp storage
+    // TODO: Implement proper cache timestamp storage
     return null;
   }
 
-  /// Set cache timestamp
   static Future<void> setCacheTimestamp(String key, DateTime timestamp) async {
-    // This would typically be stored in a separate cache table
-    // For now, we'll do nothing
+    // Simple cache timestamp storage
+    // TODO: Implement proper cache timestamp storage
   }
 
-  // XCM Transfer Operations
+  static Future<void> clearTransactionCache() async {
+    // Clear transaction cache
+    // TODO: Implement proper cache clearing
+  }
 
-  /// Save XCM transfer
+  // XCM Transfer Methods
   static Future<void> saveXcmTransfer(XcmTransfer transfer) async {
-    await isar.writeTxn(() async {
-      await isar.xcmTransfers.put(transfer);
-    });
+    await database.insert('xcm_transfers', {
+      'transfer_id': transfer.transferId,
+      'from_chain': transfer.sourceChain,
+      'to_chain': transfer.destinationChain,
+      'from_address': transfer.sourceAddress,
+      'to_address': transfer.destinationAddress,
+      'amount': transfer.amount,
+      'token_symbol': transfer.assetSymbol,
+      'status': transfer.status.name,
+      'type': transfer.type.name,
+      'direction': transfer.direction.name,
+      'source_transaction_hash': transfer.sourceTransactionHash,
+      'destination_transaction_hash': transfer.destinationTransactionHash,
+      'xcm_message_hash': transfer.xcmMessageHash,
+      'transfer_fee': transfer.transferFee,
+      'xcm_fee': transfer.xcmFee,
+      'timestamp': transfer.timestamp.toIso8601String(),
+      'created_at': transfer.createdAt.toIso8601String(),
+      'updated_at': transfer.updatedAt.toIso8601String(),
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  /// Get XCM transfer by transfer ID
+  static Future<List<XcmTransfer>> getXcmTransfers() async {
+    final List<Map<String, dynamic>> maps = await database.query(
+      'xcm_transfers',
+      orderBy: 'created_at DESC',
+    );
+    
+    return maps
+        .map(
+          (map) => XcmTransfer()
+            ..transferId = map['transfer_id'] as String
+            ..sourceChain = map['from_chain'] as String
+            ..destinationChain = map['to_chain'] as String
+            ..sourceAddress = map['from_address'] as String
+            ..destinationAddress = map['to_address'] as String
+            ..amount = map['amount'] as String
+            ..assetSymbol = map['token_symbol'] as String
+            ..status = XcmTransferStatus.values.firstWhere(
+              (e) => e.name == map['status'],
+              orElse: () => XcmTransferStatus.initiated,
+            )
+            ..type = XcmTransferType.values.firstWhere(
+              (e) => e.name == map['type'],
+              orElse: () => XcmTransferType.token,
+            )
+            ..direction = XcmTransferDirection.values.firstWhere(
+              (e) => e.name == map['direction'],
+              orElse: () => XcmTransferDirection.outbound,
+            )
+            ..sourceTransactionHash = map['source_transaction_hash'] as String?
+            ..destinationTransactionHash =
+                map['destination_transaction_hash'] as String?
+            ..xcmMessageHash = map['xcm_message_hash'] as String?
+            ..transferFee = map['transfer_fee'] as String? ?? ''
+            ..xcmFee = map['xcm_fee'] as String? ?? ''
+            ..timestamp = DateTime.parse(map['timestamp'] as String)
+            ..createdAt = DateTime.parse(map['created_at'] as String)
+            ..updatedAt = map['updated_at'] != null
+                ? DateTime.parse(map['updated_at'] as String)
+                : DateTime.now(),
+        )
+        .toList();
+  }
+
   static Future<XcmTransfer?> getXcmTransferByTransferId(
     String transferId,
   ) async {
-    // For now, get all transfers and filter in memory
-    // TODO: Implement proper Isar query
-    final allTransfers = await isar.xcmTransfers.where().findAll();
-    try {
-      return allTransfers.firstWhere((t) => t.transferId == transferId);
-    } catch (e) {
-      return null;
-    }
+    final List<Map<String, dynamic>> maps = await database.query(
+      'xcm_transfers',
+      where: 'transfer_id = ?',
+      whereArgs: [transferId],
+    );
+
+    if (maps.isEmpty) return null;
+
+    final map = maps.first;
+    return XcmTransfer()
+      ..transferId = map['transfer_id'] as String
+      ..sourceChain = map['from_chain'] as String
+      ..destinationChain = map['to_chain'] as String
+      ..sourceAddress = map['from_address'] as String
+      ..destinationAddress = map['to_address'] as String
+      ..amount = map['amount'] as String
+      ..assetSymbol = map['token_symbol'] as String
+      ..status = XcmTransferStatus.values.firstWhere(
+        (e) => e.name == map['status'],
+        orElse: () => XcmTransferStatus.initiated,
+      )
+      ..type = XcmTransferType.values.firstWhere(
+        (e) => e.name == map['type'],
+        orElse: () => XcmTransferType.token,
+      )
+      ..direction = XcmTransferDirection.values.firstWhere(
+        (e) => e.name == map['direction'],
+        orElse: () => XcmTransferDirection.outbound,
+      )
+      ..sourceTransactionHash = map['source_transaction_hash'] as String?
+      ..destinationTransactionHash =
+          map['destination_transaction_hash'] as String?
+      ..xcmMessageHash = map['xcm_message_hash'] as String?
+      ..transferFee = map['transfer_fee'] as String? ?? ''
+      ..xcmFee = map['xcm_fee'] as String? ?? ''
+      ..timestamp = DateTime.parse(map['timestamp'] as String)
+      ..createdAt = DateTime.parse(map['created_at'] as String)
+      ..updatedAt = map['updated_at'] != null
+          ? DateTime.parse(map['updated_at'] as String)
+          : DateTime.now();
   }
 
-  /// Get XCM transfer history with filtering
   static Future<List<XcmTransfer>> getXcmTransferHistory({
     String? address,
     String? chain,
-    XcmTransferType? type,
-    XcmTransferStatus? status,
-    int limit = 50,
-    int offset = 0,
+    String? type,
+    String? status,
+    int? limit,
+    int? offset,
   }) async {
-    // For now, return all transfers and filter in memory
-    // TODO: Implement proper Isar filtering
-    final allTransfers = await isar.xcmTransfers
-        .where()
-        .sortByTimestampDesc()
-        .findAll();
+    // For now, just return all transfers
+    // TODO: Implement filtering based on parameters
+    return getXcmTransfers();
+  }
 
-    // Apply filters in memory
-    var filteredTransfers = allTransfers;
-
-    if (address != null) {
-      filteredTransfers = filteredTransfers
-          .where(
-            (t) =>
-                t.sourceAddress == address || t.destinationAddress == address,
-          )
-          .toList();
-    }
-
-    if (chain != null) {
-      filteredTransfers = filteredTransfers
-          .where((t) => t.sourceChain == chain || t.destinationChain == chain)
-          .toList();
-    }
-
-    if (type != null) {
-      filteredTransfers = filteredTransfers
-          .where((t) => t.type == type)
-          .toList();
-    }
-
-    if (status != null) {
-      filteredTransfers = filteredTransfers
-          .where((t) => t.status == status)
-          .toList();
-    }
-
-    // Apply pagination
-    final startIndex = offset;
-    final endIndex = startIndex + limit;
-
-    return filteredTransfers.sublist(
-      startIndex,
-      endIndex > filteredTransfers.length ? filteredTransfers.length : endIndex,
+  static Future<void> updateXcmTransfer(XcmTransfer transfer) async {
+    await database.update(
+      'xcm_transfers',
+      {
+        'from_chain': transfer.sourceChain,
+        'to_chain': transfer.destinationChain,
+        'from_address': transfer.sourceAddress,
+        'to_address': transfer.destinationAddress,
+        'amount': transfer.amount,
+        'token_symbol': transfer.assetSymbol,
+        'status': transfer.status.name,
+        'type': transfer.type.name,
+        'direction': transfer.direction.name,
+        'source_transaction_hash': transfer.sourceTransactionHash,
+        'destination_transaction_hash': transfer.destinationTransactionHash,
+        'xcm_message_hash': transfer.xcmMessageHash,
+        'transfer_fee': transfer.transferFee,
+        'xcm_fee': transfer.xcmFee,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      where: 'transfer_id = ?',
+      whereArgs: [transfer.transferId],
     );
   }
 
-  /// Update XCM transfer
-  static Future<void> updateXcmTransfer(XcmTransfer transfer) async {
-    await isar.writeTxn(() async {
-      await isar.xcmTransfers.put(transfer);
-    });
-  }
-
-  /// Delete XCM transfer
-  static Future<void> deleteXcmTransfer(int id) async {
-    await isar.writeTxn(() async {
-      await isar.xcmTransfers.delete(id);
-    });
-  }
-
-  // News Article Operations
-
-  /// Save news articles
+  // News Article Methods
   static Future<void> saveNewsArticles(List<NewsArticle> articles) async {
-    await isar.writeTxn(() async {
-      await isar.newsArticles.putAll(articles);
-    });
+    final batch = database.batch();
+    for (final article in articles) {
+      batch.insert('news_articles', {
+        'article_id': article.articleId,
+        'title': article.title,
+        'excerpt': article.excerpt,
+        'content': article.content,
+        'author': article.author,
+        'source': article.source,
+        'source_url': article.sourceUrl,
+        'article_url': article.articleUrl,
+        'image_url': article.imageUrl,
+        'published_at': article.publishedAt.toIso8601String(),
+        'fetched_at': article.fetchedAt.toIso8601String(),
+        'category': article.category.name,
+        'news_source': article.newsSource.name,
+        'is_read': article.isRead ? 1 : 0,
+        'is_bookmarked': article.isBookmarked ? 1 : 0,
+        'view_count': article.viewCount,
+        'created_at': article.createdAt.toIso8601String(),
+        'updated_at': article.updatedAt?.toIso8601String(),
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
+    }
+    await batch.commit();
   }
 
-  /// Get news articles with filtering
   static Future<List<NewsArticle>> getNewsArticles({NewsFilter? filter}) async {
-    // For now, return all articles and filter in memory
-    // TODO: Implement proper Isar filtering
-    final allArticles = await isar.newsArticles
-        .where()
-        .sortByPublishedAtDesc()
-        .findAll();
-
-    // Apply filters in memory
-    var filteredArticles = allArticles;
-
+    String whereClause = '';
+    List<dynamic> whereArgs = [];
+    
     if (filter != null) {
+      final conditions = <String>[];
+      
       if (filter.source != null) {
-        filteredArticles = filteredArticles
-            .where((a) => a.newsSource == filter.source)
-            .toList();
+        conditions.add('news_source = ?');
+        whereArgs.add(filter.source!.name);
       }
-
+      
       if (filter.category != null) {
-        filteredArticles = filteredArticles
-            .where((a) => a.category == filter.category)
-            .toList();
+        conditions.add('category = ?');
+        whereArgs.add(filter.category!.name);
       }
-
-      if (filter.fromDate != null) {
-        filteredArticles = filteredArticles
-            .where((a) => a.publishedAt.isAfter(filter.fromDate!))
-            .toList();
-      }
-
-      if (filter.toDate != null) {
-        filteredArticles = filteredArticles
-            .where((a) => a.publishedAt.isBefore(filter.toDate!))
-            .toList();
-      }
-
-      if (filter.searchQuery != null && filter.searchQuery!.isNotEmpty) {
-        final query = filter.searchQuery!.toLowerCase();
-        filteredArticles = filteredArticles
-            .where(
-              (a) =>
-                  a.title.toLowerCase().contains(query) ||
-                  a.excerpt.toLowerCase().contains(query) ||
-                  a.content.toLowerCase().contains(query),
-            )
-            .toList();
-      }
-
+      
       if (filter.bookmarkedOnly == true) {
-        filteredArticles = filteredArticles
-            .where((a) => a.isBookmarked)
-            .toList();
+        conditions.add('is_bookmarked = 1');
       }
-
+      
       if (filter.unreadOnly == true) {
-        filteredArticles = filteredArticles.where((a) => !a.isRead).toList();
+        conditions.add('is_read = 0');
       }
+      
+      if (conditions.isNotEmpty) {
+        whereClause = 'WHERE ${conditions.join(' AND ')}';
+      }
+    }
+    
+    final List<Map<String, dynamic>> maps = await database.rawQuery(
+      'SELECT * FROM news_articles $whereClause ORDER BY published_at DESC LIMIT ? OFFSET ?',
+      [...whereArgs, filter?.limit ?? 50, filter?.offset ?? 0],
+    );
+    
+    return maps
+        .map(
+          (map) => NewsArticle()
+            ..articleId = map['article_id'] as String
+            ..title = map['title'] as String
+            ..excerpt = map['excerpt'] as String
+            ..content = map['content'] as String
+            ..author = map['author'] as String
+            ..source = map['source'] as String
+            ..sourceUrl = map['source_url'] as String
+            ..articleUrl = map['article_url'] as String
+            ..imageUrl = map['image_url'] as String?
+            ..publishedAt = DateTime.parse(map['published_at'] as String)
+            ..fetchedAt = DateTime.parse(map['fetched_at'] as String)
+            ..category = NewsCategory.values.firstWhere(
+              (e) => e.name == map['category'],
+              orElse: () => NewsCategory.ecosystem,
+            )
+            ..newsSource = NewsSource.values.firstWhere(
+              (e) => e.name == map['news_source'],
+              orElse: () => NewsSource.polkadotBlog,
+            )
+            ..isRead = (map['is_read'] as int) == 1
+            ..isBookmarked = (map['is_bookmarked'] as int) == 1
+            ..viewCount = map['view_count'] as int
+            ..createdAt = DateTime.parse(map['created_at'] as String)
+            ..updatedAt = DateTime.parse(map['updated_at'] as String),
+        )
+        .toList();
+  }
 
-      // Apply pagination
-      final start = filter.offset;
-      final end = start + filter.limit;
+  static Future<void> markNewsArticleAsRead(String articleId) async {
+    await database.update(
+      'news_articles',
+      {'is_read': 1, 'updated_at': DateTime.now().toIso8601String()},
+      where: 'article_id = ?',
+      whereArgs: [articleId],
+    );
+  }
 
-      filteredArticles = filteredArticles.sublist(
-        start,
-        end > filteredArticles.length ? filteredArticles.length : end,
+  static Future<void> toggleNewsArticleBookmark(String articleId) async {
+    final result = await database.query(
+      'news_articles',
+      columns: ['is_bookmarked'],
+      where: 'article_id = ?',
+      whereArgs: [articleId],
+    );
+
+    if (result.isNotEmpty) {
+      final currentValue = (result.first['is_bookmarked'] as int) == 1;
+      await database.update(
+        'news_articles',
+        {
+          'is_bookmarked': currentValue ? 0 : 1,
+          'updated_at': DateTime.now().toIso8601String(),
+        },
+        where: 'article_id = ?',
+        whereArgs: [articleId],
       );
     }
-
-    return filteredArticles;
   }
 
-  /// Get news article by ID
-  static Future<NewsArticle?> getNewsArticleById(String articleId) async {
-    // For now, get all articles and filter in memory
-    // TODO: Implement proper Isar query
-    final allArticles = await isar.newsArticles.where().findAll();
-    try {
-      return allArticles.firstWhere((a) => a.articleId == articleId);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  /// Mark news article as read
-  static Future<void> markNewsArticleAsRead(String articleId) async {
-    final article = await getNewsArticleById(articleId);
-    if (article != null) {
-      article.isRead = true;
-      article.updatedAt = DateTime.now();
-      await isar.writeTxn(() async {
-        await isar.newsArticles.put(article);
-      });
-    }
-  }
-
-  /// Toggle news article bookmark
-  static Future<void> toggleNewsArticleBookmark(String articleId) async {
-    final article = await getNewsArticleById(articleId);
-    if (article != null) {
-      article.isBookmarked = !article.isBookmarked;
-      article.updatedAt = DateTime.now();
-      await isar.writeTxn(() async {
-        await isar.newsArticles.put(article);
-      });
-    }
-  }
-
-  /// Update news article
-  static Future<void> updateNewsArticle(NewsArticle article) async {
-    await isar.writeTxn(() async {
-      await isar.newsArticles.put(article);
-    });
-  }
-
-  /// Delete news article
-  static Future<void> deleteNewsArticle(int id) async {
-    await isar.writeTxn(() async {
-      await isar.newsArticles.delete(id);
-    });
-  }
-
-  // Featured Project Operations
-
-  /// Save featured projects
+  // Featured Project Methods
   static Future<void> saveFeaturedProjects(
     List<FeaturedProject> projects,
   ) async {
-    await isar.writeTxn(() async {
-      await isar.featuredProjects.putAll(projects);
-    });
-  }
-
-  /// Get featured projects
-  static Future<List<FeaturedProject>> getFeaturedProjects() async {
-    return await isar.featuredProjects.where().sortByPriority().findAll();
-  }
-
-  /// Get featured project by ID
-  static Future<FeaturedProject?> getFeaturedProjectById(
-    String projectId,
-  ) async {
-    // For now, get all projects and filter in memory
-    // TODO: Implement proper Isar query
-    final allProjects = await isar.featuredProjects.where().findAll();
-    try {
-      return allProjects.firstWhere((p) => p.projectId == projectId);
-    } catch (e) {
-      return null;
+    final batch = database.batch();
+    for (final project in projects) {
+      batch.insert('featured_projects', {
+        'project_id': project.projectId,
+        'name': project.name,
+        'description': project.description,
+        'short_description': project.shortDescription,
+        'logo_url': project.logoUrl,
+        'banner_url': project.bannerUrl,
+        'website_url': project.websiteUrl,
+        'twitter_url': project.twitterUrl,
+        'discord_url': project.discordUrl,
+        'github_url': project.githubUrl,
+        'tags': project.tags.join(','),
+        'category': project.category.name,
+        'status': project.status.name,
+        'chain': project.chain,
+        'featured_at': project.featuredAt.toIso8601String(),
+        'is_active': project.isActive ? 1 : 0,
+        'priority': project.priority,
+        'view_count': project.viewCount,
+        'click_count': project.clickCount,
+        'created_at': project.createdAt.toIso8601String(),
+        'updated_at': project.updatedAt?.toIso8601String(),
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
     }
+    await batch.commit();
   }
 
-  /// Increment featured project view count
+  static Future<List<FeaturedProject>> getFeaturedProjects() async {
+    final List<Map<String, dynamic>> maps = await database.query(
+      'featured_projects',
+      where: 'is_active = 1',
+      orderBy: 'priority ASC, featured_at DESC',
+    );
+    
+    return maps
+        .map(
+          (map) => FeaturedProject()
+            ..projectId = map['project_id'] as String
+            ..name = map['name'] as String
+            ..description = map['description'] as String
+            ..shortDescription = map['short_description'] as String
+            ..logoUrl = map['logo_url'] as String?
+            ..bannerUrl = map['banner_url'] as String?
+            ..websiteUrl = map['website_url'] as String
+            ..twitterUrl = map['twitter_url'] as String?
+            ..discordUrl = map['discord_url'] as String?
+            ..githubUrl = map['github_url'] as String?
+            ..tags = (map['tags'] as String?)?.split(',') ?? []
+            ..category = ProjectCategory.values.firstWhere(
+              (e) => e.name == map['category'],
+              orElse: () => ProjectCategory.infrastructure,
+            )
+            ..status = ProjectStatus.values.firstWhere(
+              (e) => e.name == map['status'],
+              orElse: () => ProjectStatus.active,
+            )
+            ..chain = map['chain'] as String
+            ..featuredAt = DateTime.parse(map['featured_at'] as String)
+            ..isActive = (map['is_active'] as int) == 1
+            ..priority = map['priority'] as int
+            ..viewCount = map['view_count'] as int
+            ..clickCount = map['click_count'] as int
+            ..createdAt = DateTime.parse(map['created_at'] as String)
+            ..updatedAt = DateTime.parse(map['updated_at'] as String),
+        )
+        .toList();
+  }
+
   static Future<void> incrementFeaturedProjectViewCount(
     String projectId,
   ) async {
-    final project = await getFeaturedProjectById(projectId);
-    if (project != null) {
-      project.viewCount++;
-      project.updatedAt = DateTime.now();
-      await isar.writeTxn(() async {
-        await isar.featuredProjects.put(project);
-      });
-    }
+    await database.rawUpdate(
+      'UPDATE featured_projects SET view_count = view_count + 1, updated_at = ? WHERE project_id = ?',
+      [DateTime.now().toIso8601String(), projectId],
+    );
   }
 
-  /// Increment featured project click count
   static Future<void> incrementFeaturedProjectClickCount(
     String projectId,
   ) async {
-    final project = await getFeaturedProjectById(projectId);
-    if (project != null) {
-      project.clickCount++;
-      project.updatedAt = DateTime.now();
-      await isar.writeTxn(() async {
-        await isar.featuredProjects.put(project);
-      });
+    await database.rawUpdate(
+      'UPDATE featured_projects SET click_count = click_count + 1, updated_at = ? WHERE project_id = ?',
+      [DateTime.now().toIso8601String(), projectId],
+    );
+  }
+
+  /// Close database connection
+  static Future<void> close() async {
+    if (_database != null) {
+      await _database!.close();
+      _database = null;
     }
-  }
-
-  /// Update featured project
-  static Future<void> updateFeaturedProject(FeaturedProject project) async {
-    await isar.writeTxn(() async {
-      await isar.featuredProjects.put(project);
-    });
-  }
-
-  /// Delete featured project
-  static Future<void> deleteFeaturedProject(int id) async {
-    await isar.writeTxn(() async {
-      await isar.featuredProjects.delete(id);
-    });
   }
 }

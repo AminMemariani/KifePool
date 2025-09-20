@@ -35,20 +35,24 @@ dependencies:
   provider: ^6.1.2
 
   # Local Database
-  isar: ^3.1.0+1
-  isar_flutter_libs: ^3.1.0+1
+  sqflite: ^2.3.0
+  path: ^1.8.3
 
   # Networking
   dio: ^5.4.3+1
   http: ^1.1.0
   web_socket_channel: ^2.4.0
   url_launcher: ^6.2.2
-  intl: ^0.19.0
+  intl: ^0.20.2
   serverpod_flutter: ^1.2.0
 
   # UI & Icons
   cupertino_icons: ^1.0.8
   google_fonts: ^6.2.1
+  
+  # Localization
+  flutter_localizations:
+    sdk: flutter
 
   # Utilities
   shared_preferences: ^2.2.2

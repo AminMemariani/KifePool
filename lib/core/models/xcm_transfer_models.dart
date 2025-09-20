@@ -1,4 +1,4 @@
-import 'package:isar/isar.dart';
+// import 'package:isar/isar.dart'; // Removed - using SQLite instead
 import 'package:json_annotation/json_annotation.dart';
 
 part 'xcm_transfer_models.g.dart';
@@ -34,10 +34,10 @@ enum XcmTransferDirection {
 }
 
 /// XCM transfer model
-@collection
+
 @JsonSerializable()
 class XcmTransfer {
-  Id id = Isar.autoIncrement;
+  
 
   /// Transfer hash/ID
   late String transferId;
@@ -49,15 +49,15 @@ class XcmTransfer {
   late String destinationChain;
 
   /// Transfer type
-  @Enumerated(EnumType.name)
+  
   late XcmTransferType type;
 
   /// Transfer status
-  @Enumerated(EnumType.name)
+  
   late XcmTransferStatus status;
 
   /// Transfer direction
-  @Enumerated(EnumType.name)
+  
   late XcmTransferDirection direction;
 
   /// Source address
@@ -97,7 +97,7 @@ class XcmTransfer {
   String? errorMessage;
 
   /// Additional metadata
-  @ignore
+  
   Map<String, dynamic>? metadata;
 
   /// Created at timestamp

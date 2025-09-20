@@ -172,12 +172,12 @@ class TransactionHistoryService {
       if (cacheTime != null) {
         final hoursSinceCache = DateTime.now().difference(cacheTime).inHours;
         if (hoursSinceCache < _cacheExpiryHours) {
-          return await DatabaseService.getTransactionHistory(
+          return await DatabaseService.getTransactionHistoryWithFilters(
             address: address,
             chain: filter.chain,
-            type: filter.type,
-            status: filter.status,
-            direction: filter.direction,
+            type: filter.type?.name,
+            status: filter.status?.name,
+            direction: filter.direction?.name,
             fromDate: filter.fromDate,
             toDate: filter.toDate,
             limit: filter.limit,
@@ -214,7 +214,7 @@ class TransactionHistoryService {
   /// Clear cache for address
   static Future<void> _clearCacheForAddress(String address) async {
     try {
-      await DatabaseService.clearTransactionCache(address);
+      await DatabaseService.clearTransactionCache();
     } catch (e) {
       debugPrint('Error clearing cache for address: $e');
     }

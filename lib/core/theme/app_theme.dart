@@ -9,6 +9,9 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
+      // Accessibility features
+      visualDensity: VisualDensity.adaptivePlatformDensity,
+      textTheme: _buildAccessibleTextTheme(ThemeData.light().textTheme),
       colorScheme: const ColorScheme.light(
         primary: AppColors.primary,
         onPrimary: Colors.white,
@@ -38,23 +41,6 @@ class AppTheme {
         onInverseSurface: AppColors.grey100,
         inversePrimary: AppColors.primaryLight,
         surfaceTint: AppColors.primary,
-      ),
-      textTheme: TextTheme(
-        displayLarge: AppTypography.displayLarge,
-        displayMedium: AppTypography.displayMedium,
-        displaySmall: AppTypography.displaySmall,
-        headlineLarge: AppTypography.headlineLarge,
-        headlineMedium: AppTypography.headlineMedium,
-        headlineSmall: AppTypography.headlineSmall,
-        titleLarge: AppTypography.titleLarge,
-        titleMedium: AppTypography.titleMedium,
-        titleSmall: AppTypography.titleSmall,
-        bodyLarge: AppTypography.bodyLarge,
-        bodyMedium: AppTypography.bodyMedium,
-        bodySmall: AppTypography.bodySmall,
-        labelLarge: AppTypography.labelLarge,
-        labelMedium: AppTypography.labelMedium,
-        labelSmall: AppTypography.labelSmall,
       ),
       appBarTheme: const AppBarTheme(
         elevation: 0,
@@ -151,6 +137,9 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
+      // Accessibility features
+      visualDensity: VisualDensity.adaptivePlatformDensity,
+      textTheme: _buildAccessibleTextTheme(ThemeData.dark().textTheme),
       colorScheme: const ColorScheme.dark(
         primary: AppColors.primary,
         onPrimary: Colors.white,
@@ -180,53 +169,6 @@ class AppTheme {
         onInverseSurface: AppColors.grey800,
         inversePrimary: AppColors.primaryDark,
         surfaceTint: AppColors.primary,
-      ),
-      textTheme: TextTheme(
-        displayLarge: AppTypography.displayLarge.copyWith(
-          color: AppColors.darkOnBackground,
-        ),
-        displayMedium: AppTypography.displayMedium.copyWith(
-          color: AppColors.darkOnBackground,
-        ),
-        displaySmall: AppTypography.displaySmall.copyWith(
-          color: AppColors.darkOnBackground,
-        ),
-        headlineLarge: AppTypography.headlineLarge.copyWith(
-          color: AppColors.darkOnBackground,
-        ),
-        headlineMedium: AppTypography.headlineMedium.copyWith(
-          color: AppColors.darkOnBackground,
-        ),
-        headlineSmall: AppTypography.headlineSmall.copyWith(
-          color: AppColors.darkOnBackground,
-        ),
-        titleLarge: AppTypography.titleLarge.copyWith(
-          color: AppColors.darkOnSurface,
-        ),
-        titleMedium: AppTypography.titleMedium.copyWith(
-          color: AppColors.darkOnSurface,
-        ),
-        titleSmall: AppTypography.titleSmall.copyWith(
-          color: AppColors.darkOnSurface,
-        ),
-        bodyLarge: AppTypography.bodyLarge.copyWith(
-          color: AppColors.darkOnSurface,
-        ),
-        bodyMedium: AppTypography.bodyMedium.copyWith(
-          color: AppColors.darkOnSurface,
-        ),
-        bodySmall: AppTypography.bodySmall.copyWith(
-          color: AppColors.darkOnSurface,
-        ),
-        labelLarge: AppTypography.labelLarge.copyWith(
-          color: AppColors.darkOnSurface,
-        ),
-        labelMedium: AppTypography.labelMedium.copyWith(
-          color: AppColors.darkOnSurface,
-        ),
-        labelSmall: AppTypography.labelSmall.copyWith(
-          color: AppColors.darkOnSurface,
-        ),
       ),
       appBarTheme: const AppBarTheme(
         elevation: 0,
@@ -315,6 +257,140 @@ class AppTheme {
         selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.grey400,
         type: BottomNavigationBarType.fixed,
+      ),
+    );
+  }
+
+  /// Build accessible text theme with proper contrast and scaling
+  static TextTheme _buildAccessibleTextTheme(TextTheme base) {
+    return base.copyWith(
+      displayLarge: base.displayLarge?.copyWith(
+        fontSize: 32,
+        fontWeight: FontWeight.w700,
+        height: 1.2,
+        letterSpacing: -0.5,
+      ),
+      displayMedium: base.displayMedium?.copyWith(
+        fontSize: 28,
+        fontWeight: FontWeight.w600,
+        height: 1.3,
+        letterSpacing: -0.25,
+      ),
+      displaySmall: base.displaySmall?.copyWith(
+        fontSize: 24,
+        fontWeight: FontWeight.w600,
+        height: 1.3,
+        letterSpacing: 0,
+      ),
+      headlineLarge: base.headlineLarge?.copyWith(
+        fontSize: 22,
+        fontWeight: FontWeight.w600,
+        height: 1.3,
+        letterSpacing: 0,
+      ),
+      headlineMedium: base.headlineMedium?.copyWith(
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        height: 1.4,
+        letterSpacing: 0.15,
+      ),
+      headlineSmall: base.headlineSmall?.copyWith(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        height: 1.4,
+        letterSpacing: 0.15,
+      ),
+      titleLarge: base.titleLarge?.copyWith(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        height: 1.5,
+        letterSpacing: 0.15,
+      ),
+      titleMedium: base.titleMedium?.copyWith(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        height: 1.5,
+        letterSpacing: 0.1,
+      ),
+      titleSmall: base.titleSmall?.copyWith(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        height: 1.5,
+        letterSpacing: 0.1,
+      ),
+      bodyLarge: base.bodyLarge?.copyWith(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        height: 1.5,
+        letterSpacing: 0.15,
+      ),
+      bodyMedium: base.bodyMedium?.copyWith(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        height: 1.5,
+        letterSpacing: 0.25,
+      ),
+      bodySmall: base.bodySmall?.copyWith(
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+        height: 1.5,
+        letterSpacing: 0.4,
+      ),
+      labelLarge: base.labelLarge?.copyWith(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        height: 1.4,
+        letterSpacing: 0.1,
+      ),
+      labelMedium: base.labelMedium?.copyWith(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        height: 1.4,
+        letterSpacing: 0.5,
+      ),
+      labelSmall: base.labelSmall?.copyWith(
+        fontSize: 10,
+        fontWeight: FontWeight.w600,
+        height: 1.4,
+        letterSpacing: 0.5,
+      ),
+    );
+  }
+
+  /// Get high contrast theme for accessibility
+  static ThemeData get highContrastLightTheme {
+    final theme = lightTheme;
+    return theme.copyWith(
+      colorScheme: theme.colorScheme.copyWith(
+        primary: const Color(0xFF000000),
+        onPrimary: const Color(0xFFFFFFFF),
+        secondary: const Color(0xFF000000),
+        onSecondary: const Color(0xFFFFFFFF),
+        error: const Color(0xFFD32F2F),
+        onError: const Color(0xFFFFFFFF),
+        surface: const Color(0xFFFFFFFF),
+        onSurface: const Color(0xFF000000),
+        background: const Color(0xFFFFFFFF),
+        onBackground: const Color(0xFF000000),
+      ),
+    );
+  }
+
+  /// Get high contrast dark theme for accessibility
+  static ThemeData get highContrastDarkTheme {
+    final theme = darkTheme;
+    return theme.copyWith(
+      colorScheme: theme.colorScheme.copyWith(
+        primary: const Color(0xFFFFFFFF),
+        onPrimary: const Color(0xFF000000),
+        secondary: const Color(0xFFFFFFFF),
+        onSecondary: const Color(0xFF000000),
+        error: const Color(0xFFFF6B6B),
+        onError: const Color(0xFF000000),
+        surface: const Color(0xFF000000),
+        onSurface: const Color(0xFFFFFFFF),
+        background: const Color(0xFF000000),
+        onBackground: const Color(0xFFFFFFFF),
       ),
     );
   }

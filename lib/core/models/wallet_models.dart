@@ -1,14 +1,11 @@
-import 'package:isar/isar.dart';
+// import 'package:isar/isar.dart'; // Removed - using SQLite instead
 import 'package:json_annotation/json_annotation.dart';
 
 part 'wallet_models.g.dart';
 
 /// Wallet account model for Isar database
-@collection
 class WalletAccount {
-  Id id = Isar.autoIncrement;
 
-  @Index(unique: true)
   late String address;
 
   late String name;
@@ -41,11 +38,8 @@ class WalletAccount {
 }
 
 /// Mnemonic wallet model for Isar database
-@collection
 class MnemonicWallet {
-  Id id = Isar.autoIncrement;
 
-  @Index(unique: true)
   late String encryptedMnemonic; // Encrypted 12/24 word mnemonic
   late int wordCount; // 12 or 24
   late String name;

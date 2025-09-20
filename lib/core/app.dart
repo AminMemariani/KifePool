@@ -5,7 +5,9 @@ import '../shared/providers/wallet_provider.dart';
 import '../shared/providers/staking_provider.dart';
 import '../shared/providers/news_provider.dart';
 import '../shared/providers/auth_provider.dart';
+import '../shared/providers/language_provider.dart';
 import '../core/services/serverpod_client.dart';
+import '../l10n/app_localizations.dart';
 import '../shared/widgets/bottom_navigation.dart';
 import '../features/wallet/presentation/screens/account_dashboard_screen.dart';
 import '../features/wallet/presentation/screens/wallet_creation_screen.dart';
@@ -14,7 +16,6 @@ import '../features/wallet/presentation/screens/seed_phrase_backup_screen.dart';
 import '../features/staking/presentation/screens/staking_screen.dart';
 import '../features/nfts/presentation/screens/nfts_screen.dart';
 import '../features/transactions/presentation/screens/transactions_screen.dart';
-import '../features/cross_chain/presentation/screens/cross_chain_transfer_screen.dart';
 import '../features/cross_chain/presentation/screens/xcm_transfer_history_screen.dart';
 import '../features/news/presentation/screens/news_screen.dart';
 import '../features/auth/presentation/screens/auth_screen.dart';
@@ -27,24 +28,32 @@ class KifePoolApp extends StatefulWidget {
   State<KifePoolApp> createState() => _KifePoolAppState();
 }
 
-class _KifePoolAppState extends State<KifePoolApp> {
+class _KifePoolAppState extends State<KifePoolApp>
+    with TickerProviderStateMixin {
   int _currentIndex = 0;
   bool _showOnboarding = true;
   bool _isInitialized = false;
+  late PageController _pageController;
 
   final List<Widget> _screens = [
     const AccountDashboardScreen(),
     const StakingScreen(),
     const NFTsScreen(),
     const TransactionsScreen(),
-    const CrossChainTransferScreen(),
     const NewsScreen(),
   ];
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(initialPage: _currentIndex);
     _initializeApp();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   Future<void> _initializeApp() async {
@@ -54,7 +63,14 @@ class _KifePoolAppState extends State<KifePoolApp> {
 
       // Initialize providers
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final languageProvider = Provider.of<LanguageProvider>(
+        context,
+        listen: false,
+      );
+
+      // Initialize providers without using context after async gap
       await authProvider.initialize();
+      await languageProvider.initialize();
       
       setState(() {
         _isInitialized = true;
@@ -75,18 +91,37 @@ class _KifePoolAppState extends State<KifePoolApp> {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),
         ChangeNotifierProvider(create: (_) => WalletProvider()),
         ChangeNotifierProvider(create: (_) => StakingProvider()),
         ChangeNotifierProvider(create: (_) => NewsProvider()),
       ],
-      child: Consumer3<ThemeProvider, AuthProvider, WalletProvider>(
-        builder: (context, themeProvider, authProvider, walletProvider, child) {
+      child:
+          Consumer4<
+            ThemeProvider,
+            AuthProvider,
+            LanguageProvider,
+            WalletProvider
+          >(
+            builder:
+                (
+                  context,
+                  themeProvider,
+                  authProvider,
+                  languageProvider,
+                  walletProvider,
+                  child,
+                ) {
           return MaterialApp(
             title: 'KifePool',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: themeProvider.themeMode,
+                    locale: languageProvider.currentLocale,
+                    localizationsDelegates:
+                        AppLocalizations.localizationsDelegates,
+                    supportedLocales: AppLocalizations.supportedLocales,
             home: !_isInitialized
                 ? const Scaffold(
                     body: Center(child: CircularProgressIndicator()),
@@ -94,8 +129,13 @@ class _KifePoolAppState extends State<KifePoolApp> {
                 : _showOnboarding
                 ? const AuthScreen()
                 : Scaffold(
-                    body: IndexedStack(
-                      index: _currentIndex,
+                            body: PageView(
+                              controller: _pageController,
+                              onPageChanged: (index) {
+                                setState(() {
+                                  _currentIndex = index;
+                                });
+                              },
                       children: _screens,
                     ),
                     bottomNavigationBar: AppBottomNavigation(
@@ -104,18 +144,36 @@ class _KifePoolAppState extends State<KifePoolApp> {
                         setState(() {
                           _currentIndex = index;
                         });
+                                _pageController.animateToPage(
+                                  index,
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
                       },
                     ),
                   ),
             routes: {
               '/dashboard': (context) => Scaffold(
-                body: IndexedStack(index: _currentIndex, children: _screens),
+                        body: PageView(
+                          controller: _pageController,
+                          onPageChanged: (index) {
+                            setState(() {
+                              _currentIndex = index;
+                            });
+                          },
+                          children: _screens,
+                        ),
                 bottomNavigationBar: AppBottomNavigation(
                   currentIndex: _currentIndex,
                   onTap: (index) {
                     setState(() {
                       _currentIndex = index;
                     });
+                            _pageController.animateToPage(
+                              index,
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
                   },
                 ),
               ),

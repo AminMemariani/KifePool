@@ -121,7 +121,9 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
         Text(
           'Your Gateway to the Polkadot Ecosystem',
           style: AppTypography.bodyLarge.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
           textAlign: TextAlign.center,
         ),
@@ -144,7 +146,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
         labelColor: Colors.white,
         unselectedLabelColor: Theme.of(
           context,
-        ).colorScheme.onSurface.withOpacity(0.7),
+        ).colorScheme.onSurface.withValues(alpha: 0.7),
         labelStyle: AppTypography.titleMedium.copyWith(
           fontWeight: FontWeight.w600,
         ),
@@ -415,7 +417,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                 style: AppTypography.bodyMedium.copyWith(
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withOpacity(0.7),
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
             ),

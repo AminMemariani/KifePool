@@ -1,13 +1,13 @@
-import 'package:isar/isar.dart';
+// import 'package:isar/isar.dart'; // Removed - using SQLite instead
 import 'package:json_annotation/json_annotation.dart';
 
 part 'staking_models.g.dart';
 
 /// Validator information
-@collection
+
 @JsonSerializable()
 class Validator {
-  Id id = Isar.autoIncrement;
+  
   late String address;
   late String name;
   late String chain;
@@ -30,10 +30,10 @@ class Validator {
 }
 
 /// Nomination pool information
-@collection
+
 @JsonSerializable()
 class NominationPool {
-  Id id = Isar.autoIncrement;
+  
   late int poolId;
   late String name;
   late String chain;
@@ -56,10 +56,10 @@ class NominationPool {
 }
 
 /// User's staking position
-@collection
+
 @JsonSerializable()
 class StakingPosition {
-  Id id = Isar.autoIncrement;
+  
   late String accountAddress;
   late String chain;
   late String stakingType; // 'validator' or 'pool'
@@ -107,10 +107,10 @@ class StakingPosition {
 }
 
 /// Staking reward information
-@collection
+
 @JsonSerializable()
 class StakingReward {
-  Id id = Isar.autoIncrement;
+  
   late String accountAddress;
   late String chain;
   late String validatorAddress;

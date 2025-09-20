@@ -598,8 +598,8 @@ class XcmTransferService {
       return await DatabaseService.getXcmTransferHistory(
         address: address,
         chain: chain,
-        type: type,
-        status: status,
+        type: type?.name,
+        status: status?.name,
         limit: limit,
         offset: offset,
       );

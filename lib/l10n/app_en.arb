@@ -1,0 +1,143 @@
+{
+  "@@locale": "en",
+  "appTitle": "KifePool",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "wallet": "Wallet",
+  "@wallet": {
+    "description": "Wallet tab label"
+  },
+  "staking": "Staking",
+  "@staking": {
+    "description": "Staking tab label"
+  },
+  "nfts": "NFTs",
+  "@nfts": {
+    "description": "NFTs tab label"
+  },
+  "history": "History",
+  "@history": {
+    "description": "History tab label"
+  },
+  "news": "News",
+  "@news": {
+    "description": "News tab label"
+  },
+  "balance": "Balance",
+  "@balance": {
+    "description": "Balance label"
+  },
+  "totalBalance": "Total Balance",
+  "@totalBalance": {
+    "description": "Total balance label"
+  },
+  "send": "Send",
+  "@send": {
+    "description": "Send button label"
+  },
+  "receive": "Receive",
+  "@receive": {
+    "description": "Receive button label"
+  },
+  "stake": "Stake",
+  "@stake": {
+    "description": "Stake button label"
+  },
+  "unstake": "Unstake",
+  "@unstake": {
+    "description": "Unstake button label"
+  },
+  "claimRewards": "Claim Rewards",
+  "@claimRewards": {
+    "description": "Claim rewards button label"
+  },
+  "loading": "Loading...",
+  "@loading": {
+    "description": "Loading indicator text"
+  },
+  "error": "Error",
+  "@error": {
+    "description": "Error label"
+  },
+  "retry": "Retry",
+  "@retry": {
+    "description": "Retry button label"
+  },
+  "success": "Success",
+  "@success": {
+    "description": "Success label"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button label"
+  },
+  "confirm": "Confirm",
+  "@confirm": {
+    "description": "Confirm button label"
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings label"
+  },
+  "logout": "Logout",
+  "@logout": {
+    "description": "Logout button label"
+  },
+  "login": "Login",
+  "@login": {
+    "description": "Login button label"
+  },
+  "register": "Register",
+  "@register": {
+    "description": "Register button label"
+  },
+  "email": "Email",
+  "@email": {
+    "description": "Email field label"
+  },
+  "password": "Password",
+  "@password": {
+    "description": "Password field label"
+  },
+  "username": "Username",
+  "@username": {
+    "description": "Username field label"
+  },
+  "firstName": "First Name",
+  "@firstName": {
+    "description": "First name field label"
+  },
+  "lastName": "Last Name",
+  "@lastName": {
+    "description": "Last name field label"
+  },
+  "welcomeMessage": "Welcome to KifePool",
+  "@welcomeMessage": {
+    "description": "Welcome message"
+  },
+  "welcomeSubtitle": "Your Gateway to the Polkadot Ecosystem",
+  "@welcomeSubtitle": {
+    "description": "Welcome subtitle"
+  },
+  "noTransactions": "No transactions found",
+  "@noTransactions": {
+    "description": "No transactions message"
+  },
+  "noNews": "No news articles found",
+  "@noNews": {
+    "description": "No news message"
+  },
+  "noNfts": "No NFTs found",
+  "@noNfts": {
+    "description": "No NFTs message"
+  },
+  "refresh": "Refresh",
+  "@refresh": {
+    "description": "Refresh button label"
+  },
+  "pullToRefresh": "Pull to refresh",
+  "@pullToRefresh": {
+    "description": "Pull to refresh instruction"
+  }
+}

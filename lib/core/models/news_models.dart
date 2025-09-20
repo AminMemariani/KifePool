@@ -1,13 +1,13 @@
-import 'package:isar/isar.dart';
+// import 'package:isar/isar.dart'; // Removed - using SQLite instead
 import 'package:json_annotation/json_annotation.dart';
 
 part 'news_models.g.dart';
 
 /// News article model
-@collection
+
 @JsonSerializable()
 class NewsArticle {
-  Id id = Isar.autoIncrement;
+  
   late String articleId;
   late String title;
   late String excerpt;
@@ -21,9 +21,9 @@ class NewsArticle {
   late DateTime fetchedAt;
   late DateTime createdAt;
   late DateTime? updatedAt;
-  @Enumerated(EnumType.name)
+  
   late NewsCategory category;
-  @Enumerated(EnumType.name)
+  
   late NewsSource newsSource;
   late bool isRead;
   late bool isBookmarked;
@@ -37,10 +37,10 @@ class NewsArticle {
 }
 
 /// Featured project model
-@collection
+
 @JsonSerializable()
 class FeaturedProject {
-  Id id = Isar.autoIncrement;
+  
   late String projectId;
   late String name;
   late String description;
@@ -53,9 +53,9 @@ class FeaturedProject {
   String? telegramUrl;
   String? githubUrl;
   late List<String> tags;
-  @Enumerated(EnumType.name)
+  
   late ProjectCategory category;
-  @Enumerated(EnumType.name)
+  
   late ProjectStatus status;
   late String chain;
   late DateTime featuredAt;

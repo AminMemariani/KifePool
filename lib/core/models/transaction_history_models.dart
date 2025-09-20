@@ -1,4 +1,4 @@
-import 'package:isar/isar.dart';
+// import 'package:isar/isar.dart'; // Removed - using SQLite instead
 import 'package:json_annotation/json_annotation.dart';
 
 part 'transaction_history_models.g.dart';
@@ -44,10 +44,10 @@ enum TransactionDirection {
 }
 
 /// Transaction history model
-@collection
+
 @JsonSerializable()
 class TransactionHistory {
-  Id id = Isar.autoIncrement;
+  
 
   /// Transaction hash
   late String hash;
@@ -59,15 +59,15 @@ class TransactionHistory {
   late String chain;
 
   /// Transaction type
-  @Enumerated(EnumType.name)
+  
   late TransactionType type;
 
   /// Transaction status
-  @Enumerated(EnumType.name)
+  
   late TransactionStatus status;
 
   /// Transaction direction
-  @Enumerated(EnumType.name)
+  
   late TransactionDirection direction;
 
   /// From address
@@ -101,7 +101,7 @@ class TransactionHistory {
   late int nonce;
 
   /// Additional metadata
-  @ignore
+  
   Map<String, dynamic>? metadata;
 
   /// Explorer URL

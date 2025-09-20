@@ -86,7 +86,7 @@ class WalletProvider extends ChangeNotifier {
           derivationPath: result.derivationPath,
           accountIndex: 0,
           walletType: 'mnemonic',
-          mnemonicId: mnemonicWallet.id.toString(),
+          mnemonicId: mnemonicWallet.name,
         );
 
         await DatabaseService.saveWalletAccount(account);
@@ -149,7 +149,7 @@ class WalletProvider extends ChangeNotifier {
           derivationPath: result.derivationPath,
           accountIndex: 0,
           walletType: 'mnemonic',
-          mnemonicId: mnemonicWallet.id.toString(),
+          mnemonicId: mnemonicWallet.name,
         );
 
         await DatabaseService.saveWalletAccount(account);
@@ -251,13 +251,15 @@ class WalletProvider extends ChangeNotifier {
   Future<void> deleteAccount(int accountId) async {
     _setLoading(true);
     try {
-      final account = await DatabaseService.getWalletAccountById(accountId);
+      final account = await DatabaseService.getWalletAccountById(
+        accountId.toString(),
+      );
       if (account != null) {
         // Delete private key from secure storage
         await SecureStorageService.deletePrivateKey(account.address);
 
         // Delete from database
-        await DatabaseService.deleteWalletAccount(accountId);
+        await DatabaseService.deleteWalletAccount(accountId.toString());
 
         // Reload accounts
         await _loadAccounts();
@@ -276,7 +278,9 @@ class WalletProvider extends ChangeNotifier {
   Future<void> updateAccountName(int accountId, String newName) async {
     _setLoading(true);
     try {
-      final account = await DatabaseService.getWalletAccountById(accountId);
+      final account = await DatabaseService.getWalletAccountById(
+        accountId.toString(),
+      );
       if (account != null) {
         account.name = newName;
         await DatabaseService.updateWalletAccount(account);

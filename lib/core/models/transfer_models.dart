@@ -1,4 +1,4 @@
-import 'package:isar/isar.dart';
+// import 'package:isar/isar.dart'; // Removed - using SQLite instead
 import 'package:json_annotation/json_annotation.dart';
 
 part 'transfer_models.g.dart';
@@ -34,18 +34,18 @@ enum TransferDirection {
 }
 
 /// Token transfer model
-@collection
+
 @JsonSerializable()
 class TokenTransfer {
-  Id id = Isar.autoIncrement;
+  
 
-  @Index()
+  
   late String transactionHash;
 
-  @Index()
+  
   late String fromAddress;
 
-  @Index()
+  
   late String toAddress;
 
   late String tokenSymbol;
@@ -53,12 +53,12 @@ class TokenTransfer {
   late String amount;
   late String chain;
 
-  @Index()
-  @Enumerated(EnumType.name)
+  
+  
   late TransferDirection direction;
 
-  @Index()
-  @Enumerated(EnumType.name)
+  
+  
   late TransferStatus status;
 
   late String? gasFee;
@@ -71,7 +71,7 @@ class TokenTransfer {
   // Optional fields
   String? memo;
   String? metadata;
-  @ignore
+  
   Map<String, dynamic>? extraData;
 
   TokenTransfer();
@@ -82,18 +82,18 @@ class TokenTransfer {
 }
 
 /// NFT transfer model
-@collection
+
 @JsonSerializable()
 class NftTransfer {
-  Id id = Isar.autoIncrement;
+  
 
-  @Index()
+  
   late String transactionHash;
 
-  @Index()
+  
   late String fromAddress;
 
-  @Index()
+  
   late String toAddress;
 
   late String nftId;
@@ -102,12 +102,12 @@ class NftTransfer {
   late String? nftImage;
   late String chain;
 
-  @Index()
-  @Enumerated(EnumType.name)
+  
+  
   late TransferDirection direction;
 
-  @Index()
-  @Enumerated(EnumType.name)
+  
+  
   late TransferStatus status;
 
   late String? gasFee;
@@ -119,9 +119,9 @@ class NftTransfer {
 
   // Optional fields
   String? memo;
-  @ignore
+  
   Map<String, dynamic>? metadata;
-  @ignore
+  
   Map<String, dynamic>? extraData;
 
   NftTransfer();

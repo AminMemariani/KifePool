@@ -20,7 +20,9 @@ class PasswordStrengthMeter extends StatelessWidget {
             Text(
               'Password Strength: ',
               style: AppTypography.bodySmall.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
             Text(
@@ -51,7 +53,7 @@ class PasswordStrengthMeter extends StatelessWidget {
             decoration: BoxDecoration(
               color: isActive
                   ? _getStrengthColor(strength)
-                  : Colors.grey.withOpacity(0.3),
+                  : Colors.grey.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -75,7 +77,9 @@ class PasswordStrengthMeter extends StatelessWidget {
                 size: 16,
                 color: req.isMet
                     ? Colors.green
-                    : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                    : Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
               ),
               const SizedBox(width: AppSpacing.xs),
               Text(
@@ -85,7 +89,7 @@ class PasswordStrengthMeter extends StatelessWidget {
                       ? Colors.green
                       : Theme.of(
                           context,
-                        ).colorScheme.onSurface.withOpacity(0.7),
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
             ],

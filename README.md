@@ -1,7 +1,7 @@
 # KifePool - Polkadot & Kusama Wallet App
 
 [![Tests](https://img.shields.io/badge/Tests-Basic%20Tests%20Passing-brightgreen.svg)](https://github.com/cyberhonig/KifePool)
-[![Coverage](https://img.shields.io/badge/Coverage-18%25-yellow.svg)](https://github.com/cyberhonig/KifePool)
+[![Coverage](https://img.shields.io/badge/Coverage-46%25-green.svg)](https://github.com/cyberhonig/KifePool)
 [![Flutter](https://img.shields.io/badge/Flutter-3.8.1+-blue.svg)](https://flutter.dev/)
 [![Dart](https://img.shields.io/badge/Dart-3.0.0+-blue.svg)](https://dart.dev/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -18,7 +18,7 @@ A comprehensive Flutter application for managing cryptocurrencies in the Polkado
 - **News**: Stay updated with the latest crypto news
 - **Cross-Chain**: Support for Polkadot and Kusama parachains via XCM
 - **Dark Mode**: Beautiful dark theme with toggle functionality
-- **Offline-First**: Local data persistence with Isar database
+- **Offline-First**: Local data persistence with SQLite database
 
 ## 🌐 Supported Ecosystems
 
@@ -37,7 +37,7 @@ The app automatically detects and supports all active parachains in both ecosyst
 
 ### Frontend (Flutter)
 - **State Management**: Provider pattern for reactive state management
-- **Local Database**: Isar for offline-first data persistence
+- **Local Database**: SQLite for offline-first data persistence
 - **Networking**: Dio for HTTP requests and API communication
 - **Blockchain Integration**: Direct RPC connections to Polkadot and Kusama networks
 
@@ -74,7 +74,7 @@ KifePool/
 ### Frontend
 - **Flutter**: Cross-platform mobile framework
 - **Provider**: State management solution
-- **Isar**: Local NoSQL database
+- **SQLite**: Local relational database
 - **Dio**: HTTP client for networking
 - **WebSocket**: Real-time Polkadot/Kusama blockchain communication
 - **Google Fonts**: Typography system
@@ -203,7 +203,7 @@ Update `lib/core/constants/app_constants.dart` with your configuration:
 
 ### Current Test Status
 - ✅ **Unit Tests**: 6 tests passing (Theme Provider, App Spacing, App Colors)
-- 📊 **Coverage**: ~18% (Core theme components tested)
+- 📊 **Coverage**: 46% (Core theme components and services tested)
 - ⚠️ **Integration Tests**: Some tests have dependency conflicts (carousel_slider package)
 - ⚠️ **Network Tests**: Require RPC node configuration
 - 🔧 **Known Issues**: 
