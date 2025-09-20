@@ -60,7 +60,7 @@ dependencies:
   flutter_secure_storage: ^9.0.0
   
   # UI Components
-  carousel_slider: ^4.2.1
+  # carousel_slider: ^4.2.1  # Temporarily disabled due to CarouselController conflict
   flutter_svg: ^2.0.9
   qr_flutter: ^4.1.0
   mobile_scanner: ^3.5.6

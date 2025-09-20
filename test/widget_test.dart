@@ -21,11 +21,37 @@ void main() {
       ),
     );
 
-    // Verify that the app loads with the wallet screen
+    // Wait for the app to load
+    await tester.pumpAndSettle();
+
+    // Check if we're on the onboarding screen first
+    if (find.text('Welcome to KifePool').evaluate().isNotEmpty) {
+      // Skip onboarding by tapping the skip button
+      await tester.tap(find.text('Skip'));
+      await tester.pumpAndSettle();
+    }
+
+    // Verify that the app loads with the main navigation
     expect(find.text('Wallet'), findsOneWidget);
     expect(find.text('Staking'), findsOneWidget);
     expect(find.text('NFTs'), findsOneWidget);
     expect(find.text('Transactions'), findsOneWidget);
     expect(find.text('News'), findsOneWidget);
+  });
+
+  testWidgets('Theme provider works correctly', (WidgetTester tester) async {
+    // Test theme provider independently
+    final themeProvider = ThemeProvider();
+
+    // Verify initial theme (defaults to dark mode)
+    expect(themeProvider.isDarkMode, true);
+
+    // Toggle theme
+    themeProvider.toggleTheme();
+    expect(themeProvider.isDarkMode, false);
+
+    // Toggle back
+    themeProvider.toggleTheme();
+    expect(themeProvider.isDarkMode, true);
   });
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart' as carousel;
+// import 'package:carousel_slider/carousel_slider.dart' as carousel;  // Temporarily disabled
 import 'package:kifepool/core/theme/app_spacing.dart';
 import 'package:kifepool/core/theme/app_typography.dart';
 import 'package:kifepool/core/models/wallet_models.dart';
@@ -15,9 +15,20 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  final carousel.CarouselController _carouselController =
-      carousel.CarouselController();
+  late PageController _pageController;
   int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   final List<OnboardingStep> _steps = [
     const OnboardingStep(
@@ -86,24 +97,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
 
-            // Carousel
+            // PageView (temporary replacement for carousel)
             Expanded(
-              child: carousel.CarouselSlider.builder(
-                carouselController: _carouselController,
+              child: PageView.builder(
+                controller: _pageController,
                 itemCount: _steps.length,
-                itemBuilder: (context, index, realIndex) {
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                },
+                itemBuilder: (context, index) {
                   return _buildOnboardingStep(_steps[index]);
                 },
-                options: carousel.CarouselOptions(
-                  height: double.infinity,
-                  viewportFraction: 1.0,
-                  enableInfiniteScroll: false,
-                  onPageChanged: (index, reason) {
-                    setState(() {
-                      _currentIndex = index;
-                    });
-                  },
-                ),
               ),
             ),
 
@@ -141,7 +147,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Expanded(
                           child: OutlinedButton(
                             onPressed: () {
-                              _carouselController.previousPage();
+                              _pageController.previousPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
                             },
                             child: Text(
                               'Previous',
@@ -159,7 +168,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (_currentIndex < _steps.length - 1) {
-                              _carouselController.nextPage();
+                              _pageController.nextPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
                             } else {
                               widget.onComplete();
                             }
