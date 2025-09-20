@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../shared/providers/theme_provider.dart';
 import '../shared/providers/wallet_provider.dart';
+import '../shared/providers/staking_provider.dart';
 import '../shared/widgets/bottom_navigation.dart';
 import '../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../features/wallet/presentation/screens/account_dashboard_screen.dart';
@@ -56,6 +57,7 @@ class _KifePoolAppState extends State<KifePoolApp> {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => WalletProvider()),
+        ChangeNotifierProvider(create: (_) => StakingProvider()),
       ],
       child: Consumer2<ThemeProvider, WalletProvider>(
         builder: (context, themeProvider, walletProvider, child) {
