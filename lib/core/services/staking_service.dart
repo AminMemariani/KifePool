@@ -3,41 +3,10 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:kifepool/core/models/staking_models.dart' as staking;
+import 'package:kifepool/core/services/rpc_node_service.dart';
 
 /// Service for managing staking operations across supported parachains
 class StakingService {
-  static const Map<String, String> _rpcEndpoints = {
-    'polkadot': 'wss://rpc.polkadot.io',
-    'kusama': 'wss://kusama-rpc.polkadot.io',
-    'moonbeam': 'wss://wss.api.moonbeam.network',
-    'astar': 'wss://rpc.astar.network',
-    'acala': 'wss://acala-rpc-0.aca-api.network',
-  };
-
-  static final Map<String, WebSocketChannel?> _connections = {};
-
-  /// Initialize connection to a chain
-  static Future<void> _initializeConnection(String chain) async {
-    if (_connections[chain] != null) return;
-
-    final endpoint = _rpcEndpoints[chain];
-    if (endpoint == null) {
-      throw staking.StakingException(
-        type: staking.StakingErrorType.networkError,
-        message: 'Unsupported chain: $chain',
-      );
-    }
-
-    try {
-      _connections[chain] = WebSocketChannel.connect(Uri.parse(endpoint));
-    } catch (e) {
-      throw staking.StakingException(
-        type: staking.StakingErrorType.networkError,
-        message: 'Failed to connect to $chain',
-        details: e.toString(),
-      );
-    }
-  }
 
   /// Send RPC request
   static Future<Map<String, dynamic>> _sendRpcRequest(
@@ -45,84 +14,41 @@ class StakingService {
     String method,
     List<dynamic> params,
   ) async {
-    await _initializeConnection(chain);
-    final connection = _connections[chain]!;
+    try {
+      final endpoint = RpcNodeService.getRpcUrl(chain);
+      if (endpoint == null) {
+        throw staking.StakingException(
+          type: staking.StakingErrorType.networkError,
+          message: 'No RPC node configured for chain: $chain',
+        );
+      }
 
-    final request = {
-      'jsonrpc': '2.0',
-      'id': Random().nextInt(1000000),
-      'method': method,
-      'params': params,
-    };
+      final channel = WebSocketChannel.connect(Uri.parse(endpoint));
 
-    connection.sink.add(jsonEncode(request));
+      final request = {
+        'jsonrpc': '2.0',
+        'id': Random().nextInt(1000000),
+        'method': method,
+        'params': params,
+      };
 
-    // Wait for response (simplified - in production use proper async handling)
-    await Future.delayed(const Duration(seconds: 2));
+      channel.sink.add(jsonEncode(request));
 
-    // Mock response for now
-    return _getMockResponse(method, chain);
-  }
+      // Wait for response
+      final response = await channel.stream.first;
+      final responseData = jsonDecode(response) as Map<String, dynamic>;
 
-  /// Get mock response for development
-  static Map<String, dynamic> _getMockResponse(String method, String chain) {
-    switch (method) {
-      case 'api.query.staking.validators':
-        return {
-          'result': {'validators': _generateMockValidators(chain)},
-        };
-      case 'api.query.nominationPools.pools':
-        return {'result': _generateMockPools(chain)};
-      default:
-        return {'result': {}};
+      await channel.sink.close();
+
+      return responseData;
+    } catch (e) {
+      throw staking.StakingException(
+        type: staking.StakingErrorType.networkError,
+        message: 'RPC request failed: $e',
+      );
     }
   }
 
-  /// Generate mock validators
-  static List<Map<String, dynamic>> _generateMockValidators(String chain) {
-    final validators = <Map<String, dynamic>>[];
-    final random = Random();
-
-    for (int i = 0; i < 20; i++) {
-      validators.add({
-        'address': '${chain}_validator_${i.toString().padLeft(3, '0')}',
-        'name': 'Validator ${i + 1}',
-        'commission': (random.nextDouble() * 0.1).toStringAsFixed(4), // 0-10%
-        'apy': (random.nextDouble() * 0.15 + 0.05).toStringAsFixed(4), // 5-20%
-        'totalStake': (random.nextInt(1000000) + 100000).toString(),
-        'nominatorCount': random.nextInt(1000) + 50,
-        'isActive': random.nextBool(),
-        'isOversubscribed': random.nextDouble() < 0.1, // 10% chance
-        'identity': 'Identity ${i + 1}',
-        'website': 'https://validator${i + 1}.com',
-        'description': 'Professional validator with high uptime and security.',
-      });
-    }
-
-    return validators;
-  }
-
-  /// Generate mock nomination pools
-  static List<Map<String, dynamic>> _generateMockPools(String chain) {
-    final pools = <Map<String, dynamic>>[];
-    final random = Random();
-
-    for (int i = 0; i < 10; i++) {
-      pools.add({
-        'poolId': i + 1,
-        'name': 'Pool ${i + 1}',
-        'state': 'Active',
-        'apy': (random.nextDouble() * 0.12 + 0.06).toStringAsFixed(4), // 6-18%
-        'totalStake': (random.nextInt(500000) + 50000).toString(),
-        'memberCount': random.nextInt(500) + 20,
-        'poolAccount': '${chain}_pool_${i.toString().padLeft(3, '0')}',
-        'description':
-            'Community-driven nomination pool with competitive rewards.',
-      });
-    }
-
-    return pools;
-  }
 
   /// Get validators for a chain
   static Future<List<staking.Validator>> getValidators(String chain) async {
@@ -1110,11 +1036,4 @@ class StakingService {
     }
   }
 
-  /// Close all connections
-  static Future<void> closeConnections() async {
-    for (final connection in _connections.values) {
-      await connection?.sink.close();
-    }
-    _connections.clear();
-  }
 }

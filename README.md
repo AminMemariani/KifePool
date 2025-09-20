@@ -1,5 +1,12 @@
 # KifePool - Polkadot & Kusama Wallet App
 
+[![Tests](https://github.com/cyberhonig/KifePool/workflows/Tests/badge.svg)](https://github.com/cyberhonig/KifePool/actions)
+[![Coverage](https://codecov.io/gh/cyberhonig/KifePool/branch/main/graph/badge.svg)](https://codecov.io/gh/cyberhonig/KifePool)
+[![Flutter](https://img.shields.io/badge/Flutter-3.8.1+-blue.svg)](https://flutter.dev/)
+[![Dart](https://img.shields.io/badge/Dart-3.0.0+-blue.svg)](https://dart.dev/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web-lightgrey.svg)](https://flutter.dev/)
+
 A comprehensive Flutter application for managing cryptocurrencies in the Polkadot and Kusama ecosystems, featuring wallet functionality, staking, NFTs, transactions, and cross-chain operations.
 
 ## 🚀 Features

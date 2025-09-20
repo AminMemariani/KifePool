@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:kifepool/core/theme/app_spacing.dart';
 import 'package:kifepool/core/theme/app_typography.dart';
 import 'package:kifepool/shared/providers/wallet_provider.dart';
+import 'package:kifepool/features/wallet/presentation/widgets/rpc_node_selector_widget.dart';
+import 'package:kifepool/features/wallet/presentation/screens/rpc_node_management_screen.dart';
 
 /// Wallet creation screen
 class WalletCreationScreen extends StatefulWidget {
@@ -24,18 +26,34 @@ class _WalletCreationScreenState extends State<WalletCreationScreen> {
   String? _generatedMnemonic;
   bool _showMnemonic = false;
 
-  final List<String> _supportedChains = [
+  List<String> _supportedChains = [
     'polkadot',
     'kusama',
-    'moonbeam',
-    'astar',
-    'acala',
   ];
 
   @override
   void initState() {
     super.initState();
     _chainController.text = _selectedChain;
+    _loadSupportedChains();
+  }
+
+  Future<void> _loadSupportedChains() async {
+    try {
+      final walletProvider = Provider.of<WalletProvider>(
+        context,
+        listen: false,
+      );
+      final chains = await walletProvider.getSupportedChains();
+      if (mounted) {
+        setState(() {
+          _supportedChains = chains;
+        });
+      }
+    } catch (e) {
+      // Fallback to basic chains if loading fails
+      debugPrint('Failed to load supported chains: $e');
+    }
   }
 
   @override
@@ -120,6 +138,36 @@ class _WalletCreationScreenState extends State<WalletCreationScreen> {
                   _selectedChain = value!;
                   _chainController.text = value;
                 });
+              },
+            ),
+
+            const SizedBox(height: AppSpacing.lg),
+
+            // RPC Node Selection
+            Row(
+              children: [
+                Text('RPC Node', style: AppTypography.titleMedium),
+                const Spacer(),
+                TextButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const RpcNodeManagementScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.settings, size: 16),
+                  label: const Text('Manage'),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: AppSpacing.sm),
+
+            RpcNodeSelectorWidget(
+              network: _selectedChain,
+              onNodeSelected: (node) {
+                // Node selection is handled automatically
               },
             ),
 

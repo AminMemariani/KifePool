@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kifepool/core/models/staking_models.dart' as staking;
 import 'package:kifepool/core/services/staking_service.dart';
+import 'package:kifepool/core/services/rpc_node_service.dart';
 
 /// Provider for managing staking state and operations
 class StakingProvider with ChangeNotifier {
@@ -430,7 +431,7 @@ class StakingProvider with ChangeNotifier {
 
   @override
   void dispose() {
-    StakingService.closeConnections();
+    RpcNodeService.dispose();
     super.dispose();
   }
 }

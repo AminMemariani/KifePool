@@ -337,8 +337,8 @@ class WalletProvider extends ChangeNotifier {
   }
 
   /// Get supported chains
-  List<String> getSupportedChains() {
-    return WalletService.getSupportedChains();
+  Future<List<String>> getSupportedChains() async {
+    return await WalletService.getSupportedChains();
   }
 
   /// Validate mnemonic

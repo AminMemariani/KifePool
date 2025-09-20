@@ -5,12 +5,14 @@ import 'shared/providers/theme_provider.dart';
 import 'shared/providers/wallet_provider.dart';
 import 'shared/providers/staking_provider.dart';
 import 'core/services/database_service.dart';
+import 'core/services/rpc_node_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize database
+  // Initialize services
   await DatabaseService.initialize();
+  await RpcNodeService.initialize();
   
   runApp(
     MultiProvider(
