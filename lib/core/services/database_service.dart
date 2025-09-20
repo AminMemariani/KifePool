@@ -1,6 +1,7 @@
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:kifepool/core/models/wallet_models.dart';
+import 'package:kifepool/core/models/transfer_models.dart';
 
 /// Database service for managing wallet account metadata
 class DatabaseService {
@@ -14,6 +15,8 @@ class DatabaseService {
     _isar = await Isar.open([
       WalletAccountSchema,
       MnemonicWalletSchema,
+      TokenTransferSchema,
+      NftTransferSchema,
     ], directory: dir.path);
   }
 
@@ -289,5 +292,213 @@ class DatabaseService {
     }
     
     return allResults;
+  }
+
+  // Token Transfer Operations
+
+  /// Save token transfer
+  static Future<void> saveTokenTransfer(TokenTransfer transfer) async {
+    await isar.writeTxn(() async {
+      await isar.tokenTransfers.put(transfer);
+    });
+  }
+
+  /// Get token transfer by hash
+  static Future<TokenTransfer?> getTokenTransferByHash(
+    String transactionHash,
+  ) async {
+    return await isar.tokenTransfers
+        .where()
+        .transactionHashEqualTo(transactionHash)
+        .findFirst();
+  }
+
+  /// Get token transfer history
+  static Future<List<TokenTransfer>> getTokenTransferHistory({
+    String? address,
+    String? chain,
+    int limit = 50,
+  }) async {
+    if (address != null && chain != null) {
+      return await isar.tokenTransfers
+          .filter()
+          .fromAddressEqualTo(address)
+          .or()
+          .toAddressEqualTo(address)
+          .and()
+          .chainEqualTo(chain)
+          .sortByTimestampDesc()
+          .limit(limit)
+          .findAll();
+    } else if (address != null) {
+      return await isar.tokenTransfers
+          .filter()
+          .fromAddressEqualTo(address)
+          .or()
+          .toAddressEqualTo(address)
+          .sortByTimestampDesc()
+          .limit(limit)
+          .findAll();
+    } else if (chain != null) {
+      return await isar.tokenTransfers
+          .filter()
+          .chainEqualTo(chain)
+          .sortByTimestampDesc()
+          .limit(limit)
+          .findAll();
+    } else {
+      return await isar.tokenTransfers
+          .where()
+          .sortByTimestampDesc()
+          .limit(limit)
+          .findAll();
+    }
+  }
+
+  /// Update token transfer
+  static Future<void> updateTokenTransfer(TokenTransfer transfer) async {
+    await isar.writeTxn(() async {
+      await isar.tokenTransfers.put(transfer);
+    });
+  }
+
+  /// Delete token transfer
+  static Future<void> deleteTokenTransfer(int id) async {
+    await isar.writeTxn(() async {
+      await isar.tokenTransfers.delete(id);
+    });
+  }
+
+  // NFT Transfer Operations
+
+  /// Save NFT transfer
+  static Future<void> saveNftTransfer(NftTransfer transfer) async {
+    await isar.writeTxn(() async {
+      await isar.nftTransfers.put(transfer);
+    });
+  }
+
+  /// Get NFT transfer by hash
+  static Future<NftTransfer?> getNftTransferByHash(
+    String transactionHash,
+  ) async {
+    return await isar.nftTransfers
+        .where()
+        .transactionHashEqualTo(transactionHash)
+        .findFirst();
+  }
+
+  /// Get NFT transfer history
+  static Future<List<NftTransfer>> getNftTransferHistory({
+    String? address,
+    String? chain,
+    int limit = 50,
+  }) async {
+    if (address != null && chain != null) {
+      return await isar.nftTransfers
+          .filter()
+          .fromAddressEqualTo(address)
+          .or()
+          .toAddressEqualTo(address)
+          .and()
+          .chainEqualTo(chain)
+          .sortByTimestampDesc()
+          .limit(limit)
+          .findAll();
+    } else if (address != null) {
+      return await isar.nftTransfers
+          .filter()
+          .fromAddressEqualTo(address)
+          .or()
+          .toAddressEqualTo(address)
+          .sortByTimestampDesc()
+          .limit(limit)
+          .findAll();
+    } else if (chain != null) {
+      return await isar.nftTransfers
+          .filter()
+          .chainEqualTo(chain)
+          .sortByTimestampDesc()
+          .limit(limit)
+          .findAll();
+    } else {
+      return await isar.nftTransfers
+          .where()
+          .sortByTimestampDesc()
+          .limit(limit)
+          .findAll();
+    }
+  }
+
+  /// Update NFT transfer
+  static Future<void> updateNftTransfer(NftTransfer transfer) async {
+    await isar.writeTxn(() async {
+      await isar.nftTransfers.put(transfer);
+    });
+  }
+
+  /// Delete NFT transfer
+  static Future<void> deleteNftTransfer(int id) async {
+    await isar.writeTxn(() async {
+      await isar.nftTransfers.delete(id);
+    });
+  }
+
+  /// Get all transfers (tokens and NFTs) for an address
+  static Future<List<dynamic>> getAllTransfers({
+    required String address,
+    String? chain,
+    int limit = 50,
+  }) async {
+    final tokenTransfers = await getTokenTransferHistory(
+      address: address,
+      chain: chain,
+      limit: limit,
+    );
+
+    final nftTransfers = await getNftTransferHistory(
+      address: address,
+      chain: chain,
+      limit: limit,
+    );
+
+    // Combine and sort by timestamp
+    final allTransfers = <dynamic>[...tokenTransfers, ...nftTransfers];
+    allTransfers.sort((a, b) {
+      final aTime = a is TokenTransfer
+          ? a.timestamp
+          : (a as NftTransfer).timestamp;
+      final bTime = b is TokenTransfer
+          ? b.timestamp
+          : (b as NftTransfer).timestamp;
+      return bTime.compareTo(aTime);
+    });
+
+    return allTransfers.take(limit).toList();
+  }
+
+  /// Get transfer statistics
+  static Future<Map<String, dynamic>> getTransferStatistics() async {
+    final totalTokenTransfers = await isar.tokenTransfers.count();
+    final totalNftTransfers = await isar.nftTransfers.count();
+
+    final pendingTokenTransfers = await isar.tokenTransfers
+        .filter()
+        .statusEqualTo(TransferStatus.pending)
+        .count();
+
+    final pendingNftTransfers = await isar.nftTransfers
+        .filter()
+        .statusEqualTo(TransferStatus.pending)
+        .count();
+
+    return {
+      'totalTokenTransfers': totalTokenTransfers,
+      'totalNftTransfers': totalNftTransfers,
+      'pendingTokenTransfers': pendingTokenTransfers,
+      'pendingNftTransfers': pendingNftTransfers,
+      'totalTransfers': totalTokenTransfers + totalNftTransfers,
+      'pendingTransfers': pendingTokenTransfers + pendingNftTransfers,
+    };
   }
 }
