@@ -1,4 +1,4 @@
-# KifePool - Crypto Management App
+# KifePool - Polkadot Wallet App
 
 A comprehensive Flutter application for managing cryptocurrencies, featuring wallet functionality, staking, NFTs, transactions, and cross-chain operations.
 
