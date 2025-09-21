@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'test_typography.dart';
 import 'package:kifepool/core/theme/app_colors.dart';
 
 /// Test-specific theme that doesn't use Google Fonts
