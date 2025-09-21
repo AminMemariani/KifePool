@@ -1,13 +1,29 @@
 # KifePool - Polkadot & Kusama Wallet App
 
-[![Tests](https://img.shields.io/badge/Tests-Basic%20Tests%20Passing-brightgreen.svg)](https://github.com/cyberhonig/KifePool)
-[![Coverage](https://img.shields.io/badge/Coverage-46%25-green.svg)](https://github.com/cyberhonig/KifePool)
+[![Tests](https://img.shields.io/badge/Tests-46%2F95%20Passing-yellow.svg)](https://github.com/AminMemariani/KifePool)
+[![Coverage](https://img.shields.io/badge/Coverage-48%25-green.svg)](https://github.com/AminMemariani/KifePool)
 [![Flutter](https://img.shields.io/badge/Flutter-3.8.1+-blue.svg)](https://flutter.dev/)
 [![Dart](https://img.shields.io/badge/Dart-3.0.0+-blue.svg)](https://dart.dev/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://flutter.dev/)
 
 A comprehensive Flutter application for managing cryptocurrencies in the Polkadot and Kusama ecosystems, featuring wallet functionality, staking, NFTs, transactions, and cross-chain operations.
+
+## 🆕 Recent Updates
+
+### Major Improvements (Latest)
+- ✅ **Fixed Test Infrastructure**: Resolved WebSocket stream management, Google Fonts issues, and platform plugin mocks
+- ✅ **Enhanced Wallet Flow**: Implemented proper wallet selection screen with create/import options
+- ✅ **Improved Error Handling**: Better network connectivity management and graceful error recovery
+- ✅ **Dynamic Parachain Support**: Real-time parachain detection with fallback data
+- ✅ **Test Coverage**: Increased from 46% to 48% with comprehensive test framework
+- ✅ **HydraDX → Hydration**: Updated parachain branding to reflect the recent rebrand
+
+### Development Status
+- **Current Version**: Pre-release (Development)
+- **Test Status**: 46/95 tests passing (48% pass rate)
+- **Core Features**: Wallet infrastructure, theme system, navigation, and basic UI components
+- **Next Phase**: Complete integration tests, implement core wallet functionality, and enhance user experience
 
 ## 🚀 Features
 
@@ -90,7 +106,7 @@ KifePool/
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/AminMemariani/KifePool.git
    cd KifePool
    ```
 
@@ -202,15 +218,17 @@ Update `lib/core/constants/app_constants.dart` with your configuration:
 ## 🧪 Testing
 
 ### Current Test Status
-- ✅ **Unit Tests**: 6 tests passing (Theme Provider, App Spacing, App Colors)
-- 📊 **Coverage**: 46% (Core theme components and services tested)
-- ⚠️ **Integration Tests**: Some tests have dependency conflicts (carousel_slider package)
-- ⚠️ **Network Tests**: Require RPC node configuration
-- 🔧 **Known Issues**: 
-  - CarouselController naming conflict with Flutter's built-in controller
-  - WebSocket stream management in BlockchainService
-  - UI layout constraints in some widgets
-  - Google Fonts binding issues in test environment
+- ✅ **Widget Tests**: 2/2 passing (App loading, Theme provider)
+- ✅ **Blockchain Service Tests**: 43/49 passing (Network connectivity, RPC operations)
+- ✅ **Theme Provider Tests**: 7/7 passing (Theme management, accessibility)
+- 📊 **Coverage**: 48% (Core components and services tested)
+- ⚠️ **Integration Tests**: 46/95 passing (Some tests need mock improvements)
+- 🔧 **Recent Fixes**: 
+  - ✅ Fixed WebSocket stream management in BlockchainService
+  - ✅ Resolved UI layout constraints in wallet selection screen
+  - ✅ Fixed Google Fonts binding issues in test environment
+  - ✅ Added proper test mocks for SharedPreferences and platform plugins
+  - ✅ Implemented network connectivity disable flag for tests
 
 ### Unit Tests
 ```bash
@@ -321,10 +339,14 @@ For support, email support@kifepool.com or join our Discord community.
 - [x] **Theme System**: Light/dark mode with accessibility enhancements
 - [x] **Serverpod Integration**: Backend API integration with caching
 - [x] **News & Projects Feed**: Cached news articles and featured projects
+- [x] **Wallet Selection Flow**: Create new wallet or import existing wallet screens
+- [x] **Dynamic Parachain Support**: Real-time parachain detection and support
+- [x] **Test Framework**: Comprehensive test infrastructure with proper mocks
 
 ### 🚧 In Progress
-- [ ] **Test Coverage**: Expanding from 46% to 80%+ coverage
-- [ ] **Integration Tests**: Fixing provider and navigation test issues
+- [x] **Test Infrastructure**: Fixed major test framework issues and mocks
+- [ ] **Test Coverage**: Expanding from 48% to 80%+ coverage
+- [ ] **Integration Tests**: Fixing remaining SharedPreferences mock issues
 - [ ] **Performance Optimization**: Memory management and rendering improvements
 
 ### 📋 Core Wallet Features

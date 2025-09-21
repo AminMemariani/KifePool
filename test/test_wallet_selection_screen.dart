@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kifepool/core/theme/app_colors.dart';
 import 'package:kifepool/core/theme/app_spacing.dart';
-import 'package:kifepool/core/theme/app_typography.dart';
 import 'package:kifepool/shared/widgets/app_card.dart';
 import 'package:kifepool/features/wallet/presentation/screens/wallet_creation_screen.dart';
 import 'package:kifepool/features/wallet/presentation/screens/wallet_import_screen.dart';
+import 'test_typography.dart';
 
-class WalletSelectionScreen extends StatelessWidget {
-  const WalletSelectionScreen({super.key});
+/// Test-specific wallet selection screen that doesn't use Google Fonts
+class TestWalletSelectionScreen extends StatelessWidget {
+  const TestWalletSelectionScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +49,7 @@ class WalletSelectionScreen extends StatelessWidget {
                       const SizedBox(height: AppSpacing.md),
                       Text(
                         'KifePool',
-                        style: AppTypography.headlineLarge.copyWith(
+                        style: TestTypography.headlineLarge.copyWith(
                           fontWeight: FontWeight.bold,
                           color: AppColors.primary,
                         ),
@@ -56,7 +57,7 @@ class WalletSelectionScreen extends StatelessWidget {
                       const SizedBox(height: AppSpacing.sm),
                       Text(
                         'Your Gateway to Polkadot Ecosystem',
-                        style: AppTypography.bodyLarge.copyWith(
+                        style: TestTypography.bodyLarge.copyWith(
                           color: Theme.of(
                             context,
                           ).colorScheme.onSurface.withValues(alpha: 0.7),
@@ -65,13 +66,13 @@ class WalletSelectionScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: AppSpacing.xl),
-                  
+
                   // Description
                   Text(
                     'Choose how you\'d like to get started with KifePool',
-                    style: AppTypography.bodyMedium.copyWith(
+                    style: TestTypography.bodyMedium.copyWith(
                       color: Theme.of(
                         context,
                       ).colorScheme.onSurface.withValues(alpha: 0.8),
@@ -121,7 +122,7 @@ class WalletSelectionScreen extends StatelessWidget {
                                         children: [
                                           Text(
                                             'Create New Wallet',
-                                            style: AppTypography.headlineSmall
+                                            style: TestTypography.headlineSmall
                                                 .copyWith(
                                                   fontWeight: FontWeight.w600,
                                                 ),
@@ -129,7 +130,7 @@ class WalletSelectionScreen extends StatelessWidget {
                                           const SizedBox(height: AppSpacing.xs),
                                           Text(
                                             'Generate a new seed phrase and create a secure wallet',
-                                            style: AppTypography.bodyMedium
+                                            style: TestTypography.bodyMedium
                                                 .copyWith(
                                                   color: Theme.of(context)
                                                       .colorScheme
@@ -155,9 +156,9 @@ class WalletSelectionScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      
+
                       const SizedBox(height: AppSpacing.md),
-                      
+
                       // Import Existing Wallet Card
                       AppCard(
                         child: InkWell(
@@ -195,7 +196,7 @@ class WalletSelectionScreen extends StatelessWidget {
                                         children: [
                                           Text(
                                             'Import Existing Wallet',
-                                            style: AppTypography.headlineSmall
+                                            style: TestTypography.headlineSmall
                                                 .copyWith(
                                                   fontWeight: FontWeight.w600,
                                                 ),
@@ -203,7 +204,7 @@ class WalletSelectionScreen extends StatelessWidget {
                                           const SizedBox(height: AppSpacing.xs),
                                           Text(
                                             'Import your existing wallet using seed phrase or private key',
-                                            style: AppTypography.bodyMedium
+                                            style: TestTypography.bodyMedium
                                                 .copyWith(
                                                   color: Theme.of(context)
                                                       .colorScheme
@@ -231,7 +232,7 @@ class WalletSelectionScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  
+
                   const Spacer(),
                 ],
               ),
@@ -245,18 +246,14 @@ class WalletSelectionScreen extends StatelessWidget {
   void _navigateToCreateWallet(BuildContext context) {
     HapticFeedback.lightImpact();
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const WalletCreationScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const WalletCreationScreen()),
     );
   }
 
   void _navigateToImportWallet(BuildContext context) {
     HapticFeedback.lightImpact();
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const WalletImportScreen(),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const WalletImportScreen()));
   }
 }

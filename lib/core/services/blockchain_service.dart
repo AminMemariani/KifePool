@@ -12,32 +12,78 @@ class BlockchainService {
 
   final Map<BlockchainNetwork, WebSocketChannel?> _connections = {};
   final Map<BlockchainNetwork, int> _requestIds = {};
+  final Map<BlockchainNetwork, StreamSubscription> _streamSubscriptions = {};
+  final Map<String, Completer<String>> _pendingRequests = {};
   final Duration _timeout = const Duration(seconds: 30);
+  
+  /// Flag to disable network connections (useful for testing)
+  bool _disableNetworkConnections = false;
+
+  /// Set whether to disable network connections
+  void setDisableNetworkConnections(bool disable) {
+    _disableNetworkConnections = disable;
+  }
 
   /// Initialize connection to a blockchain network
   Future<void> _connect(BlockchainNetwork network) async {
     if (_connections[network] != null) return;
+    
+    // Skip connection if network is disabled (useful for testing)
+    if (_disableNetworkConnections) {
+      return;
+    }
 
     try {
       final channel = WebSocketChannel.connect(Uri.parse(network.rpcUrl));
       _connections[network] = channel;
       _requestIds[network] = 0;
 
-      // Listen for connection errors
-      channel.stream.listen(
+      // Set up a single stream listener for all responses
+      _streamSubscriptions[network] = channel.stream.listen(
         (data) {
-          // Handle incoming messages if needed
+          try {
+            final json = jsonDecode(data);
+            final requestId = json['id']?.toString();
+            if (requestId != null) {
+              final requestKey = '${network.name}_$requestId';
+              if (_pendingRequests.containsKey(requestKey)) {
+                _pendingRequests[requestKey]!.complete(data);
+                _pendingRequests.remove(requestKey);
+              }
+            }
+          } catch (e) {
+            // Ignore malformed responses
+          }
         },
         onError: (error) {
           _connections[network] = null;
-          throw BlockchainException(
-            type: BlockchainErrorType.networkError,
-            message: 'Failed to connect to ${network.name}',
-            details: error.toString(),
-          );
+          _streamSubscriptions[network]?.cancel();
+          _streamSubscriptions.remove(network);
+          // Complete all pending requests with error
+          for (final completer in _pendingRequests.values) {
+            completer.completeError(
+              BlockchainException(
+                type: BlockchainErrorType.networkError,
+                message: 'Connection error: ${error.toString()}',
+              ),
+            );
+          }
+          _pendingRequests.clear();
         },
         onDone: () {
           _connections[network] = null;
+          _streamSubscriptions[network]?.cancel();
+          _streamSubscriptions.remove(network);
+          // Complete all pending requests with error
+          for (final completer in _pendingRequests.values) {
+            completer.completeError(
+              BlockchainException(
+                type: BlockchainErrorType.networkError,
+                message: 'Connection closed',
+              ),
+            );
+          }
+          _pendingRequests.clear();
         },
       );
     } catch (e) {
@@ -76,21 +122,16 @@ class BlockchainService {
     };
 
     try {
+      // Create a completer for this request
+      final completer = Completer<String>();
+      final requestKey = '${network.name}_$requestId';
+      _pendingRequests[requestKey] = completer;
+
+      // Send the request
       channel.sink.add(jsonEncode(request));
 
       // Wait for response with timeout
-      final response = await channel.stream
-          .where((data) {
-            try {
-              final json = jsonDecode(data);
-              return json['id'] == requestId;
-            } catch (e) {
-              return false;
-            }
-          })
-          .timeout(_timeout)
-          .first;
-
+      final response = await completer.future.timeout(_timeout);
       final responseData = jsonDecode(response);
 
       if (responseData['error'] != null) {

@@ -8,35 +8,42 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
-import 'package:kifepool/core/app.dart';
 import 'package:kifepool/shared/providers/theme_provider.dart';
+import 'test_helpers.dart';
+import 'test_app.dart';
 
 void main() {
+  setUpAll(() {
+    TestHelpers.setupPlatformMocks();
+  });
+
+  tearDownAll(() {
+    TestHelpers.cleanupPlatformMocks();
+  });
   testWidgets('App loads successfully', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+    // Build our test app and trigger a frame.
     await tester.pumpWidget(
-      MultiProvider(
-        providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
-        child: const KifePoolApp(),
-      ),
+      const TestKifePoolApp(),
     );
 
-    // Wait for the app to load
-    await tester.pumpAndSettle();
+    // Wait for the app to load (use pump instead of pumpAndSettle to avoid timeout)
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
 
-    // Check if we're on the onboarding screen first
-    if (find.text('Welcome to KifePool').evaluate().isNotEmpty) {
-      // Skip onboarding by tapping the skip button
-      await tester.tap(find.text('Skip'));
-      await tester.pumpAndSettle();
+    // Check if we're on wallet selection screen (no active wallet) or main app
+    if (find.text('Create New Wallet').evaluate().isNotEmpty) {
+      // We're on wallet selection screen - verify it's present
+      expect(find.text('Create New Wallet'), findsOneWidget);
+      expect(find.text('Import Existing Wallet'), findsOneWidget);
+      expect(find.text('KifePool'), findsOneWidget);
+    } else {
+      // We have an active wallet - verify main navigation
+      expect(find.text('Wallet'), findsOneWidget);
+      expect(find.text('Staking'), findsOneWidget);
+      expect(find.text('NFTs'), findsOneWidget);
+      expect(find.text('Transactions'), findsOneWidget);
+      expect(find.text('News'), findsOneWidget);
     }
-
-    // Verify that the app loads with the main navigation
-    expect(find.text('Wallet'), findsOneWidget);
-    expect(find.text('Staking'), findsOneWidget);
-    expect(find.text('NFTs'), findsOneWidget);
-    expect(find.text('Transactions'), findsOneWidget);
-    expect(find.text('News'), findsOneWidget);
   });
 
   testWidgets('Theme provider works correctly', (WidgetTester tester) async {

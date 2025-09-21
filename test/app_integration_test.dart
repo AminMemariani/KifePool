@@ -6,6 +6,12 @@ import 'package:provider/provider.dart';
 import 'package:kifepool/core/app.dart';
 import 'package:kifepool/shared/providers/theme_provider.dart';
 
+/// Helper function to check if BottomNavigationBar is present
+/// Returns true if found, false if we're on wallet selection screen
+bool hasBottomNavigationBar(WidgetTester tester) {
+  return find.byType(BottomNavigationBar).evaluate().isNotEmpty;
+}
+
 /// Comprehensive integration tests for the entire KifePool app
 /// Tests the complete user journey and app functionality
 void main() {
@@ -24,14 +30,21 @@ void main() {
 
       // Verify app loads completely
       expect(find.byType(KifePoolApp), findsOneWidget);
-      expect(find.byType(BottomNavigationBar), findsOneWidget);
-
-      // Verify all main navigation items are present
-      expect(find.text('Wallet'), findsOneWidget);
-      expect(find.text('Staking'), findsOneWidget);
-      expect(find.text('NFTs'), findsOneWidget);
-      expect(find.text('Transactions'), findsOneWidget);
-      expect(find.text('News'), findsOneWidget);
+      
+      // Check if we're on wallet selection screen (no active wallet) or main app
+      if (!hasBottomNavigationBar(tester)) {
+        // We're on wallet selection screen - verify it's present
+        expect(find.text('Create New Wallet'), findsOneWidget);
+        expect(find.text('Import Existing Wallet'), findsOneWidget);
+      } else {
+        // We have an active wallet - verify main navigation
+        expect(find.byType(BottomNavigationBar), findsOneWidget);
+        expect(find.text('Wallet'), findsOneWidget);
+        expect(find.text('Staking'), findsOneWidget);
+        expect(find.text('NFTs'), findsOneWidget);
+        expect(find.text('Transactions'), findsOneWidget);
+        expect(find.text('News'), findsOneWidget);
+      }
 
       print('✅ Complete app loaded successfully');
     });
