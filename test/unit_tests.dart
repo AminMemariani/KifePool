@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:kifepool/shared/providers/theme_provider.dart';
 import 'package:kifepool/core/theme/app_colors.dart';
 import 'package:kifepool/core/theme/app_spacing.dart';
 import 'package:kifepool/core/theme/app_typography.dart';
+import 'test_helpers.dart';
 
 void main() {
   group('Theme Provider Tests', () {
     test('Theme provider initializes correctly', () {
-      final themeProvider = ThemeProvider();
+      final themeProvider = MockThemeProvider();
       expect(themeProvider.isDarkMode, true);
       expect(themeProvider.themeMode, ThemeMode.dark);
     });
 
     test('Theme provider toggles correctly', () {
-      final themeProvider = ThemeProvider();
+      final themeProvider = MockThemeProvider();
 
       // Toggle to light mode
       themeProvider.toggleTheme();

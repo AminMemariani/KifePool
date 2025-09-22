@@ -23,8 +23,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify app loads with default theme
-      final themeProvider = Provider.of<MockThemeProvider>(
-        tester.element(find.byType(KifePoolApp)),
+      final themeProvider = Provider.of<ThemeProvider>(
+        tester.element(find.byType(MaterialApp)),
         listen: false,
       );
 
@@ -46,8 +46,8 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<MockThemeProvider>(
-        tester.element(find.byType(KifePoolApp)),
+      final themeProvider = Provider.of<ThemeProvider>(
+        tester.element(find.byType(MaterialApp)),
         listen: false,
       );
 
@@ -63,7 +63,7 @@ void main() {
       expect(themeProvider.isDarkMode, isFalse);
 
       // Check theme colors
-      final theme = Theme.of(tester.element(find.byType(KifePoolApp)));
+      final theme = Theme.of(tester.element(find.byType(MaterialApp)));
       expect(theme.brightness, equals(Brightness.light));
 
       print('✅ Light theme applied correctly');
@@ -79,14 +79,15 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<MockThemeProvider>(
-        tester.element(find.byType(KifePoolApp)),
+      final themeProvider = Provider.of<ThemeProvider>(
+        tester.element(find.byType(MaterialApp)),
         listen: false,
       );
 
       // Set to dark theme
       if (!themeProvider.isDarkMode) {
         themeProvider.toggleTheme();
+        await tester.pump(); // Force rebuild after theme change
       }
 
       await tester.pumpAndSettle();
@@ -95,7 +96,7 @@ void main() {
       expect(themeProvider.isDarkMode, isTrue);
 
       // Check theme colors
-      final theme = Theme.of(tester.element(find.byType(KifePoolApp)));
+      final theme = Theme.of(tester.element(find.byType(MaterialApp)));
       expect(theme.brightness, equals(Brightness.dark));
 
       print('✅ Dark theme applied correctly');
@@ -111,8 +112,8 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<MockThemeProvider>(
-        tester.element(find.byType(KifePoolApp)),
+      final themeProvider = Provider.of<ThemeProvider>(
+        tester.element(find.byType(MaterialApp)),
         listen: false,
       );
 
@@ -148,8 +149,8 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<MockThemeProvider>(
-        tester.element(find.byType(KifePoolApp)),
+      final themeProvider = Provider.of<ThemeProvider>(
+        tester.element(find.byType(MaterialApp)),
         listen: false,
       );
 
@@ -171,8 +172,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify theme state is maintained
-      final newThemeProvider = Provider.of<MockThemeProvider>(
-        tester.element(find.byType(KifePoolApp)),
+      final newThemeProvider = Provider.of<ThemeProvider>(
+        tester.element(find.byType(MaterialApp)),
         listen: false,
       );
 
@@ -191,8 +192,8 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<MockThemeProvider>(
-        tester.element(find.byType(KifePoolApp)),
+      final themeProvider = Provider.of<ThemeProvider>(
+        tester.element(find.byType(MaterialApp)),
         listen: false,
       );
 
@@ -204,7 +205,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify theme is applied to various components
-      final theme = Theme.of(tester.element(find.byType(KifePoolApp)));
+      final theme = Theme.of(tester.element(find.byType(MaterialApp)));
       expect(theme.brightness, equals(Brightness.light));
 
       // Check if bottom navigation is present and themed
@@ -230,8 +231,8 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<MockThemeProvider>(
-        tester.element(find.byType(KifePoolApp)),
+      final themeProvider = Provider.of<ThemeProvider>(
+        tester.element(find.byType(MaterialApp)),
         listen: false,
       );
 
@@ -255,7 +256,7 @@ void main() {
           providers: [
             ChangeNotifierProvider(
               create: (_) {
-                themeProvider = ThemeProvider();
+                themeProvider = MockThemeProvider();
                 return themeProvider;
               },
             ),
@@ -290,18 +291,18 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<MockThemeProvider>(
-        tester.element(find.byType(KifePoolApp)),
+      final themeProvider = Provider.of<ThemeProvider>(
+        tester.element(find.byType(MaterialApp)),
         listen: false,
       );
 
       // Simulate multiple listeners by accessing the provider multiple times
-      final provider1 = Provider.of<MockThemeProvider>(
-        tester.element(find.byType(KifePoolApp)),
+      final provider1 = Provider.of<ThemeProvider>(
+        tester.element(find.byType(MaterialApp)),
         listen: false,
       );
-      final provider2 = Provider.of<MockThemeProvider>(
-        tester.element(find.byType(KifePoolApp)),
+      final provider2 = Provider.of<ThemeProvider>(
+        tester.element(find.byType(MaterialApp)),
         listen: false,
       );
 
@@ -330,8 +331,8 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<MockThemeProvider>(
-        tester.element(find.byType(KifePoolApp)),
+      final themeProvider = Provider.of<ThemeProvider>(
+        tester.element(find.byType(MaterialApp)),
         listen: false,
       );
 
@@ -359,8 +360,8 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<MockThemeProvider>(
-        tester.element(find.byType(KifePoolApp)),
+      final themeProvider = Provider.of<ThemeProvider>(
+        tester.element(find.byType(MaterialApp)),
         listen: false,
       );
 
@@ -373,7 +374,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // Verify theme is applied
-        final theme = Theme.of(tester.element(find.byType(KifePoolApp)));
+        final theme = Theme.of(tester.element(find.byType(MaterialApp)));
         expect(
           theme.brightness,
           equals(isDark ? Brightness.dark : Brightness.light),

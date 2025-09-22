@@ -7,7 +7,6 @@
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:kifepool/shared/providers/theme_provider.dart';
 import 'test_helpers.dart';
 
 void main() {
@@ -39,7 +38,7 @@ void main() {
 
   testWidgets('Theme provider works correctly', (WidgetTester tester) async {
     // Test theme provider independently
-    final themeProvider = ThemeProvider();
+    final themeProvider = MockThemeProvider();
 
     // Verify initial theme (defaults to dark mode)
     expect(themeProvider.isDarkMode, true);

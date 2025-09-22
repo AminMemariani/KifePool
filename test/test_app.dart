@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:kifepool/shared/providers/theme_provider.dart';
-import 'package:kifepool/shared/providers/wallet_provider.dart';
-import 'package:kifepool/shared/providers/language_provider.dart';
 import 'test_wallet_selection_screen.dart';
 import 'package:kifepool/shared/widgets/bottom_navigation.dart';
 import 'test_theme.dart';
+import 'test_helpers.dart';
 
 /// Simple test-specific app that doesn't use Google Fonts
 class SimpleTestKifePoolApp extends StatelessWidget {
@@ -15,11 +13,16 @@ class SimpleTestKifePoolApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(create: (_) => WalletProvider()),
-        ChangeNotifierProvider(create: (_) => LanguageProvider()),
+        ChangeNotifierProvider(create: (_) => MockThemeProvider()),
+        ChangeNotifierProvider(create: (_) => MockWalletProvider()),
+        ChangeNotifierProvider(create: (_) => MockLanguageProvider()),
       ],
-      child: Consumer3<ThemeProvider, WalletProvider, LanguageProvider>(
+      child:
+          Consumer3<
+            MockThemeProvider,
+            MockWalletProvider,
+            MockLanguageProvider
+          >(
         builder:
             (context, themeProvider, walletProvider, languageProvider, child) {
               return MaterialApp(

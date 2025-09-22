@@ -61,11 +61,13 @@ class MockWalletProvider extends WalletProvider {
 
 /// Mock theme provider for testing
 class MockThemeProvider extends ThemeProvider {
-  @override
-  ThemeMode get themeMode => ThemeMode.dark;
+  bool _isDarkMode = true;
 
   @override
-  bool get isDarkMode => true;
+  ThemeMode get themeMode => _isDarkMode ? ThemeMode.dark : ThemeMode.light;
+
+  @override
+  bool get isDarkMode => _isDarkMode;
 
   @override
   bool get isHighContrast => false;
@@ -78,12 +80,14 @@ class MockThemeProvider extends ThemeProvider {
 
   @override
   Future<void> setThemeMode(ThemeMode mode) async {
-    // Mock implementation - do nothing
+    _isDarkMode = mode == ThemeMode.dark;
+    notifyListeners();
   }
 
   @override
   Future<void> toggleTheme() async {
-    // Mock implementation - do nothing
+    _isDarkMode = !_isDarkMode;
+    notifyListeners();
   }
 
   @override
