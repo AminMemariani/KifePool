@@ -98,13 +98,15 @@ class _RpcNodeSelectorWidgetState extends State<RpcNodeSelectorWidget> {
               children: [
                 Icon(Icons.dns, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(width: AppSpacing.sm),
-                Text(
-                  'RPC Node Selection',
-                  style: AppTypography.titleMedium.copyWith(
-                    fontWeight: FontWeight.w600,
+                Expanded(
+                  child: Text(
+                    'RPC Node Selection',
+                    style: AppTypography.titleMedium.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const Spacer(),
                 if (_isCheckingHealth)
                   const SizedBox(
                     width: 16,
@@ -275,12 +277,15 @@ class _RpcNodeSelectorWidgetState extends State<RpcNodeSelectorWidget> {
                     ).colorScheme.onSurface.withOpacity(0.6),
                   ),
                   const SizedBox(width: 4),
-                  Text(
-                    node.region,
-                    style: AppTypography.bodySmall.copyWith(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withOpacity(0.6),
+                  Flexible(
+                    child: Text(
+                      node.region,
+                      style: AppTypography.bodySmall.copyWith(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const SizedBox(width: AppSpacing.md),
@@ -293,23 +298,29 @@ class _RpcNodeSelectorWidgetState extends State<RpcNodeSelectorWidget> {
                     ).colorScheme.onSurface.withOpacity(0.6),
                   ),
                   const SizedBox(width: 4),
-                  Text(
-                    node.latency > 0 ? '${node.latency}ms' : 'Unknown',
-                    style: AppTypography.bodySmall.copyWith(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withOpacity(0.6),
+                  Flexible(
+                    child: Text(
+                      node.latency > 0 ? '${node.latency}ms' : 'Unknown',
+                      style: AppTypography.bodySmall.copyWith(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const Spacer(),
                   // Last checked
                   if (node.lastChecked != null)
-                    Text(
-                      'Checked ${_formatLastChecked(node.lastChecked!)}',
-                      style: AppTypography.bodySmall.copyWith(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withOpacity(0.6),
+                    Flexible(
+                      child: Text(
+                        'Checked ${_formatLastChecked(node.lastChecked!)}',
+                        style: AppTypography.bodySmall.copyWith(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.6),
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                 ],

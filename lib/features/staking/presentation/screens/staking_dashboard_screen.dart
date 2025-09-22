@@ -71,9 +71,10 @@ class _StakingDashboardScreenState extends State<StakingDashboardScreen>
 
           if (stakingProvider.error != null) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                   Icon(
                     Icons.error_outline,
                     size: 64,
@@ -98,6 +99,7 @@ class _StakingDashboardScreenState extends State<StakingDashboardScreen>
                     child: const Text('Retry'),
                   ),
                 ],
+                ),
               ),
             );
           }

@@ -76,26 +76,30 @@ class _WalletDemoScreenState extends State<WalletDemoScreen> {
         ),
       ]);
 
-      setState(() {
-        _balance = results[0] as Balance;
-        _transactions = results[1] as List<Transaction>;
-        _nfts = results[2] as List<NFT>;
-        _stakingInfo = results[3] as StakingInfo;
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _balance = results[0] as Balance;
+          _transactions = results[1] as List<Transaction>;
+          _nfts = results[2] as List<NFT>;
+          _stakingInfo = results[3] as StakingInfo;
+          _isLoading = false;
+        });
 
-      _showSuccessToast('Wallet data loaded successfully');
+        _showSuccessToast('Wallet data loaded successfully');
+      }
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _error = e is BlockchainException
-            ? e
-            : BlockchainException(
-                type: BlockchainErrorType.unknown,
-                message: 'Failed to load wallet data',
-                details: e.toString(),
-              );
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _error = e is BlockchainException
+              ? e
+              : BlockchainException(
+                  type: BlockchainErrorType.unknown,
+                  message: 'Failed to load wallet data',
+                  details: e.toString(),
+                );
+        });
+      }
 
       if (e is BlockchainException) {
         ErrorHandler.logError(e, context: 'loadWalletData');
@@ -154,26 +158,30 @@ class _WalletDemoScreenState extends State<WalletDemoScreen> {
 
   /// Show error toast
   void _showErrorToast(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: ErrorToast(message: message, onRetry: _loadWalletData),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: ErrorToast(message: message, onRetry: _loadWalletData),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   /// Show success toast
   void _showSuccessToast(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: SuccessToast(message: message),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: SuccessToast(message: message),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   @override

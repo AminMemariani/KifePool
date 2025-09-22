@@ -7,9 +7,9 @@ import 'test_wallet_selection_screen.dart';
 import 'package:kifepool/shared/widgets/bottom_navigation.dart';
 import 'test_theme.dart';
 
-/// Test-specific app that doesn't use Google Fonts
-class TestKifePoolApp extends StatelessWidget {
-  const TestKifePoolApp({super.key});
+/// Simple test-specific app that doesn't use Google Fonts
+class SimpleTestKifePoolApp extends StatelessWidget {
+  const SimpleTestKifePoolApp({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:provider/provider.dart';
-import 'package:kifepool/shared/providers/theme_provider.dart';
 import 'package:kifepool/features/wallet/presentation/wallet_demo_screen.dart';
 import 'package:kifepool/core/models/blockchain_models.dart';
+import 'test_helpers.dart';
 
 /// Integration tests for Wallet feature
 /// Tests the complete wallet user journey
@@ -14,9 +13,9 @@ void main() {
   group('Wallet Feature Integration Tests', () {
     testWidgets('should load wallet demo screen successfully', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const MaterialApp(home: WalletDemoScreen()),
+          hasActiveWallet: true,
         ),
       );
 
@@ -34,9 +33,9 @@ void main() {
 
     testWidgets('should display network selection dropdown', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const MaterialApp(home: WalletDemoScreen()),
+          hasActiveWallet: true,
         ),
       );
 
@@ -62,9 +61,9 @@ void main() {
 
     testWidgets('should change network selection', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const MaterialApp(home: WalletDemoScreen()),
+          hasActiveWallet: true,
         ),
       );
 
@@ -87,9 +86,9 @@ void main() {
 
     testWidgets('should display address input field', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const MaterialApp(home: WalletDemoScreen()),
+          hasActiveWallet: true,
         ),
       );
 
@@ -108,9 +107,9 @@ void main() {
 
     testWidgets('should allow address input modification', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const MaterialApp(home: WalletDemoScreen()),
+          hasActiveWallet: true,
         ),
       );
 
@@ -135,9 +134,9 @@ void main() {
 
     testWidgets('should display action buttons', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const MaterialApp(home: WalletDemoScreen()),
+          hasActiveWallet: true,
         ),
       );
 
@@ -148,8 +147,14 @@ void main() {
       expect(find.text('Send Transaction'), findsOneWidget);
 
       // Verify buttons are enabled
-      final loadButton = find.text('Load Wallet Data');
-      final sendButton = find.text('Send Transaction');
+      final loadButton = find.ancestor(
+        of: find.text('Load Wallet Data'),
+        matching: find.byType(ElevatedButton),
+      );
+      final sendButton = find.ancestor(
+        of: find.text('Send Transaction'),
+        matching: find.byType(OutlinedButton),
+      );
 
       expect(tester.widget<ElevatedButton>(loadButton).enabled, isTrue);
       expect(tester.widget<OutlinedButton>(sendButton).enabled, isTrue);
@@ -159,9 +164,9 @@ void main() {
 
     testWidgets('should handle empty address validation', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const MaterialApp(home: WalletDemoScreen()),
+          hasActiveWallet: true,
         ),
       );
 
@@ -189,9 +194,9 @@ void main() {
 
     testWidgets('should display loading states', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const MaterialApp(home: WalletDemoScreen()),
+          hasActiveWallet: true,
         ),
       );
 
@@ -210,9 +215,9 @@ void main() {
 
     testWidgets('should display shimmer loading effects', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const MaterialApp(home: WalletDemoScreen()),
+          hasActiveWallet: true,
         ),
       );
 
@@ -226,9 +231,9 @@ void main() {
 
     testWidgets('should handle theme switching', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const MaterialApp(home: WalletDemoScreen()),
+          hasActiveWallet: true,
         ),
       );
 
@@ -241,9 +246,9 @@ void main() {
 
     testWidgets('should handle app bar interactions', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const MaterialApp(home: WalletDemoScreen()),
+          hasActiveWallet: true,
         ),
       );
 
@@ -264,9 +269,9 @@ void main() {
 
     testWidgets('should handle scroll interactions', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const MaterialApp(home: WalletDemoScreen()),
+          hasActiveWallet: true,
         ),
       );
 
@@ -290,9 +295,9 @@ void main() {
 
     testWidgets('should handle keyboard interactions', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const MaterialApp(home: WalletDemoScreen()),
+          hasActiveWallet: true,
         ),
       );
 
@@ -316,9 +321,9 @@ void main() {
 
     testWidgets('should handle error states gracefully', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const MaterialApp(home: WalletDemoScreen()),
+          hasActiveWallet: true,
         ),
       );
 
@@ -346,9 +351,9 @@ void main() {
 
     testWidgets('should maintain state across interactions', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const MaterialApp(home: WalletDemoScreen()),
+          hasActiveWallet: true,
         ),
       );
 

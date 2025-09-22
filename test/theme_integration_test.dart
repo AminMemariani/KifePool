@@ -4,6 +4,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:provider/provider.dart';
 import 'package:kifepool/core/app.dart';
 import 'package:kifepool/shared/providers/theme_provider.dart';
+import 'test_helpers.dart';
 
 /// Integration tests for Theme Provider
 /// Tests theme switching and persistence across the app
@@ -13,16 +14,16 @@ void main() {
   group('Theme Provider Integration Tests', () {
     testWidgets('should load app with default theme', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const KifePoolApp(),
+          hasActiveWallet: true,
         ),
       );
 
       await tester.pumpAndSettle();
 
       // Verify app loads with default theme
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(KifePoolApp)),
         listen: false,
       );
@@ -37,15 +38,15 @@ void main() {
 
     testWidgets('should apply light theme correctly', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const KifePoolApp(),
+          hasActiveWallet: true,
         ),
       );
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(KifePoolApp)),
         listen: false,
       );
@@ -70,15 +71,15 @@ void main() {
 
     testWidgets('should apply dark theme correctly', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const KifePoolApp(),
+          hasActiveWallet: true,
         ),
       );
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(KifePoolApp)),
         listen: false,
       );
@@ -102,15 +103,15 @@ void main() {
 
     testWidgets('should toggle theme correctly', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const KifePoolApp(),
+          hasActiveWallet: true,
         ),
       );
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(KifePoolApp)),
         listen: false,
       );
@@ -139,15 +140,15 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const KifePoolApp(),
+          hasActiveWallet: true,
         ),
       );
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(KifePoolApp)),
         listen: false,
       );
@@ -161,16 +162,16 @@ void main() {
 
       // Force widget rebuild
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const KifePoolApp(),
+          hasActiveWallet: true,
         ),
       );
 
       await tester.pumpAndSettle();
 
       // Verify theme state is maintained
-      final newThemeProvider = Provider.of<ThemeProvider>(
+      final newThemeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(KifePoolApp)),
         listen: false,
       );
@@ -182,15 +183,15 @@ void main() {
 
     testWidgets('should apply theme to all UI components', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const KifePoolApp(),
+          hasActiveWallet: true,
         ),
       );
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(KifePoolApp)),
         listen: false,
       );
@@ -221,15 +222,15 @@ void main() {
       // For now, we'll test the theme provider behavior
 
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const KifePoolApp(),
+          hasActiveWallet: true,
         ),
       );
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(KifePoolApp)),
         listen: false,
       );
@@ -281,25 +282,25 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const KifePoolApp(),
+          hasActiveWallet: true,
         ),
       );
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(KifePoolApp)),
         listen: false,
       );
 
       // Simulate multiple listeners by accessing the provider multiple times
-      final provider1 = Provider.of<ThemeProvider>(
+      final provider1 = Provider.of<MockThemeProvider>(
         tester.element(find.byType(KifePoolApp)),
         listen: false,
       );
-      final provider2 = Provider.of<ThemeProvider>(
+      final provider2 = Provider.of<MockThemeProvider>(
         tester.element(find.byType(KifePoolApp)),
         listen: false,
       );
@@ -321,15 +322,15 @@ void main() {
 
     testWidgets('should handle theme provider error states', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const KifePoolApp(),
+          hasActiveWallet: true,
         ),
       );
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(KifePoolApp)),
         listen: false,
       );
@@ -350,15 +351,15 @@ void main() {
 
     testWidgets('should integrate with app theme correctly', (tester) async {
       await tester.pumpWidget(
-        MultiProvider(
-          providers: [ChangeNotifierProvider(create: (_) => ThemeProvider())],
+        createTestApp(
           child: const KifePoolApp(),
+          hasActiveWallet: true,
         ),
       );
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(KifePoolApp)),
         listen: false,
       );

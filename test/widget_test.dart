@@ -9,16 +9,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:kifepool/shared/providers/theme_provider.dart';
 import 'test_helpers.dart';
-import 'test_app.dart';
 
 void main() {
-  setUpAll(() {
-    TestHelpers.setupPlatformMocks();
-  });
-
-  tearDownAll(() {
-    TestHelpers.cleanupPlatformMocks();
-  });
   testWidgets('App loads successfully', (WidgetTester tester) async {
     // Build our test app and trigger a frame.
     await tester.pumpWidget(
@@ -40,7 +32,7 @@ void main() {
       expect(find.text('Wallet'), findsOneWidget);
       expect(find.text('Staking'), findsOneWidget);
       expect(find.text('NFTs'), findsOneWidget);
-      expect(find.text('Transactions'), findsOneWidget);
+      expect(find.text('History'), findsOneWidget);
       expect(find.text('News'), findsOneWidget);
     }
   });
