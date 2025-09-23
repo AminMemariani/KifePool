@@ -22,7 +22,7 @@ class NewsService {
       final articles = <NewsArticle>[];
 
       // In test environment, skip RSS feed fetching and use mock data
-      if (kDebugMode && const bool.fromEnvironment('dart.vm.test')) {
+      if (_isTestEnvironment()) {
         // Generate mock articles for testing
         for (final source in NewsSource.values) {
           articles.addAll(_generateMockArticles(source));
@@ -409,6 +409,10 @@ class NewsService {
 
   /// Cache articles
   static Future<void> _cacheArticles(List<NewsArticle> articles) async {
+    if (_isTestEnvironment()) {
+      // Do nothing in test environment
+      return;
+    }
     try {
       await DatabaseService.saveNewsArticles(articles);
     } catch (e) {
@@ -420,6 +424,10 @@ class NewsService {
   static Future<void> _cacheFeaturedProjects(
     List<FeaturedProject> projects,
   ) async {
+    if (_isTestEnvironment()) {
+      // Do nothing in test environment
+      return;
+    }
     try {
       await DatabaseService.saveFeaturedProjects(projects);
     } catch (e) {
@@ -544,7 +552,7 @@ Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor
 
   static String _getMockImageUrl() {
     // In test environment, return empty string to avoid network image loading
-    if (kDebugMode && const bool.fromEnvironment('dart.vm.test')) {
+    if (_isTestEnvironment()) {
       return '';
     }
     final images = [
@@ -559,7 +567,7 @@ Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor
 
   static String _getMockProjectLogo(String projectName) {
     // In test environment, return null to avoid network image loading
-    if (kDebugMode && const bool.fromEnvironment('dart.vm.test')) {
+    if (_isTestEnvironment()) {
       return '';
     }
     return 'https://via.placeholder.com/100x100/6366f1/ffffff?text=${projectName.substring(0, 2).toUpperCase()}';
@@ -567,9 +575,18 @@ Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor
 
   static String _getMockProjectBanner() {
     // In test environment, return empty string to avoid network image loading
-    if (kDebugMode && const bool.fromEnvironment('dart.vm.test')) {
+    if (_isTestEnvironment()) {
       return '';
     }
     return 'https://picsum.photos/800/300?random=${Random().nextInt(100)}';
+  }
+
+  /// Check if we're in test environment
+  static bool _isTestEnvironment() {
+    return const bool.fromEnvironment('dart.vm.product') == false &&
+        (const bool.fromEnvironment('flutter.inspector.structuredErrors') ==
+                true ||
+            const bool.fromEnvironment('dart.vm.test') == true ||
+            kDebugMode);
   }
 }

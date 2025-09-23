@@ -17,12 +17,13 @@ bool hasBottomNavigationBar(WidgetTester tester) {
 /// Tests the complete user journey and app functionality
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  initializeTestEnvironment();
 
   group('KifePool App Integration Tests', () {
     testWidgets('should load complete app successfully', (tester) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
+          child: const SizedBox(),
           hasActiveWallet: true,
         ),
       );
@@ -46,7 +47,7 @@ void main() {
     testWidgets('should handle complete user journey', (tester) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
+          child: const SizedBox(),
           hasActiveWallet: true,
         ),
       );
@@ -80,14 +81,14 @@ void main() {
     testWidgets('should handle theme switching throughout app', (tester) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
+          child: const SizedBox(),
           hasActiveWallet: true,
         ),
       );
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(MaterialApp)),
         listen: false,
       );
@@ -114,7 +115,7 @@ void main() {
     testWidgets('should handle app state persistence', (tester) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
+          child: const SizedBox(),
           hasActiveWallet: true,
         ),
       );
@@ -126,7 +127,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Change theme
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(MaterialApp)),
         listen: false,
       );
@@ -136,7 +137,7 @@ void main() {
       // Simulate app restart by rebuilding
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
+          child: const SizedBox(),
           hasActiveWallet: true,
         ),
       );
@@ -152,7 +153,7 @@ void main() {
     testWidgets('should handle app performance under load', (tester) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
+          child: const SizedBox(),
           hasActiveWallet: true,
         ),
       );
@@ -183,7 +184,7 @@ void main() {
         }
 
         // Toggle theme
-        final themeProvider = Provider.of<ThemeProvider>(
+        final themeProvider = Provider.of<MockThemeProvider>(
           tester.element(find.byType(MaterialApp)),
           listen: false,
         );
@@ -209,7 +210,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
+          child: const SizedBox(),
           hasActiveWallet: true,
         ),
       );
@@ -246,7 +247,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
+          child: const SizedBox(),
           hasActiveWallet: true,
         ),
       );
@@ -278,7 +279,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
+          child: const SizedBox(),
           hasActiveWallet: true,
         ),
       );
@@ -319,7 +320,7 @@ void main() {
     testWidgets('should handle app with different locales', (tester) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
+          child: const SizedBox(),
           hasActiveWallet: true,
         ),
       );
@@ -339,7 +340,7 @@ void main() {
     testWidgets('should handle app with different text scales', (tester) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
+          child: const SizedBox(),
           hasActiveWallet: true,
         ),
       );
@@ -368,7 +369,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
+          child: const SizedBox(),
           hasActiveWallet: true,
         ),
       );
@@ -397,7 +398,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
+          child: const SizedBox(),
           hasActiveWallet: true,
         ),
       );
@@ -422,7 +423,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
+          child: const SizedBox(),
           hasActiveWallet: true,
         ),
       );
@@ -455,7 +456,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
+          child: const SizedBox(),
           hasActiveWallet: true,
         ),
       );

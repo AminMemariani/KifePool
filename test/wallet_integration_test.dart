@@ -9,6 +9,7 @@ import 'test_helpers.dart';
 /// Tests the complete wallet user journey
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  initializeTestEnvironment();
 
   group('Wallet Feature Integration Tests', () {
     testWidgets('should load wallet demo screen successfully', (tester) async {

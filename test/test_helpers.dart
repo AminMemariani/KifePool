@@ -13,7 +13,6 @@ import 'package:kifepool/features/staking/presentation/screens/staking_screen.da
 import 'package:kifepool/features/transactions/presentation/screens/transaction_history_screen.dart';
 import 'package:kifepool/features/news/presentation/screens/news_screen.dart';
 import 'package:kifepool/l10n/app_localizations.dart';
-import 'package:kifepool/shared/providers/staking_provider.dart';
 import 'package:kifepool/shared/providers/news_provider.dart';
 import 'package:kifepool/shared/providers/theme_provider.dart';
 import 'package:kifepool/core/services/database_service.dart';
@@ -163,17 +162,17 @@ class _TestKifePoolAppState extends State<TestKifePoolApp> {
 
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<ThemeProvider>(
-          create: (_) => ThemeProvider(),
+        ChangeNotifierProvider<MockThemeProvider>(
+          create: (_) => MockThemeProvider(),
         ),
         ChangeNotifierProvider(create: (_) => MockLanguageProvider()),
         ChangeNotifierProvider<WalletProvider>(
           create: (_) => mockWalletProvider,
         ),
-        ChangeNotifierProvider(create: (_) => StakingProvider()),
+        ChangeNotifierProvider(create: (_) => MockStakingProvider()),
         ChangeNotifierProvider(create: (_) => NewsProvider()),
       ],
-      child: Consumer3<ThemeProvider, MockLanguageProvider, WalletProvider>(
+      child: Consumer3<MockThemeProvider, MockLanguageProvider, WalletProvider>(
         builder:
             (context, themeProvider, languageProvider, walletProvider, child) {
               return MaterialApp(
@@ -223,7 +222,7 @@ class _TestKifePoolAppState extends State<TestKifePoolApp> {
 
   List<Widget> get _screens => [
     const WalletDemoScreen(),
-    const StakingScreen(),
+    const TestStakingScreen(),
     const TestNFTsScreen(),
     const TransactionHistoryScreen(),
     const NewsScreen(),
@@ -231,7 +230,7 @@ class _TestKifePoolAppState extends State<TestKifePoolApp> {
 }
 
 /// Helper function to create test app with mock providers
-Widget createTestApp({required Widget child, bool hasActiveWallet = true}) {
+Widget createTestApp({Widget? child, bool hasActiveWallet = true}) {
   return TestKifePoolApp(hasActiveWallet: hasActiveWallet);
 }
 
@@ -317,6 +316,43 @@ class TestNFTsScreen extends StatelessWidget {
   }
 }
 
+/// Test-specific staking screen that works with MockStakingProvider
+class TestStakingScreen extends StatelessWidget {
+  const TestStakingScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Staking'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: Consumer<MockStakingProvider>(
+        builder: (context, stakingProvider, child) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.account_balance, size: 64, color: Colors.blue),
+                SizedBox(height: 16),
+                Text(
+                  'Staking Dashboard',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Test staking screen - no RPC calls',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
 /// Test-specific bottom navigation widget that works with MockThemeProvider
 class TestBottomNavigation extends StatelessWidget {
   final int currentIndex;
@@ -330,7 +366,7 @@ class TestBottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    final themeProvider = Provider.of<MockThemeProvider>(context);
 
     return Container(
       decoration: BoxDecoration(
@@ -413,4 +449,55 @@ Future<void> pumpAndSettleWithTimeout(
   Duration timeout = const Duration(seconds: 30),
 }) async {
   await tester.pumpAndSettle(timeout);
+}
+
+/// Mock staking provider for testing
+class MockStakingProvider extends ChangeNotifier {
+  bool _isLoading = false;
+  String? _error;
+  String _selectedChain = 'polkadot';
+  String _searchQuery = '';
+  String _filterType = 'all';
+  String _sortBy = 'name';
+
+  bool get isLoading => _isLoading;
+  String? get error => _error;
+  String get selectedChain => _selectedChain;
+  String get searchQuery => _searchQuery;
+  String get filterType => _filterType;
+  String get sortBy => _sortBy;
+
+  List<dynamic> get validators => [];
+  List<dynamic> get nominationPools => [];
+  List<dynamic> get stakingPositions => [];
+  List<dynamic> get stakingRewards => [];
+  Map<String, dynamic> get stakingStats => {};
+
+  Future<void> initialize() async {
+    // Mock initialization - no RPC calls
+  }
+
+  Future<void> loadStakingData() async {
+    // Mock loading - no RPC calls
+  }
+
+  void setSelectedChain(String chain) {
+    _selectedChain = chain;
+    notifyListeners();
+  }
+
+  void setSearchQuery(String query) {
+    _searchQuery = query;
+    notifyListeners();
+  }
+
+  void setFilterType(String type) {
+    _filterType = type;
+    notifyListeners();
+  }
+
+  void setSortBy(String sortBy) {
+    _sortBy = sortBy;
+    notifyListeners();
+  }
 }

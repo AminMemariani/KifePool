@@ -18,7 +18,7 @@ class FontService {
     _initialized = true;
 
     // Never fetch at runtime in tests
-    if (kDebugMode && _isTestEnvironment()) {
+    if (_isTestEnvironment()) {
       GoogleFonts.config.allowRuntimeFetching = false;
       return;
     }
@@ -40,13 +40,15 @@ class FontService {
       // These calls create TextStyles which triggers the underlying cache.
       // No UI needed here.
       // Inter variants used throughout typography
-      // ignore: unused_local_variable
-      final _ = [
-        GoogleFonts.inter(),
-        GoogleFonts.inter(fontWeight: FontWeight.w500),
-        GoogleFonts.inter(fontWeight: FontWeight.w600),
-        GoogleFonts.inter(fontWeight: FontWeight.w700),
-      ];
+      if (!_isTestEnvironment()) {
+        // ignore: unused_local_variable
+        final _ = [
+          GoogleFonts.inter(),
+          GoogleFonts.inter(fontWeight: FontWeight.w500),
+          GoogleFonts.inter(fontWeight: FontWeight.w600),
+          GoogleFonts.inter(fontWeight: FontWeight.w700),
+        ];
+      }
 
       // Persist that fonts are cached
       await prefs.setBool(_fontsCachedKey, true);

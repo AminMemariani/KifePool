@@ -760,6 +760,11 @@ class DatabaseService {
   }
 
   static Future<TransactionHistory?> getTransactionByHash(String hash) async {
+    if (mockEnabled) {
+      // Return null for mock mode - no cached transactions
+      return null;
+    }
+    
     final List<Map<String, dynamic>> maps = await database.query(
       'transaction_history',
       where: 'hash = ?',
@@ -809,27 +814,47 @@ class DatabaseService {
     int? limit,
     int? offset,
   }) async {
+    if (mockEnabled) {
+      // Return empty list for mock mode
+      return [];
+    }
     // For now, just return all transactions
     // TODO: Implement filtering based on parameters
     return getTransactionHistory();
   }
 
   static Future<void> saveTransaction(TransactionHistory transaction) async {
+    if (mockEnabled) {
+      // Do nothing in mock mode
+      return;
+    }
     await saveTransactionHistory(transaction);
   }
 
   static Future<DateTime?> getCacheTimestamp(String key) async {
+    if (mockEnabled) {
+      // Return null for mock mode - no cached timestamps
+      return null;
+    }
     // Simple cache timestamp storage
     // TODO: Implement proper cache timestamp storage
     return null;
   }
 
   static Future<void> setCacheTimestamp(String key, DateTime timestamp) async {
+    if (mockEnabled) {
+      // Do nothing in mock mode
+      return;
+    }
     // Simple cache timestamp storage
     // TODO: Implement proper cache timestamp storage
   }
 
   static Future<void> clearTransactionCache() async {
+    if (mockEnabled) {
+      // Do nothing in mock mode
+      return;
+    }
     // Clear transaction cache
     // TODO: Implement proper cache clearing
   }

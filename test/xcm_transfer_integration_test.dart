@@ -5,9 +5,11 @@ import 'package:kifepool/core/app.dart';
 import 'package:kifepool/core/models/xcm_transfer_models.dart';
 import 'package:kifepool/core/services/xcm_transfer_service.dart';
 import 'package:kifepool/core/services/database_service.dart';
+import 'test_helpers.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  initializeTestEnvironment();
 
   group('XCM Transfer Integration Tests', () {
     setUpAll(() async {
@@ -16,7 +18,7 @@ void main() {
 
     testWidgets('Cross-chain transfer flow works end-to-end', (tester) async {
       // Start the app
-      await tester.pumpWidget(const KifePoolApp());
+      await tester.pumpWidget(createTestApp());
       await tester.pumpAndSettle();
 
       // Navigate to cross-chain transfer tab
@@ -50,7 +52,7 @@ void main() {
 
     testWidgets('Transfer history screen displays correctly', (tester) async {
       // Start the app
-      await tester.pumpWidget(const KifePoolApp());
+      await tester.pumpWidget(createTestApp());
       await tester.pumpAndSettle();
 
       // Navigate to cross-chain transfer tab
@@ -76,7 +78,7 @@ void main() {
 
     testWidgets('Chain selector works correctly', (tester) async {
       // Start the app
-      await tester.pumpWidget(const KifePoolApp());
+      await tester.pumpWidget(createTestApp());
       await tester.pumpAndSettle();
 
       // Navigate to cross-chain transfer tab
@@ -104,7 +106,7 @@ void main() {
 
     testWidgets('Transfer type selection works', (tester) async {
       // Start the app
-      await tester.pumpWidget(const KifePoolApp());
+      await tester.pumpWidget(createTestApp());
       await tester.pumpAndSettle();
 
       // Navigate to cross-chain transfer tab
@@ -121,7 +123,7 @@ void main() {
 
     testWidgets('Form validation works correctly', (tester) async {
       // Start the app
-      await tester.pumpWidget(const KifePoolApp());
+      await tester.pumpWidget(createTestApp());
       await tester.pumpAndSettle();
 
       // Navigate to cross-chain transfer tab
@@ -139,7 +141,7 @@ void main() {
 
     testWidgets('Transfer progress modal displays correctly', (tester) async {
       // Start the app
-      await tester.pumpWidget(const KifePoolApp());
+      await tester.pumpWidget(createTestApp());
       await tester.pumpAndSettle();
 
       // Navigate to cross-chain transfer tab
@@ -168,7 +170,7 @@ void main() {
 
     testWidgets('Filter dialog works correctly', (tester) async {
       // Start the app
-      await tester.pumpWidget(const KifePoolApp());
+      await tester.pumpWidget(createTestApp());
       await tester.pumpAndSettle();
 
       // Navigate to cross-chain transfer tab

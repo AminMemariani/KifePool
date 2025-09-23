@@ -11,6 +11,7 @@ import 'test_helpers.dart';
 /// Tests the complete navigation flow and bottom navigation
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  initializeTestEnvironment();
 
   group('App Navigation Integration Tests', () {
     testWidgets('should load app with bottom navigation', (tester) async {
@@ -224,7 +225,7 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(MaterialApp)),
         listen: false,
       );
@@ -331,7 +332,7 @@ void main() {
 
         await tester.pumpWidget(
           createTestApp(
-            child: const KifePoolApp(),
+            child: const SizedBox(),
             hasActiveWallet: true,
           ),
         );

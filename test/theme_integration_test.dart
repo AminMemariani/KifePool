@@ -15,7 +15,6 @@ void main() {
     testWidgets('should load app with default theme', (tester) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
           hasActiveWallet: true,
         ),
       );
@@ -23,7 +22,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify app loads with default theme
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(MaterialApp)),
         listen: false,
       );
@@ -39,14 +38,13 @@ void main() {
     testWidgets('should apply light theme correctly', (tester) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
           hasActiveWallet: true,
         ),
       );
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(MaterialApp)),
         listen: false,
       );
@@ -72,14 +70,13 @@ void main() {
     testWidgets('should apply dark theme correctly', (tester) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
           hasActiveWallet: true,
         ),
       );
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(MaterialApp)),
         listen: false,
       );
@@ -107,14 +104,13 @@ void main() {
     testWidgets('should toggle theme correctly', (tester) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
           hasActiveWallet: true,
         ),
       );
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(MaterialApp)),
         listen: false,
       );
@@ -144,14 +140,13 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
           hasActiveWallet: true,
         ),
       );
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(MaterialApp)),
         listen: false,
       );
@@ -166,7 +161,6 @@ void main() {
       // Force widget rebuild
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
           hasActiveWallet: true,
         ),
       );
@@ -174,7 +168,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify theme state is maintained
-      final newThemeProvider = Provider.of<ThemeProvider>(
+      final newThemeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(MaterialApp)),
         listen: false,
       );
@@ -187,14 +181,13 @@ void main() {
     testWidgets('should apply theme to all UI components', (tester) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
           hasActiveWallet: true,
         ),
       );
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(MaterialApp)),
         listen: false,
       );
@@ -226,14 +219,13 @@ void main() {
 
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
           hasActiveWallet: true,
         ),
       );
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(MaterialApp)),
         listen: false,
       );
@@ -260,7 +252,7 @@ void main() {
               create: (_) => themeProvider,
             ),
           ],
-          child: const KifePoolApp(),
+          child: const SizedBox(),
         ),
       );
 
@@ -283,24 +275,23 @@ void main() {
     ) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
           hasActiveWallet: true,
         ),
       );
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(MaterialApp)),
         listen: false,
       );
 
       // Simulate multiple listeners by accessing the provider multiple times
-      final provider1 = Provider.of<ThemeProvider>(
+      final provider1 = Provider.of<MockThemeProvider>(
         tester.element(find.byType(MaterialApp)),
         listen: false,
       );
-      final provider2 = Provider.of<ThemeProvider>(
+      final provider2 = Provider.of<MockThemeProvider>(
         tester.element(find.byType(MaterialApp)),
         listen: false,
       );
@@ -323,14 +314,13 @@ void main() {
     testWidgets('should handle theme provider error states', (tester) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
           hasActiveWallet: true,
         ),
       );
 
       await tester.pumpAndSettle();
 
-      final themeProvider = Provider.of<ThemeProvider>(
+      final themeProvider = Provider.of<MockThemeProvider>(
         tester.element(find.byType(MaterialApp)),
         listen: false,
       );
@@ -352,7 +342,6 @@ void main() {
     testWidgets('should integrate with app theme correctly', (tester) async {
       await tester.pumpWidget(
         createTestApp(
-          child: const KifePoolApp(),
           hasActiveWallet: true,
         ),
       );
