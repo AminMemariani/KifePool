@@ -9,9 +9,20 @@ import 'package:kifepool/core/models/news_models.dart';
 /// Database service for managing wallet account metadata
 class DatabaseService {
   static Database? _database;
+  // Enable to bypass SQLite and use in-memory storage for tests
+  static bool mockEnabled = false;
+
+  // In-memory mock storage
+  static final List<Map<String, dynamic>> _mockNewsArticles = [];
+  static final List<Map<String, dynamic>> _mockFeaturedProjects = [];
   
   /// Initialize SQLite database
   static Future<void> initialize() async {
+    if (mockEnabled) {
+      // In mock mode, ensure we have a mock database reference
+      _database = null; // Explicitly null for mock mode
+      return;
+    }
     if (_database != null) return;
     
     final databasesPath = await getDatabasesPath();
@@ -198,6 +209,11 @@ class DatabaseService {
 
   /// Get database instance
   static Database get database {
+    if (mockEnabled) {
+      throw Exception(
+        'Database access not allowed in mock mode. Use mock methods instead.',
+      );
+    }
     if (_database == null) {
       throw Exception('Database not initialized. Call initialize() first.');
     }
@@ -970,6 +986,34 @@ class DatabaseService {
 
   // News Article Methods
   static Future<void> saveNewsArticles(List<NewsArticle> articles) async {
+    if (mockEnabled) {
+      for (final article in articles) {
+        _mockNewsArticles.removeWhere(
+          (e) => e['article_id'] == article.articleId,
+        );
+        _mockNewsArticles.add({
+          'article_id': article.articleId,
+          'title': article.title,
+          'excerpt': article.excerpt,
+          'content': article.content,
+          'author': article.author,
+          'source': article.source,
+          'source_url': article.sourceUrl,
+          'article_url': article.articleUrl,
+          'image_url': article.imageUrl,
+          'published_at': article.publishedAt.toIso8601String(),
+          'fetched_at': article.fetchedAt.toIso8601String(),
+          'category': article.category.name,
+          'news_source': article.newsSource.name,
+          'is_read': article.isRead ? 1 : 0,
+          'is_bookmarked': article.isBookmarked ? 1 : 0,
+          'view_count': article.viewCount,
+          'created_at': article.createdAt.toIso8601String(),
+          'updated_at': article.updatedAt?.toIso8601String(),
+        });
+      }
+      return;
+    }
     final batch = database.batch();
     for (final article in articles) {
       batch.insert('news_articles', {
@@ -997,6 +1041,60 @@ class DatabaseService {
   }
 
   static Future<List<NewsArticle>> getNewsArticles({NewsFilter? filter}) async {
+    if (mockEnabled) {
+      Iterable<Map<String, dynamic>> items = _mockNewsArticles;
+      if (filter != null) {
+        if (filter.source != null) {
+          items = items.where((e) => e['news_source'] == filter.source!.name);
+        }
+        if (filter.category != null) {
+          items = items.where((e) => e['category'] == filter.category!.name);
+        }
+        if (filter.bookmarkedOnly == true) {
+          items = items.where((e) => e['is_bookmarked'] == 1);
+        }
+        if (filter.unreadOnly == true) {
+          items = items.where((e) => e['is_read'] == 0);
+        }
+      }
+      final maps = items.toList()
+        ..sort(
+          (a, b) => (b['published_at'] as String).compareTo(
+            a['published_at'] as String,
+          ),
+        );
+      final sliced = maps.take(filter?.limit ?? 50).toList();
+      return sliced
+          .map(
+            (map) => NewsArticle()
+              ..articleId = map['article_id'] as String
+              ..title = map['title'] as String
+              ..excerpt = map['excerpt'] as String
+              ..content = map['content'] as String
+              ..author = map['author'] as String
+              ..source = map['source'] as String
+              ..sourceUrl = map['source_url'] as String
+              ..articleUrl = map['article_url'] as String
+              ..imageUrl = map['image_url'] as String?
+              ..publishedAt = DateTime.parse(map['published_at'] as String)
+              ..fetchedAt = DateTime.parse(map['fetched_at'] as String)
+              ..category = NewsCategory.values.firstWhere(
+                (e) => e.name == map['category'],
+              )
+              ..newsSource = NewsSource.values.firstWhere(
+                (e) => e.name == map['news_source'],
+              )
+              ..isRead = (map['is_read'] as int) == 1
+              ..isBookmarked = (map['is_bookmarked'] as int) == 1
+              ..viewCount = map['view_count'] as int
+              ..createdAt = DateTime.parse(map['created_at'] as String)
+              ..updatedAt = map['updated_at'] != null
+                  ? DateTime.parse(map['updated_at'] as String)
+                  : DateTime.now(),
+          )
+          .toList();
+    }
+
     String whereClause = '';
     List<dynamic> whereArgs = [];
     
@@ -1026,7 +1124,11 @@ class DatabaseService {
       }
     }
     
-    final List<Map<String, dynamic>> maps = await database.rawQuery(
+    if (_database == null) {
+      throw Exception('Database not initialized. Call initialize() first.');
+    }
+
+    final List<Map<String, dynamic>> maps = await _database!.rawQuery(
       'SELECT * FROM news_articles $whereClause ORDER BY published_at DESC LIMIT ? OFFSET ?',
       [...whereArgs, filter?.limit ?? 50, filter?.offset ?? 0],
     );
@@ -1072,6 +1174,17 @@ class DatabaseService {
   }
 
   static Future<void> toggleNewsArticleBookmark(String articleId) async {
+    if (mockEnabled) {
+      final idx = _mockNewsArticles.indexWhere(
+        (e) => e['article_id'] == articleId,
+      );
+      if (idx != -1) {
+        final current = _mockNewsArticles[idx]['is_bookmarked'] as int? ?? 0;
+        _mockNewsArticles[idx]['is_bookmarked'] = current == 1 ? 0 : 1;
+        _mockNewsArticles[idx]['updated_at'] = DateTime.now().toIso8601String();
+      }
+      return;
+    }
     final result = await database.query(
       'news_articles',
       columns: ['is_bookmarked'],
@@ -1127,6 +1240,50 @@ class DatabaseService {
   }
 
   static Future<List<FeaturedProject>> getFeaturedProjects() async {
+    if (mockEnabled) {
+      final maps =
+          _mockFeaturedProjects
+              .where((p) => (p['is_active'] as int? ?? 1) == 1)
+              .toList()
+            ..sort((a, b) {
+              final pa = a['priority'] as int? ?? 0;
+              final pb = b['priority'] as int? ?? 0;
+              if (pa != pb) return pa.compareTo(pb);
+              return (b['featured_at'] as String).compareTo(
+                a['featured_at'] as String,
+              );
+            });
+      return maps
+          .map(
+            (map) => FeaturedProject()
+              ..projectId = map['project_id'] as String
+              ..name = map['name'] as String
+              ..description = map['description'] as String
+              ..shortDescription = map['short_description'] as String
+              ..logoUrl = map['logo_url'] as String?
+              ..bannerUrl = map['banner_url'] as String?
+              ..websiteUrl = map['website_url'] as String
+              ..twitterUrl = map['twitter_url'] as String?
+              ..discordUrl = map['discord_url'] as String?
+              ..githubUrl = map['github_url'] as String?
+              ..tags = ((map['tags'] as String?)?.split(',') ?? [])
+              ..category = ProjectCategory.values.firstWhere(
+                (e) => e.name == map['category'],
+              )
+              ..status = ProjectStatus.values.firstWhere(
+                (e) => e.name == map['status'],
+              )
+              ..chain = map['chain'] as String
+              ..featuredAt = DateTime.parse(map['featured_at'] as String)
+              ..isActive = (map['is_active'] as int) == 1
+              ..priority = map['priority'] as int
+              ..viewCount = map['view_count'] as int
+              ..clickCount = map['click_count'] as int
+              ..createdAt = DateTime.parse(map['created_at'] as String)
+              ..updatedAt = DateTime.parse(map['updated_at'] as String),
+          )
+          .toList();
+    }
     final List<Map<String, dynamic>> maps = await database.query(
       'featured_projects',
       where: 'is_active = 1',
@@ -1170,6 +1327,18 @@ class DatabaseService {
   static Future<void> incrementFeaturedProjectViewCount(
     String projectId,
   ) async {
+    if (mockEnabled) {
+      final idx = _mockFeaturedProjects.indexWhere(
+        (e) => e['project_id'] == projectId,
+      );
+      if (idx != -1) {
+        _mockFeaturedProjects[idx]['view_count'] =
+            (_mockFeaturedProjects[idx]['view_count'] as int? ?? 0) + 1;
+        _mockFeaturedProjects[idx]['updated_at'] = DateTime.now()
+            .toIso8601String();
+      }
+      return;
+    }
     await database.rawUpdate(
       'UPDATE featured_projects SET view_count = view_count + 1, updated_at = ? WHERE project_id = ?',
       [DateTime.now().toIso8601String(), projectId],
@@ -1179,6 +1348,18 @@ class DatabaseService {
   static Future<void> incrementFeaturedProjectClickCount(
     String projectId,
   ) async {
+    if (mockEnabled) {
+      final idx = _mockFeaturedProjects.indexWhere(
+        (e) => e['project_id'] == projectId,
+      );
+      if (idx != -1) {
+        _mockFeaturedProjects[idx]['click_count'] =
+            (_mockFeaturedProjects[idx]['click_count'] as int? ?? 0) + 1;
+        _mockFeaturedProjects[idx]['updated_at'] = DateTime.now()
+            .toIso8601String();
+      }
+      return;
+    }
     await database.rawUpdate(
       'UPDATE featured_projects SET click_count = click_count + 1, updated_at = ? WHERE project_id = ?',
       [DateTime.now().toIso8601String(), projectId],
@@ -1187,6 +1368,11 @@ class DatabaseService {
 
   /// Close database connection
   static Future<void> close() async {
+    if (mockEnabled) {
+      _mockNewsArticles.clear();
+      _mockFeaturedProjects.clear();
+      return;
+    }
     if (_database != null) {
       await _database!.close();
       _database = null;

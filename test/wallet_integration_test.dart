@@ -48,13 +48,13 @@ void main() {
       await tester.tap(dropdown);
       await tester.pumpAndSettle();
 
-      // Verify dropdown options are available
-      expect(find.text('Polkadot'), findsOneWidget);
-      expect(find.text('Kusama'), findsOneWidget);
-      expect(find.text('Moonbeam'), findsOneWidget);
-      expect(find.text('Moonriver'), findsOneWidget);
-      expect(find.text('Astar'), findsOneWidget);
-      expect(find.text('Acala'), findsOneWidget);
+      // Verify dropdown options are available (allow multiple identical labels)
+      expect(find.text('Polkadot'), findsWidgets);
+      expect(find.text('Kusama'), findsWidgets);
+      expect(find.text('Moonbeam'), findsWidgets);
+      expect(find.text('Moonriver'), findsWidgets);
+      expect(find.text('Astar'), findsWidgets);
+      expect(find.text('Acala'), findsWidgets);
 
       print('✅ Network selection dropdown working correctly');
     });

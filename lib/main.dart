@@ -6,6 +6,7 @@ import 'shared/providers/wallet_provider.dart';
 import 'shared/providers/staking_provider.dart';
 import 'core/services/database_service.dart';
 import 'core/services/rpc_node_service.dart';
+import 'core/services/font_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,6 +14,7 @@ void main() async {
   // Initialize services
   await DatabaseService.initialize();
   await RpcNodeService.initialize();
+  await FontService.initialize();
   
   runApp(
     MultiProvider(
