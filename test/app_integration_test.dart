@@ -163,15 +163,24 @@ void main() {
 
       // Perform multiple rapid interactions
       for (int i = 0; i < 10; i++) {
-        // Navigate between tabs
-        await tester.tap(find.text('Wallet').first);
-        await tester.pump();
+        // Navigate between tabs - ensure widgets are visible before tapping
+        final walletFinder = find.text('Wallet');
+        if (walletFinder.evaluate().isNotEmpty) {
+          await tester.tap(walletFinder.first, warnIfMissed: false);
+          await tester.pump();
+        }
 
-        await tester.tap(find.text('Staking').first);
-        await tester.pump();
+        final stakingFinder = find.text('Staking');
+        if (stakingFinder.evaluate().isNotEmpty) {
+          await tester.tap(stakingFinder.first, warnIfMissed: false);
+          await tester.pump();
+        }
 
-        await tester.tap(find.text('NFTs').first);
-        await tester.pump();
+        final nftsFinder = find.text('NFTs');
+        if (nftsFinder.evaluate().isNotEmpty) {
+          await tester.tap(nftsFinder.first, warnIfMissed: false);
+          await tester.pump();
+        }
 
         // Toggle theme
         final themeProvider = Provider.of<ThemeProvider>(

@@ -10,9 +10,18 @@ class RpcNodeService {
   static const String _selectedNodesKey = 'selected_rpc_nodes';
   static final Map<String, RpcNode> _selectedNodes = {};
   static final Map<String, Timer> _healthCheckTimers = {};
+  static bool _testMode = false;
 
   /// Initialize the RPC node service
   static Future<void> initialize() async {
+    // Check if we're in test mode
+    _testMode = kDebugMode && const bool.fromEnvironment('dart.vm.test');
+
+    if (_testMode) {
+      // In test mode, don't load nodes or start health checks
+      return;
+    }
+    
     await _loadSelectedNodes();
     _startHealthChecks();
   }
@@ -38,6 +47,10 @@ class RpcNodeService {
 
   /// Get the RPC URL for a network
   static String? getRpcUrl(String network) {
+    if (_testMode) {
+      // In test mode, return null to prevent network calls
+      return null;
+    }
     final node = getSelectedNode(network);
     return node?.url;
   }

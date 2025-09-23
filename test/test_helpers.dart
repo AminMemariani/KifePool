@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:kifepool/core/models/wallet_models.dart';
 import 'package:kifepool/shared/providers/wallet_provider.dart';
 import 'package:kifepool/shared/providers/language_provider.dart';
@@ -14,8 +16,22 @@ import 'package:kifepool/l10n/app_localizations.dart';
 import 'package:kifepool/shared/providers/staking_provider.dart';
 import 'package:kifepool/shared/providers/news_provider.dart';
 import 'package:kifepool/shared/providers/theme_provider.dart';
+import 'package:kifepool/core/services/database_service.dart';
 
 // Test environment initialization to avoid MissingPlugin and DB issues
+void initializeTestEnvironment() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  // Mock SharedPreferences storage
+  SharedPreferences.setMockInitialValues(<String, Object>{});
+  // Prevent GoogleFonts from hitting platform channels (path_provider)
+  GoogleFonts.config.allowRuntimeFetching = false;
+  // Use in-memory mocks for database access in tests
+  DatabaseService.mockEnabled = true;
+  // Initialize database service to ensure mock is ready
+  DatabaseService.initialize();
+}
+
+// Test environment initialization function is available for use in test files
 
 /// Mock wallet provider for testing
 class MockWalletProvider extends WalletProvider {

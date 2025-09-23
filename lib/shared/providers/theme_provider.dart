@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -157,7 +158,9 @@ class ThemeProvider extends ChangeNotifier {
 
   bool _isTestEnvironment() {
     return const bool.fromEnvironment('dart.vm.product') == false &&
-        const bool.fromEnvironment('flutter.inspector.structuredErrors') ==
-            true;
+        (const bool.fromEnvironment('flutter.inspector.structuredErrors') ==
+                true ||
+            const bool.fromEnvironment('dart.vm.test') == true ||
+            kDebugMode);
   }
 }
