@@ -12,9 +12,7 @@ import 'test_helpers.dart';
 void main() {
   testWidgets('App loads successfully', (WidgetTester tester) async {
     // Build our test app and trigger a frame.
-    await tester.pumpWidget(
-      const TestKifePoolApp(),
-    );
+    await tester.pumpWidget(const TestKifePoolApp());
 
     // Wait for the app to load (use pump instead of pumpAndSettle to avoid timeout)
     await tester.pump();

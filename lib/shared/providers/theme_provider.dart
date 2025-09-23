@@ -7,7 +7,7 @@ class ThemeProvider extends ChangeNotifier {
   static const String _highContrastKey = 'high_contrast';
   static const String _largeTextKey = 'large_text';
   static const String _reducedMotionKey = 'reduced_motion';
-  
+
   ThemeMode _themeMode = ThemeMode.dark; // Default to dark mode
   bool _isDarkMode = true;
   bool _isHighContrast = false;
@@ -31,7 +31,7 @@ class ThemeProvider extends ChangeNotifier {
       _isHighContrast = prefs.getBool(_highContrastKey) ?? false;
       _isLargeText = prefs.getBool(_largeTextKey) ?? false;
       _isReducedMotion = prefs.getBool(_reducedMotionKey) ?? false;
-      
+
       if (savedTheme != null) {
         switch (savedTheme) {
           case 'light':
@@ -61,7 +61,7 @@ class ThemeProvider extends ChangeNotifier {
     if (_themeMode == mode) return;
 
     _themeMode = mode;
-    
+
     switch (mode) {
       case ThemeMode.light:
         _isDarkMode = false;
@@ -90,7 +90,7 @@ class ThemeProvider extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       String themeString;
-      
+
       switch (_themeMode) {
         case ThemeMode.light:
           themeString = 'light';
@@ -102,7 +102,7 @@ class ThemeProvider extends ChangeNotifier {
           themeString = 'system';
           break;
       }
-      
+
       await prefs.setString(_themeKey, themeString);
     } catch (e) {
       // In test environment, silently ignore SharedPreferences errors
@@ -113,7 +113,8 @@ class ThemeProvider extends ChangeNotifier {
   }
 
   bool _getSystemTheme() {
-    final brightness = WidgetsBinding.instance.platformDispatcher.platformBrightness;
+    final brightness =
+        WidgetsBinding.instance.platformDispatcher.platformBrightness;
     return brightness == Brightness.dark;
   }
 

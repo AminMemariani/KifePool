@@ -11,7 +11,7 @@ class TransactionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Transactions'),
@@ -111,37 +111,29 @@ class TransactionsScreen extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Filter Tabs
           Container(
             height: 50,
             margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             decoration: BoxDecoration(
-              color: themeProvider.isDarkMode 
-                  ? AppColors.darkSurfaceVariant 
+              color: themeProvider.isDarkMode
+                  ? AppColors.darkSurfaceVariant
                   : AppColors.lightSurfaceVariant,
               borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
             ),
             child: Row(
               children: [
-                Expanded(
-                  child: _buildFilterTab('All', true),
-                ),
-                Expanded(
-                  child: _buildFilterTab('Sent', false),
-                ),
-                Expanded(
-                  child: _buildFilterTab('Received', false),
-                ),
-                Expanded(
-                  child: _buildFilterTab('Pending', false),
-                ),
+                Expanded(child: _buildFilterTab('All', true)),
+                Expanded(child: _buildFilterTab('Sent', false)),
+                Expanded(child: _buildFilterTab('Received', false)),
+                Expanded(child: _buildFilterTab('Pending', false)),
               ],
             ),
           ),
-          
+
           const SizedBox(height: AppSpacing.lg),
-          
+
           // Transaction List
           Expanded(
             child: Padding(
@@ -149,22 +141,21 @@ class TransactionsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Recent Transactions',
-                    style: AppTypography.titleLarge,
-                  ),
+                  Text('Recent Transactions', style: AppTypography.titleLarge),
                   const SizedBox(height: AppSpacing.lg),
-                  
+
                   // Empty state
                   Expanded(
                     child: Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(AppSpacing.xxl),
                       decoration: BoxDecoration(
-                        color: themeProvider.isDarkMode 
-                            ? AppColors.darkSurfaceVariant 
+                        color: themeProvider.isDarkMode
+                            ? AppColors.darkSurfaceVariant
                             : AppColors.lightSurfaceVariant,
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.radiusMd,
+                        ),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,

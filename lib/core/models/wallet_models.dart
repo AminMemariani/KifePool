@@ -5,7 +5,6 @@ part 'wallet_models.g.dart';
 
 /// Wallet account model for Isar database
 class WalletAccount {
-
   late String address;
 
   late String name;
@@ -39,7 +38,6 @@ class WalletAccount {
 
 /// Mnemonic wallet model for Isar database
 class MnemonicWallet {
-
   late String encryptedMnemonic; // Encrypted 12/24 word mnemonic
   late int wordCount; // 12 or 24
   late String name;

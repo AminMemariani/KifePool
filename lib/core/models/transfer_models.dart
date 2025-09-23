@@ -37,15 +37,10 @@ enum TransferDirection {
 
 @JsonSerializable()
 class TokenTransfer {
-  
-
-  
   late String transactionHash;
 
-  
   late String fromAddress;
 
-  
   late String toAddress;
 
   late String tokenSymbol;
@@ -53,12 +48,8 @@ class TokenTransfer {
   late String amount;
   late String chain;
 
-  
-  
   late TransferDirection direction;
 
-  
-  
   late TransferStatus status;
 
   late String? gasFee;
@@ -71,7 +62,7 @@ class TokenTransfer {
   // Optional fields
   String? memo;
   String? metadata;
-  
+
   Map<String, dynamic>? extraData;
 
   TokenTransfer();
@@ -85,15 +76,10 @@ class TokenTransfer {
 
 @JsonSerializable()
 class NftTransfer {
-  
-
-  
   late String transactionHash;
 
-  
   late String fromAddress;
 
-  
   late String toAddress;
 
   late String nftId;
@@ -102,12 +88,8 @@ class NftTransfer {
   late String? nftImage;
   late String chain;
 
-  
-  
   late TransferDirection direction;
 
-  
-  
   late TransferStatus status;
 
   late String? gasFee;
@@ -119,9 +101,9 @@ class NftTransfer {
 
   // Optional fields
   String? memo;
-  
+
   Map<String, dynamic>? metadata;
-  
+
   Map<String, dynamic>? extraData;
 
   NftTransfer();

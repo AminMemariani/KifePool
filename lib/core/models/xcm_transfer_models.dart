@@ -37,8 +37,6 @@ enum XcmTransferDirection {
 
 @JsonSerializable()
 class XcmTransfer {
-  
-
   /// Transfer hash/ID
   late String transferId;
 
@@ -49,15 +47,15 @@ class XcmTransfer {
   late String destinationChain;
 
   /// Transfer type
-  
+
   late XcmTransferType type;
 
   /// Transfer status
-  
+
   late XcmTransferStatus status;
 
   /// Transfer direction
-  
+
   late XcmTransferDirection direction;
 
   /// Source address
@@ -97,7 +95,7 @@ class XcmTransfer {
   String? errorMessage;
 
   /// Additional metadata
-  
+
   Map<String, dynamic>? metadata;
 
   /// Created at timestamp

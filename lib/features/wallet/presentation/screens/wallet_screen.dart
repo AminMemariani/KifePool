@@ -11,15 +11,15 @@ class WalletScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Wallet'),
         actions: [
           IconButton(
             icon: Icon(
-              themeProvider.isDarkMode 
-                  ? Icons.light_mode_outlined 
+              themeProvider.isDarkMode
+                  ? Icons.light_mode_outlined
                   : Icons.dark_mode_outlined,
             ),
             onPressed: () => themeProvider.toggleTheme(),
@@ -76,16 +76,13 @@ class WalletScreen extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: AppSpacing.xl),
-            
+
             // Quick Actions
-            Text(
-              'Quick Actions',
-              style: AppTypography.titleLarge,
-            ),
+            Text('Quick Actions', style: AppTypography.titleLarge),
             const SizedBox(height: AppSpacing.lg),
-            
+
             Row(
               children: [
                 Expanded(
@@ -116,23 +113,20 @@ class WalletScreen extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: AppSpacing.xl),
-            
+
             // Assets
-            Text(
-              'Assets',
-              style: AppTypography.titleLarge,
-            ),
+            Text('Assets', style: AppTypography.titleLarge),
             const SizedBox(height: AppSpacing.lg),
-            
+
             // Empty state
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(AppSpacing.xxl),
               decoration: BoxDecoration(
-                color: themeProvider.isDarkMode 
-                    ? AppColors.darkSurfaceVariant 
+                color: themeProvider.isDarkMode
+                    ? AppColors.darkSurfaceVariant
                     : AppColors.lightSurfaceVariant,
                 borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
               ),
@@ -185,10 +179,7 @@ class WalletScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-        border: Border.all(
-          color: color.withOpacity(0.2),
-          width: 1,
-        ),
+        border: Border.all(color: color.withOpacity(0.2), width: 1),
       ),
       child: Column(
         children: [
@@ -198,11 +189,7 @@ class WalletScreen extends StatelessWidget {
               color: color,
               borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
             ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: AppSpacing.iconLg,
-            ),
+            child: Icon(icon, color: Colors.white, size: AppSpacing.iconLg),
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(

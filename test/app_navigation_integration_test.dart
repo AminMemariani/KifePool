@@ -3,8 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:provider/provider.dart';
-import 'package:kifepool/core/app.dart';
-import 'package:kifepool/shared/providers/theme_provider.dart';
+// Removed unused imports
 import 'test_helpers.dart';
 
 /// Integration tests for App Navigation
@@ -331,10 +330,7 @@ void main() {
         await tester.binding.setSurfaceSize(size);
 
         await tester.pumpWidget(
-          createTestApp(
-            child: const SizedBox(),
-            hasActiveWallet: true,
-          ),
+          createTestApp(child: const SizedBox(), hasActiveWallet: true),
         );
 
         await tester.pumpAndSettle();

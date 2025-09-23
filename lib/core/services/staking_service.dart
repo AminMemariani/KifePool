@@ -7,7 +7,6 @@ import 'package:kifepool/core/services/rpc_node_service.dart';
 
 /// Service for managing staking operations across supported parachains
 class StakingService {
-
   /// Send RPC request
   static Future<Map<String, dynamic>> _sendRpcRequest(
     String chain,
@@ -48,7 +47,6 @@ class StakingService {
       );
     }
   }
-
 
   /// Get validators for a chain
   static Future<List<staking.Validator>> getValidators(String chain) async {
@@ -1035,5 +1033,4 @@ class StakingService {
       );
     }
   }
-
 }

@@ -58,7 +58,7 @@ class _KifePoolAppState extends State<KifePoolApp>
     try {
       // Initialize Serverpod client
       await ServerpodClient.initialize();
-      
+
       setState(() {
         _isInitialized = true;
       });
@@ -80,20 +80,9 @@ class _KifePoolAppState extends State<KifePoolApp>
         ChangeNotifierProvider(create: (_) => StakingProvider()),
         ChangeNotifierProvider(create: (_) => NewsProvider()),
       ],
-      child:
-          Consumer3<
-            ThemeProvider,
-            LanguageProvider,
-            WalletProvider
-          >(
-            builder:
-                (
-                  context,
-                  themeProvider,
-                  languageProvider,
-                  walletProvider,
-                  child,
-                ) {
+      child: Consumer3<ThemeProvider, LanguageProvider, WalletProvider>(
+        builder:
+            (context, themeProvider, languageProvider, walletProvider, child) {
               // Initialize providers when they become available
               WidgetsBinding.instance.addPostFrameCallback((_) async {
                 if (!languageProvider.isInitialized) {
@@ -103,48 +92,22 @@ class _KifePoolAppState extends State<KifePoolApp>
                   await walletProvider.initialize();
                 }
               });
-          return MaterialApp(
-            title: 'KifePool',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: themeProvider.themeMode,
-                    locale: languageProvider.currentLocale,
-                    localizationsDelegates:
-                        AppLocalizations.localizationsDelegates,
-                    supportedLocales: AppLocalizations.supportedLocales,
-            home: !_isInitialized
-                ? const Scaffold(
-                    body: Center(child: CircularProgressIndicator()),
-                  )
-                : !walletProvider.hasActiveWallet
-                ? const WalletSelectionScreen()
-                : Scaffold(
-                            body: PageView(
-                              controller: _pageController,
-                              onPageChanged: (index) {
-                                setState(() {
-                                  _currentIndex = index;
-                                });
-                              },
-                      children: _screens,
-                    ),
-                    bottomNavigationBar: AppBottomNavigation(
-                      currentIndex: _currentIndex,
-                      onTap: (index) {
-                        setState(() {
-                          _currentIndex = index;
-                        });
-                                _pageController.animateToPage(
-                                  index,
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                );
-                      },
-                    ),
-                  ),
-            routes: {
-              '/dashboard': (context) => Scaffold(
+              return MaterialApp(
+                title: 'KifePool',
+                debugShowCheckedModeBanner: false,
+                theme: AppTheme.lightTheme,
+                darkTheme: AppTheme.darkTheme,
+                themeMode: themeProvider.themeMode,
+                locale: languageProvider.currentLocale,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                home: !_isInitialized
+                    ? const Scaffold(
+                        body: Center(child: CircularProgressIndicator()),
+                      )
+                    : !walletProvider.hasActiveWallet
+                    ? const WalletSelectionScreen()
+                    : Scaffold(
                         body: PageView(
                           controller: _pageController,
                           onPageChanged: (index) {
@@ -154,36 +117,61 @@ class _KifePoolAppState extends State<KifePoolApp>
                           },
                           children: _screens,
                         ),
-                bottomNavigationBar: AppBottomNavigation(
-                  currentIndex: _currentIndex,
-                  onTap: (index) {
-                    setState(() {
-                      _currentIndex = index;
-                    });
+                        bottomNavigationBar: AppBottomNavigation(
+                          currentIndex: _currentIndex,
+                          onTap: (index) {
+                            setState(() {
+                              _currentIndex = index;
+                            });
                             _pageController.animateToPage(
                               index,
                               duration: const Duration(milliseconds: 300),
                               curve: Curves.easeInOut,
                             );
+                          },
+                        ),
+                      ),
+                routes: {
+                  '/dashboard': (context) => Scaffold(
+                    body: PageView(
+                      controller: _pageController,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                      },
+                      children: _screens,
+                    ),
+                    bottomNavigationBar: AppBottomNavigation(
+                      currentIndex: _currentIndex,
+                      onTap: (index) {
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                        _pageController.animateToPage(
+                          index,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
+                      },
+                    ),
+                  ),
+                  '/wallet/create': (context) => const WalletCreationScreen(),
+                  '/wallet/import': (context) => const WalletImportScreen(),
+                  '/wallet/backup': (context) {
+                    final args =
+                        ModalRoute.of(context)!.settings.arguments
+                            as Map<String, dynamic>;
+                    return SeedPhraseBackupScreen(
+                      mnemonic: args['mnemonic'],
+                      walletName: args['walletName'],
+                    );
                   },
-                ),
-              ),
-              '/wallet/create': (context) => const WalletCreationScreen(),
-              '/wallet/import': (context) => const WalletImportScreen(),
-              '/wallet/backup': (context) {
-                final args =
-                    ModalRoute.of(context)!.settings.arguments
-                        as Map<String, dynamic>;
-                return SeedPhraseBackupScreen(
-                  mnemonic: args['mnemonic'],
-                  walletName: args['walletName'],
-                );
-              },
-              '/cross-chain/history': (context) =>
-                  const XcmTransferHistoryScreen(),
+                  '/cross-chain/history': (context) =>
+                      const XcmTransferHistoryScreen(),
+                },
+              );
             },
-          );
-        },
       ),
     );
   }

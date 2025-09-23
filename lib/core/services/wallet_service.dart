@@ -10,7 +10,6 @@ import 'package:flutter/foundation.dart';
 
 /// Wallet service for creating and managing crypto wallets
 class WalletService {
-
   /// Generate a new mnemonic phrase
   static String generateMnemonic({int wordCount = 12}) {
     if (wordCount != 12 && wordCount != 24) {
@@ -201,7 +200,7 @@ class WalletService {
       if (ethereumCompatibleChains.contains(chain.toLowerCase())) {
         return _generateEthereumAddress(publicKey);
       }
-      
+
       // Default to Substrate address for other parachains
       return _generateSubstrateAddress(publicKey);
     } catch (e) {
@@ -396,7 +395,7 @@ class WalletService {
           publicKey: base64Encode(publicKey),
         );
       }
-      
+
       // Default to Ed25519 for other parachains
       final privateKeyBytes = base64Decode(privateKey);
       final publicKeyBytes =
@@ -860,7 +859,7 @@ class WalletService {
         base64Decode(privateKey);
         return true;
       }
-      
+
       // Default to Ed25519 validation for other parachains
       base64Decode(privateKey);
       return true;
@@ -951,7 +950,7 @@ class WalletService {
       final bytes = List<int>.generate(32, (i) => random.nextInt(256));
       return base64Encode(bytes);
     }
-    
+
     // Default to Ed25519 for other parachains
     final bytes = List<int>.generate(32, (i) => random.nextInt(256));
     return base64Encode(bytes);

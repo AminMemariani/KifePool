@@ -6,7 +6,6 @@ import 'package:kifepool/core/services/database_service.dart';
 
 /// Service for managing news articles and featured projects
 class NewsService {
-
   // RSS feed URLs
   static const Map<NewsSource, String> _rssFeeds = {
     NewsSource.polkadotBlog: 'https://polkadot.network/blog/feed.xml',

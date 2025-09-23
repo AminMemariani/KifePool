@@ -47,8 +47,6 @@ enum TransactionDirection {
 
 @JsonSerializable()
 class TransactionHistory {
-  
-
   /// Transaction hash
   late String hash;
 
@@ -59,15 +57,15 @@ class TransactionHistory {
   late String chain;
 
   /// Transaction type
-  
+
   late TransactionType type;
 
   /// Transaction status
-  
+
   late TransactionStatus status;
 
   /// Transaction direction
-  
+
   late TransactionDirection direction;
 
   /// From address
@@ -101,7 +99,7 @@ class TransactionHistory {
   late int nonce;
 
   /// Additional metadata
-  
+
   Map<String, dynamic>? metadata;
 
   /// Explorer URL

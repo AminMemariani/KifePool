@@ -57,23 +57,32 @@ class AppConstants {
   ];
 
   // Error Messages
-  static const String networkErrorMessage = 'Network connection error. Please check your internet connection.';
-  static const String serverErrorMessage = 'Server error. Please try again later.';
-  static const String unknownErrorMessage = 'An unknown error occurred. Please try again.';
-  static const String invalidCredentialsMessage = 'Invalid credentials. Please check your email and password.';
-  static const String accountLockedMessage = 'Account temporarily locked due to multiple failed attempts.';
+  static const String networkErrorMessage =
+      'Network connection error. Please check your internet connection.';
+  static const String serverErrorMessage =
+      'Server error. Please try again later.';
+  static const String unknownErrorMessage =
+      'An unknown error occurred. Please try again.';
+  static const String invalidCredentialsMessage =
+      'Invalid credentials. Please check your email and password.';
+  static const String accountLockedMessage =
+      'Account temporarily locked due to multiple failed attempts.';
 
   // Success Messages
   static const String loginSuccessMessage = 'Login successful!';
-  static const String registrationSuccessMessage = 'Account created successfully!';
-  static const String transactionSuccessMessage = 'Transaction completed successfully!';
+  static const String registrationSuccessMessage =
+      'Account created successfully!';
+  static const String transactionSuccessMessage =
+      'Transaction completed successfully!';
   static const String settingsSavedMessage = 'Settings saved successfully!';
 
   // Validation Messages
   static const String emailRequiredMessage = 'Email is required';
-  static const String emailInvalidMessage = 'Please enter a valid email address';
+  static const String emailInvalidMessage =
+      'Please enter a valid email address';
   static const String passwordRequiredMessage = 'Password is required';
-  static const String passwordTooShortMessage = 'Password must be at least 8 characters long';
+  static const String passwordTooShortMessage =
+      'Password must be at least 8 characters long';
   static const String confirmPasswordMessage = 'Passwords do not match';
   static const String nameRequiredMessage = 'Name is required';
   static const String phoneRequiredMessage = 'Phone number is required';

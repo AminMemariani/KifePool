@@ -7,7 +7,6 @@ part 'staking_models.g.dart';
 
 @JsonSerializable()
 class Validator {
-  
   late String address;
   late String name;
   late String chain;
@@ -33,7 +32,6 @@ class Validator {
 
 @JsonSerializable()
 class NominationPool {
-  
   late int poolId;
   late String name;
   late String chain;
@@ -59,7 +57,6 @@ class NominationPool {
 
 @JsonSerializable()
 class StakingPosition {
-  
   late String accountAddress;
   late String chain;
   late String stakingType; // 'validator' or 'pool'
@@ -110,7 +107,6 @@ class StakingPosition {
 
 @JsonSerializable()
 class StakingReward {
-  
   late String accountAddress;
   late String chain;
   late String validatorAddress;

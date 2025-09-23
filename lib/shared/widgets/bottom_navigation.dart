@@ -20,12 +20,12 @@ class AppBottomNavigation extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final l10n = AppLocalizations.of(context);
-    
+
     return Container(
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: themeProvider.isDarkMode 
+            color: themeProvider.isDarkMode
                 ? Colors.black.withValues(alpha: 0.3)
                 : Colors.grey.withValues(alpha: 0.2),
             blurRadius: 12,
@@ -138,8 +138,7 @@ class AppBottomNavigation extends StatelessWidget {
           scale: 1.1,
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeInOut,
-          child: Icon(activeIcon, size: 26,
-          ),
+          child: Icon(activeIcon, size: 26),
         ),
       ),
       label: label,

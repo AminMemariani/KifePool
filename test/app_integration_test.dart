@@ -3,8 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:provider/provider.dart';
-import 'package:kifepool/core/app.dart';
-import 'package:kifepool/shared/providers/theme_provider.dart';
+// Removed unused imports
 import 'test_helpers.dart';
 
 /// Helper function to check if BottomNavigationBar is present
@@ -22,17 +21,14 @@ void main() {
   group('KifePool App Integration Tests', () {
     testWidgets('should load complete app successfully', (tester) async {
       await tester.pumpWidget(
-        createTestApp(
-          child: const SizedBox(),
-          hasActiveWallet: true,
-        ),
+        createTestApp(child: const SizedBox(), hasActiveWallet: true),
       );
 
       await tester.pumpAndSettle();
 
       // Verify app loads completely
       expect(find.byType(TestKifePoolApp), findsOneWidget);
-      
+
       // We have an active wallet - verify main navigation
       expect(find.byType(BottomNavigationBar).evaluate().isNotEmpty, isTrue);
       expect(find.text('Wallet'), findsOneWidget);
@@ -46,10 +42,7 @@ void main() {
 
     testWidgets('should handle complete user journey', (tester) async {
       await tester.pumpWidget(
-        createTestApp(
-          child: const SizedBox(),
-          hasActiveWallet: true,
-        ),
+        createTestApp(child: const SizedBox(), hasActiveWallet: true),
       );
 
       await tester.pumpAndSettle();
@@ -80,10 +73,7 @@ void main() {
 
     testWidgets('should handle theme switching throughout app', (tester) async {
       await tester.pumpWidget(
-        createTestApp(
-          child: const SizedBox(),
-          hasActiveWallet: true,
-        ),
+        createTestApp(child: const SizedBox(), hasActiveWallet: true),
       );
 
       await tester.pumpAndSettle();
@@ -114,10 +104,7 @@ void main() {
 
     testWidgets('should handle app state persistence', (tester) async {
       await tester.pumpWidget(
-        createTestApp(
-          child: const SizedBox(),
-          hasActiveWallet: true,
-        ),
+        createTestApp(child: const SizedBox(), hasActiveWallet: true),
       );
 
       await tester.pumpAndSettle();
@@ -136,10 +123,7 @@ void main() {
 
       // Simulate app restart by rebuilding
       await tester.pumpWidget(
-        createTestApp(
-          child: const SizedBox(),
-          hasActiveWallet: true,
-        ),
+        createTestApp(child: const SizedBox(), hasActiveWallet: true),
       );
 
       await tester.pumpAndSettle();
@@ -152,10 +136,7 @@ void main() {
 
     testWidgets('should handle app performance under load', (tester) async {
       await tester.pumpWidget(
-        createTestApp(
-          child: const SizedBox(),
-          hasActiveWallet: true,
-        ),
+        createTestApp(child: const SizedBox(), hasActiveWallet: true),
       );
 
       await tester.pumpAndSettle();
@@ -209,10 +190,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        createTestApp(
-          child: const SizedBox(),
-          hasActiveWallet: true,
-        ),
+        createTestApp(child: const SizedBox(), hasActiveWallet: true),
       );
 
       await tester.pumpAndSettle();
@@ -246,10 +224,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        createTestApp(
-          child: const SizedBox(),
-          hasActiveWallet: true,
-        ),
+        createTestApp(child: const SizedBox(), hasActiveWallet: true),
       );
 
       await tester.pumpAndSettle();
@@ -278,10 +253,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        createTestApp(
-          child: const SizedBox(),
-          hasActiveWallet: true,
-        ),
+        createTestApp(child: const SizedBox(), hasActiveWallet: true),
       );
 
       await tester.pumpAndSettle();
@@ -319,10 +291,7 @@ void main() {
 
     testWidgets('should handle app with different locales', (tester) async {
       await tester.pumpWidget(
-        createTestApp(
-          child: const SizedBox(),
-          hasActiveWallet: true,
-        ),
+        createTestApp(child: const SizedBox(), hasActiveWallet: true),
       );
 
       await tester.pumpAndSettle();
@@ -339,10 +308,7 @@ void main() {
 
     testWidgets('should handle app with different text scales', (tester) async {
       await tester.pumpWidget(
-        createTestApp(
-          child: const SizedBox(),
-          hasActiveWallet: true,
-        ),
+        createTestApp(child: const SizedBox(), hasActiveWallet: true),
       );
 
       await tester.pumpAndSettle();
@@ -368,10 +334,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        createTestApp(
-          child: const SizedBox(),
-          hasActiveWallet: true,
-        ),
+        createTestApp(child: const SizedBox(), hasActiveWallet: true),
       );
 
       await tester.pumpAndSettle();
@@ -397,10 +360,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        createTestApp(
-          child: const SizedBox(),
-          hasActiveWallet: true,
-        ),
+        createTestApp(child: const SizedBox(), hasActiveWallet: true),
       );
 
       await tester.pumpAndSettle();
@@ -422,10 +382,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        createTestApp(
-          child: const SizedBox(),
-          hasActiveWallet: true,
-        ),
+        createTestApp(child: const SizedBox(), hasActiveWallet: true),
       );
 
       await tester.pumpAndSettle();
@@ -455,10 +412,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        createTestApp(
-          child: const SizedBox(),
-          hasActiveWallet: true,
-        ),
+        createTestApp(child: const SizedBox(), hasActiveWallet: true),
       );
 
       await tester.pumpAndSettle();

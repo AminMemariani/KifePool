@@ -20,7 +20,7 @@ class TransactionHistoryService {
     if (_isTestEnvironment()) {
       return _getMockTransactionHistory(address, filter);
     }
-    
+
     try {
       final effectiveFilter = filter ?? const TransactionFilter();
 

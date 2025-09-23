@@ -10,12 +10,12 @@ import 'core/services/font_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize services
   await DatabaseService.initialize();
   await RpcNodeService.initialize();
   await FontService.initialize();
-  
+
   runApp(
     MultiProvider(
       providers: [

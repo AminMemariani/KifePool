@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:kifepool/core/app.dart';
+// Removed unused import
 import 'package:kifepool/core/models/xcm_transfer_models.dart';
 import 'package:kifepool/core/services/xcm_transfer_service.dart';
 import 'package:kifepool/core/services/database_service.dart';

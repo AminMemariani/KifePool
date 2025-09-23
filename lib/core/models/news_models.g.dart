@@ -166,20 +166,20 @@ Map<String, dynamic> _$NewsFeedResultToJson(NewsFeedResult instance) =>
     };
 
 NewsFilter _$NewsFilterFromJson(Map<String, dynamic> json) => NewsFilter(
-      source: $enumDecodeNullable(_$NewsSourceEnumMap, json['source']),
-      category: $enumDecodeNullable(_$NewsCategoryEnumMap, json['category']),
-      fromDate: json['fromDate'] == null
-          ? null
-          : DateTime.parse(json['fromDate'] as String),
-      toDate: json['toDate'] == null
-          ? null
-          : DateTime.parse(json['toDate'] as String),
-      searchQuery: json['searchQuery'] as String?,
-      bookmarkedOnly: json['bookmarkedOnly'] as bool?,
-      unreadOnly: json['unreadOnly'] as bool?,
-      limit: (json['limit'] as num?)?.toInt() ?? 20,
-      offset: (json['offset'] as num?)?.toInt() ?? 0,
-    );
+  source: $enumDecodeNullable(_$NewsSourceEnumMap, json['source']),
+  category: $enumDecodeNullable(_$NewsCategoryEnumMap, json['category']),
+  fromDate: json['fromDate'] == null
+      ? null
+      : DateTime.parse(json['fromDate'] as String),
+  toDate: json['toDate'] == null
+      ? null
+      : DateTime.parse(json['toDate'] as String),
+  searchQuery: json['searchQuery'] as String?,
+  bookmarkedOnly: json['bookmarkedOnly'] as bool?,
+  unreadOnly: json['unreadOnly'] as bool?,
+  limit: (json['limit'] as num?)?.toInt() ?? 20,
+  offset: (json['offset'] as num?)?.toInt() ?? 0,
+);
 
 Map<String, dynamic> _$NewsFilterToJson(NewsFilter instance) =>
     <String, dynamic>{
@@ -195,30 +195,30 @@ Map<String, dynamic> _$NewsFilterToJson(NewsFilter instance) =>
     };
 
 NewsStats _$NewsStatsFromJson(Map<String, dynamic> json) => NewsStats(
-      totalArticles: (json['totalArticles'] as num).toInt(),
-      unreadArticles: (json['unreadArticles'] as num).toInt(),
-      bookmarkedArticles: (json['bookmarkedArticles'] as num).toInt(),
-      articlesBySource: (json['articlesBySource'] as Map<String, dynamic>).map(
-        (k, e) =>
-            MapEntry($enumDecode(_$NewsSourceEnumMap, k), (e as num).toInt()),
-      ),
-      articlesByCategory:
-          (json['articlesByCategory'] as Map<String, dynamic>).map(
-        (k, e) =>
-            MapEntry($enumDecode(_$NewsCategoryEnumMap, k), (e as num).toInt()),
-      ),
-      lastRefresh: DateTime.parse(json['lastRefresh'] as String),
-      featuredProjectsCount: (json['featuredProjectsCount'] as num).toInt(),
-    );
+  totalArticles: (json['totalArticles'] as num).toInt(),
+  unreadArticles: (json['unreadArticles'] as num).toInt(),
+  bookmarkedArticles: (json['bookmarkedArticles'] as num).toInt(),
+  articlesBySource: (json['articlesBySource'] as Map<String, dynamic>).map(
+    (k, e) => MapEntry($enumDecode(_$NewsSourceEnumMap, k), (e as num).toInt()),
+  ),
+  articlesByCategory: (json['articlesByCategory'] as Map<String, dynamic>).map(
+    (k, e) =>
+        MapEntry($enumDecode(_$NewsCategoryEnumMap, k), (e as num).toInt()),
+  ),
+  lastRefresh: DateTime.parse(json['lastRefresh'] as String),
+  featuredProjectsCount: (json['featuredProjectsCount'] as num).toInt(),
+);
 
 Map<String, dynamic> _$NewsStatsToJson(NewsStats instance) => <String, dynamic>{
-      'totalArticles': instance.totalArticles,
-      'unreadArticles': instance.unreadArticles,
-      'bookmarkedArticles': instance.bookmarkedArticles,
-      'articlesBySource': instance.articlesBySource
-          .map((k, e) => MapEntry(_$NewsSourceEnumMap[k]!, e)),
-      'articlesByCategory': instance.articlesByCategory
-          .map((k, e) => MapEntry(_$NewsCategoryEnumMap[k]!, e)),
-      'lastRefresh': instance.lastRefresh.toIso8601String(),
-      'featuredProjectsCount': instance.featuredProjectsCount,
-    };
+  'totalArticles': instance.totalArticles,
+  'unreadArticles': instance.unreadArticles,
+  'bookmarkedArticles': instance.bookmarkedArticles,
+  'articlesBySource': instance.articlesBySource.map(
+    (k, e) => MapEntry(_$NewsSourceEnumMap[k]!, e),
+  ),
+  'articlesByCategory': instance.articlesByCategory.map(
+    (k, e) => MapEntry(_$NewsCategoryEnumMap[k]!, e),
+  ),
+  'lastRefresh': instance.lastRefresh.toIso8601String(),
+  'featuredProjectsCount': instance.featuredProjectsCount,
+};

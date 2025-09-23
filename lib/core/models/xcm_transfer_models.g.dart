@@ -31,31 +31,31 @@ XcmTransfer _$XcmTransferFromJson(Map<String, dynamic> json) => XcmTransfer()
   ..createdAt = DateTime.parse(json['createdAt'] as String)
   ..updatedAt = DateTime.parse(json['updatedAt'] as String);
 
-Map<String, dynamic> _$XcmTransferToJson(XcmTransfer instance) =>
-    <String, dynamic>{
-      'transferId': instance.transferId,
-      'sourceChain': instance.sourceChain,
-      'destinationChain': instance.destinationChain,
-      'type': _$XcmTransferTypeEnumMap[instance.type]!,
-      'status': _$XcmTransferStatusEnumMap[instance.status]!,
-      'direction': _$XcmTransferDirectionEnumMap[instance.direction]!,
-      'sourceAddress': instance.sourceAddress,
-      'destinationAddress': instance.destinationAddress,
-      'assetSymbol': instance.assetSymbol,
-      'amount': instance.amount,
-      'xcmMessageHash': instance.xcmMessageHash,
-      'sourceTransactionHash': instance.sourceTransactionHash,
-      'destinationTransactionHash': instance.destinationTransactionHash,
-      'transferFee': instance.transferFee,
-      'xcmFee': instance.xcmFee,
-      'timestamp': instance.timestamp.toIso8601String(),
-      'confirmationTimestamp':
-          instance.confirmationTimestamp?.toIso8601String(),
-      'errorMessage': instance.errorMessage,
-      'metadata': instance.metadata,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
-    };
+Map<String, dynamic> _$XcmTransferToJson(
+  XcmTransfer instance,
+) => <String, dynamic>{
+  'transferId': instance.transferId,
+  'sourceChain': instance.sourceChain,
+  'destinationChain': instance.destinationChain,
+  'type': _$XcmTransferTypeEnumMap[instance.type]!,
+  'status': _$XcmTransferStatusEnumMap[instance.status]!,
+  'direction': _$XcmTransferDirectionEnumMap[instance.direction]!,
+  'sourceAddress': instance.sourceAddress,
+  'destinationAddress': instance.destinationAddress,
+  'assetSymbol': instance.assetSymbol,
+  'amount': instance.amount,
+  'xcmMessageHash': instance.xcmMessageHash,
+  'sourceTransactionHash': instance.sourceTransactionHash,
+  'destinationTransactionHash': instance.destinationTransactionHash,
+  'transferFee': instance.transferFee,
+  'xcmFee': instance.xcmFee,
+  'timestamp': instance.timestamp.toIso8601String(),
+  'confirmationTimestamp': instance.confirmationTimestamp?.toIso8601String(),
+  'errorMessage': instance.errorMessage,
+  'metadata': instance.metadata,
+  'createdAt': instance.createdAt.toIso8601String(),
+  'updatedAt': instance.updatedAt.toIso8601String(),
+};
 
 const _$XcmTransferTypeEnumMap = {
   XcmTransferType.token: 'token',
@@ -132,30 +132,30 @@ XcmTransferProgress _$XcmTransferProgressFromJson(Map<String, dynamic> json) =>
     );
 
 Map<String, dynamic> _$XcmTransferProgressToJson(
-        XcmTransferProgress instance) =>
-    <String, dynamic>{
-      'transferId': instance.transferId,
-      'status': _$XcmTransferStatusEnumMap[instance.status]!,
-      'currentStep': instance.currentStep,
-      'totalSteps': instance.totalSteps,
-      'currentStepDescription': instance.currentStepDescription,
-      'progressPercentage': instance.progressPercentage,
-      'lastUpdated': instance.lastUpdated.toIso8601String(),
-      'errorMessage': instance.errorMessage,
-    };
+  XcmTransferProgress instance,
+) => <String, dynamic>{
+  'transferId': instance.transferId,
+  'status': _$XcmTransferStatusEnumMap[instance.status]!,
+  'currentStep': instance.currentStep,
+  'totalSteps': instance.totalSteps,
+  'currentStepDescription': instance.currentStepDescription,
+  'progressPercentage': instance.progressPercentage,
+  'lastUpdated': instance.lastUpdated.toIso8601String(),
+  'errorMessage': instance.errorMessage,
+};
 
 XcmChainInfo _$XcmChainInfoFromJson(Map<String, dynamic> json) => XcmChainInfo(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      symbol: json['symbol'] as String,
-      rpcUrl: json['rpcUrl'] as String,
-      explorerUrl: json['explorerUrl'] as String,
-      isRelayChain: json['isRelayChain'] as bool,
-      supportedAssets: (json['supportedAssets'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList(),
-      assetSymbols: Map<String, String>.from(json['assetSymbols'] as Map),
-    );
+  id: json['id'] as String,
+  name: json['name'] as String,
+  symbol: json['symbol'] as String,
+  rpcUrl: json['rpcUrl'] as String,
+  explorerUrl: json['explorerUrl'] as String,
+  isRelayChain: json['isRelayChain'] as bool,
+  supportedAssets: (json['supportedAssets'] as List<dynamic>)
+      .map((e) => e as String)
+      .toList(),
+  assetSymbols: Map<String, String>.from(json['assetSymbols'] as Map),
+);
 
 Map<String, dynamic> _$XcmChainInfoToJson(XcmChainInfo instance) =>
     <String, dynamic>{
@@ -170,14 +170,14 @@ Map<String, dynamic> _$XcmChainInfoToJson(XcmChainInfo instance) =>
     };
 
 XcmAssetInfo _$XcmAssetInfoFromJson(Map<String, dynamic> json) => XcmAssetInfo(
-      symbol: json['symbol'] as String,
-      assetId: json['assetId'] as String,
-      chain: json['chain'] as String,
-      decimals: json['decimals'] as String,
-      balance: json['balance'] as String,
-      isNative: json['isNative'] as bool,
-      contractAddress: json['contractAddress'] as String?,
-    );
+  symbol: json['symbol'] as String,
+  assetId: json['assetId'] as String,
+  chain: json['chain'] as String,
+  decimals: json['decimals'] as String,
+  balance: json['balance'] as String,
+  isNative: json['isNative'] as bool,
+  contractAddress: json['contractAddress'] as String?,
+);
 
 Map<String, dynamic> _$XcmAssetInfoToJson(XcmAssetInfo instance) =>
     <String, dynamic>{
@@ -191,25 +191,24 @@ Map<String, dynamic> _$XcmAssetInfoToJson(XcmAssetInfo instance) =>
     };
 
 XcmTransferValidation _$XcmTransferValidationFromJson(
-        Map<String, dynamic> json) =>
-    XcmTransferValidation(
-      isValid: json['isValid'] as bool,
-      errors:
-          (json['errors'] as List<dynamic>).map((e) => e as String).toList(),
-      estimatedFee: json['estimatedFee'] as String?,
-      estimatedTime: json['estimatedTime'] as String?,
-      isSupported: json['isSupported'] as bool,
-    );
+  Map<String, dynamic> json,
+) => XcmTransferValidation(
+  isValid: json['isValid'] as bool,
+  errors: (json['errors'] as List<dynamic>).map((e) => e as String).toList(),
+  estimatedFee: json['estimatedFee'] as String?,
+  estimatedTime: json['estimatedTime'] as String?,
+  isSupported: json['isSupported'] as bool,
+);
 
 Map<String, dynamic> _$XcmTransferValidationToJson(
-        XcmTransferValidation instance) =>
-    <String, dynamic>{
-      'isValid': instance.isValid,
-      'errors': instance.errors,
-      'estimatedFee': instance.estimatedFee,
-      'estimatedTime': instance.estimatedTime,
-      'isSupported': instance.isSupported,
-    };
+  XcmTransferValidation instance,
+) => <String, dynamic>{
+  'isValid': instance.isValid,
+  'errors': instance.errors,
+  'estimatedFee': instance.estimatedFee,
+  'estimatedTime': instance.estimatedTime,
+  'isSupported': instance.isSupported,
+};
 
 XcmTransferStats _$XcmTransferStatsFromJson(Map<String, dynamic> json) =>
     XcmTransferStats(

@@ -478,10 +478,9 @@ class _WalletCreationScreenState extends State<WalletCreationScreen> {
       if (result.success) {
         if (mounted) {
           // Navigate back to the main app
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            '/dashboard',
-            (route) => false,
-          );
+          Navigator.of(
+            context,
+          ).pushNamedAndRemoveUntil('/dashboard', (route) => false);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Wallet created successfully!'),

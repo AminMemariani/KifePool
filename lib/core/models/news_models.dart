@@ -7,7 +7,6 @@ part 'news_models.g.dart';
 
 @JsonSerializable()
 class NewsArticle {
-  
   late String articleId;
   late String title;
   late String excerpt;
@@ -21,9 +20,9 @@ class NewsArticle {
   late DateTime fetchedAt;
   late DateTime createdAt;
   late DateTime? updatedAt;
-  
+
   late NewsCategory category;
-  
+
   late NewsSource newsSource;
   late bool isRead;
   late bool isBookmarked;
@@ -40,7 +39,6 @@ class NewsArticle {
 
 @JsonSerializable()
 class FeaturedProject {
-  
   late String projectId;
   late String name;
   late String description;
@@ -53,9 +51,9 @@ class FeaturedProject {
   String? telegramUrl;
   String? githubUrl;
   late List<String> tags;
-  
+
   late ProjectCategory category;
-  
+
   late ProjectStatus status;
   late String chain;
   late DateTime featuredAt;

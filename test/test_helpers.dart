@@ -9,12 +9,11 @@ import 'package:kifepool/shared/providers/language_provider.dart';
 import 'package:kifepool/core/theme/app_theme.dart';
 import 'package:kifepool/features/wallet/presentation/wallet_demo_screen.dart';
 import 'package:kifepool/features/wallet/presentation/screens/wallet_selection_screen.dart';
-import 'package:kifepool/features/staking/presentation/screens/staking_screen.dart';
 import 'package:kifepool/features/transactions/presentation/screens/transaction_history_screen.dart';
 import 'package:kifepool/features/news/presentation/screens/news_screen.dart';
 import 'package:kifepool/l10n/app_localizations.dart';
 import 'package:kifepool/shared/providers/news_provider.dart';
-import 'package:kifepool/shared/providers/theme_provider.dart';
+// Removed unused imports
 import 'package:kifepool/core/services/database_service.dart';
 
 // Test environment initialization to avoid MissingPlugin and DB issues
@@ -252,7 +251,7 @@ class TestData {
     walletType: 'mnemonic',
     mnemonicId: 'test-mnemonic',
   );
-  
+
   static List<ChainBalance> get testBalances => [
     const ChainBalance(
       chain: 'Polkadot',

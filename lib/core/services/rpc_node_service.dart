@@ -21,7 +21,7 @@ class RpcNodeService {
       // In test mode, don't load nodes or start health checks
       return;
     }
-    
+
     await _loadSelectedNodes();
     _startHealthChecks();
   }

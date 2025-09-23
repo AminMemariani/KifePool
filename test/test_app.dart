@@ -23,20 +23,26 @@ class SimpleTestKifePoolApp extends StatelessWidget {
             MockWalletProvider,
             MockLanguageProvider
           >(
-        builder:
-            (context, themeProvider, walletProvider, languageProvider, child) {
-              return MaterialApp(
-                title: 'KifePool Test',
-                theme: TestTheme.lightTheme,
-                darkTheme: TestTheme.darkTheme,
-                themeMode: themeProvider.themeMode,
-                home: walletProvider.hasActiveWallet
-                    ? const TestMainScreen()
-                    : const TestWalletSelectionScreen(),
-                routes: {'/dashboard': (context) => const TestMainScreen()},
-              );
-            },
-      ),
+            builder:
+                (
+                  context,
+                  themeProvider,
+                  walletProvider,
+                  languageProvider,
+                  child,
+                ) {
+                  return MaterialApp(
+                    title: 'KifePool Test',
+                    theme: TestTheme.lightTheme,
+                    darkTheme: TestTheme.darkTheme,
+                    themeMode: themeProvider.themeMode,
+                    home: walletProvider.hasActiveWallet
+                        ? const TestMainScreen()
+                        : const TestWalletSelectionScreen(),
+                    routes: {'/dashboard': (context) => const TestMainScreen()},
+                  );
+                },
+          ),
     );
   }
 }

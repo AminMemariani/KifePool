@@ -71,7 +71,7 @@ class ParachainService {
     if (_isTestEnvironment()) {
       return _getFallbackParachains();
     }
-    
+
     // Return cached data if still valid
     if (_cachedParachains != null &&
         _lastFetch != null &&
@@ -138,7 +138,7 @@ class ParachainService {
         return parachains;
       }
     } catch (e) {
-      print('Error fetching Polkadot parachains: $e');
+      debugPrint('Error fetching Polkadot parachains: $e');
     }
 
     // Return empty list - fallback will be handled by main method
@@ -357,8 +357,9 @@ class ParachainService {
   /// Check if we're in test environment
   static bool _isTestEnvironment() {
     return const bool.fromEnvironment('dart.vm.product') == false &&
-        (const bool.fromEnvironment('flutter.inspector.structuredErrors') == true ||
-         const bool.fromEnvironment('dart.vm.test') == true ||
-         kDebugMode);
+        (const bool.fromEnvironment('flutter.inspector.structuredErrors') ==
+                true ||
+            const bool.fromEnvironment('dart.vm.test') == true ||
+            kDebugMode);
   }
 }

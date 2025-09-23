@@ -65,9 +65,9 @@ class WalletSelectionScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: AppSpacing.xl),
-                  
+
                   // Description
                   Text(
                     'Choose how you\'d like to get started with KifePool',
@@ -155,9 +155,9 @@ class WalletSelectionScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      
+
                       const SizedBox(height: AppSpacing.md),
-                      
+
                       // Import Existing Wallet Card
                       AppCard(
                         child: InkWell(
@@ -231,7 +231,7 @@ class WalletSelectionScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  
+
                   const Spacer(),
                 ],
               ),
@@ -245,18 +245,14 @@ class WalletSelectionScreen extends StatelessWidget {
   void _navigateToCreateWallet(BuildContext context) {
     HapticFeedback.lightImpact();
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const WalletCreationScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const WalletCreationScreen()),
     );
   }
 
   void _navigateToImportWallet(BuildContext context) {
     HapticFeedback.lightImpact();
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const WalletImportScreen(),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const WalletImportScreen()));
   }
 }

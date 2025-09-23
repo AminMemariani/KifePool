@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:provider/provider.dart';
-import 'package:kifepool/core/app.dart';
-import 'package:kifepool/shared/providers/theme_provider.dart';
+// Removed unused imports
 import 'test_helpers.dart';
 
 /// Integration tests for Theme Provider
@@ -13,11 +12,7 @@ void main() {
 
   group('Theme Provider Integration Tests', () {
     testWidgets('should load app with default theme', (tester) async {
-      await tester.pumpWidget(
-        createTestApp(
-          hasActiveWallet: true,
-        ),
-      );
+      await tester.pumpWidget(createTestApp(hasActiveWallet: true));
 
       await tester.pumpAndSettle();
 
@@ -36,11 +31,7 @@ void main() {
     });
 
     testWidgets('should apply light theme correctly', (tester) async {
-      await tester.pumpWidget(
-        createTestApp(
-          hasActiveWallet: true,
-        ),
-      );
+      await tester.pumpWidget(createTestApp(hasActiveWallet: true));
 
       await tester.pumpAndSettle();
 
@@ -68,11 +59,7 @@ void main() {
     });
 
     testWidgets('should apply dark theme correctly', (tester) async {
-      await tester.pumpWidget(
-        createTestApp(
-          hasActiveWallet: true,
-        ),
-      );
+      await tester.pumpWidget(createTestApp(hasActiveWallet: true));
 
       await tester.pumpAndSettle();
 
@@ -102,11 +89,7 @@ void main() {
     });
 
     testWidgets('should toggle theme correctly', (tester) async {
-      await tester.pumpWidget(
-        createTestApp(
-          hasActiveWallet: true,
-        ),
-      );
+      await tester.pumpWidget(createTestApp(hasActiveWallet: true));
 
       await tester.pumpAndSettle();
 
@@ -138,11 +121,7 @@ void main() {
     testWidgets('should maintain theme state across widget rebuilds', (
       tester,
     ) async {
-      await tester.pumpWidget(
-        createTestApp(
-          hasActiveWallet: true,
-        ),
-      );
+      await tester.pumpWidget(createTestApp(hasActiveWallet: true));
 
       await tester.pumpAndSettle();
 
@@ -159,11 +138,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Force widget rebuild
-      await tester.pumpWidget(
-        createTestApp(
-          hasActiveWallet: true,
-        ),
-      );
+      await tester.pumpWidget(createTestApp(hasActiveWallet: true));
 
       await tester.pumpAndSettle();
 
@@ -179,11 +154,7 @@ void main() {
     });
 
     testWidgets('should apply theme to all UI components', (tester) async {
-      await tester.pumpWidget(
-        createTestApp(
-          hasActiveWallet: true,
-        ),
-      );
+      await tester.pumpWidget(createTestApp(hasActiveWallet: true));
 
       await tester.pumpAndSettle();
 
@@ -217,11 +188,7 @@ void main() {
       // This test would require SharedPreferences integration
       // For now, we'll test the theme provider behavior
 
-      await tester.pumpWidget(
-        createTestApp(
-          hasActiveWallet: true,
-        ),
-      );
+      await tester.pumpWidget(createTestApp(hasActiveWallet: true));
 
       await tester.pumpAndSettle();
 
@@ -247,11 +214,7 @@ void main() {
 
       await tester.pumpWidget(
         MultiProvider(
-          providers: [
-            ChangeNotifierProvider(
-              create: (_) => themeProvider,
-            ),
-          ],
+          providers: [ChangeNotifierProvider(create: (_) => themeProvider)],
           child: const SizedBox(),
         ),
       );
@@ -273,11 +236,7 @@ void main() {
     testWidgets('should handle theme provider with multiple listeners', (
       tester,
     ) async {
-      await tester.pumpWidget(
-        createTestApp(
-          hasActiveWallet: true,
-        ),
-      );
+      await tester.pumpWidget(createTestApp(hasActiveWallet: true));
 
       await tester.pumpAndSettle();
 
@@ -312,11 +271,7 @@ void main() {
     });
 
     testWidgets('should handle theme provider error states', (tester) async {
-      await tester.pumpWidget(
-        createTestApp(
-          hasActiveWallet: true,
-        ),
-      );
+      await tester.pumpWidget(createTestApp(hasActiveWallet: true));
 
       await tester.pumpAndSettle();
 
@@ -340,11 +295,7 @@ void main() {
     });
 
     testWidgets('should integrate with app theme correctly', (tester) async {
-      await tester.pumpWidget(
-        createTestApp(
-          hasActiveWallet: true,
-        ),
-      );
+      await tester.pumpWidget(createTestApp(hasActiveWallet: true));
 
       await tester.pumpAndSettle();
 

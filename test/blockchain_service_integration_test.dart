@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:kifepool/core/services/blockchain_service.dart';
@@ -35,11 +36,11 @@ void main() {
           expect(balance.symbol, isNotEmpty);
           expect(balance.decimals, greaterThan(0));
 
-          print('✅ Polkadot connection successful');
-          print('   Balance: ${balance.totalAmount} ${balance.symbol}');
+          debugPrint('✅ Polkadot connection successful');
+          debugPrint('   Balance: ${balance.totalAmount} ${balance.symbol}');
         } catch (e) {
           if (e is BlockchainException) {
-            print('⚠️  Polkadot connection failed: ${e.message}');
+            debugPrint('⚠️  Polkadot connection failed: ${e.message}');
             // Don't fail the test for network issues
             expect(e.type, isA<BlockchainErrorType>());
           } else {
@@ -61,11 +62,11 @@ void main() {
           expect(balance.symbol, isNotEmpty);
           expect(balance.decimals, greaterThan(0));
 
-          print('✅ Moonbeam connection successful');
-          print('   Balance: ${balance.totalAmount} ${balance.symbol}');
+          debugPrint('✅ Moonbeam connection successful');
+          debugPrint('   Balance: ${balance.totalAmount} ${balance.symbol}');
         } catch (e) {
           if (e is BlockchainException) {
-            print('⚠️  Moonbeam connection failed: ${e.message}');
+            debugPrint('⚠️  Moonbeam connection failed: ${e.message}');
             expect(e.type, isA<BlockchainErrorType>());
           } else {
             rethrow;
@@ -86,11 +87,11 @@ void main() {
           expect(balance.symbol, isNotEmpty);
           expect(balance.decimals, greaterThan(0));
 
-          print('✅ Astar connection successful');
-          print('   Balance: ${balance.totalAmount} ${balance.symbol}');
+          debugPrint('✅ Astar connection successful');
+          debugPrint('   Balance: ${balance.totalAmount} ${balance.symbol}');
         } catch (e) {
           if (e is BlockchainException) {
-            print('⚠️  Astar connection failed: ${e.message}');
+            debugPrint('⚠️  Astar connection failed: ${e.message}');
             expect(e.type, isA<BlockchainErrorType>());
           } else {
             rethrow;
@@ -122,12 +123,12 @@ void main() {
             expect(balance.symbol, isNotEmpty);
             expect(balance.decimals, greaterThan(0));
 
-            print(
+            debugPrint(
               '✅ ${network.name} balance retrieved: ${balance.totalAmount} ${balance.symbol}',
             );
           } catch (e) {
             if (e is BlockchainException) {
-              print('⚠️  ${network.name} balance failed: ${e.message}');
+              debugPrint('⚠️  ${network.name} balance failed: ${e.message}');
               expect(e.type, isA<BlockchainErrorType>());
             } else {
               rethrow;
@@ -147,7 +148,7 @@ void main() {
           // In test mode, the service returns mock data instead of throwing exceptions
           expect(balance, isA<Balance>());
           expect(balance.address, equals(invalidAddress));
-          print(
+          debugPrint(
             '✅ Invalid address handled correctly: Mock data returned in test mode',
           );
         } catch (e) {
@@ -155,7 +156,9 @@ void main() {
           expect(e, isA<BlockchainException>());
           final exception = e as BlockchainException;
           expect(exception.type, isA<BlockchainErrorType>());
-          print('✅ Invalid address handled correctly: ${exception.message}');
+          debugPrint(
+            '✅ Invalid address handled correctly: ${exception.message}',
+          );
         }
       });
     });
@@ -183,17 +186,17 @@ void main() {
               expect(tx.symbol, isNotEmpty);
               expect(tx.status, isA<TransactionStatus>());
 
-              print(
+              debugPrint(
                 '✅ ${network.name} transactions retrieved: ${transactions.length}',
               );
             } else {
-              print(
+              debugPrint(
                 'ℹ️  ${network.name} no transactions found for test address',
               );
             }
           } catch (e) {
             if (e is BlockchainException) {
-              print(
+              debugPrint(
                 '⚠️  ${network.name} transaction history failed: ${e.message}',
               );
               expect(e.type, isA<BlockchainErrorType>());
@@ -222,13 +225,15 @@ void main() {
               expect(nft.owner, isNotEmpty);
               expect(nft.chain, equals(network.name));
 
-              print('✅ ${network.name} NFTs retrieved: ${nfts.length}');
+              debugPrint('✅ ${network.name} NFTs retrieved: ${nfts.length}');
             } else {
-              print('ℹ️  ${network.name} no NFTs found for test address');
+              debugPrint('ℹ️  ${network.name} no NFTs found for test address');
             }
           } catch (e) {
             if (e is BlockchainException) {
-              print('⚠️  ${network.name} NFT retrieval failed: ${e.message}');
+              debugPrint(
+                '⚠️  ${network.name} NFT retrieval failed: ${e.message}',
+              );
               expect(e.type, isA<BlockchainErrorType>());
             } else {
               rethrow;
@@ -256,12 +261,16 @@ void main() {
             expect(stakingInfo.symbol, isNotEmpty);
             expect(stakingInfo.validators, isA<List<Validator>>());
 
-            print('✅ ${network.name} staking info retrieved');
-            print('   Staked: ${stakingInfo.staked} ${stakingInfo.symbol}');
-            print('   Validators: ${stakingInfo.validators.length}');
+            debugPrint('✅ ${network.name} staking info retrieved');
+            debugPrint(
+              '   Staked: ${stakingInfo.staked} ${stakingInfo.symbol}',
+            );
+            debugPrint('   Validators: ${stakingInfo.validators.length}');
           } catch (e) {
             if (e is BlockchainException) {
-              print('⚠️  ${network.name} staking info failed: ${e.message}');
+              debugPrint(
+                '⚠️  ${network.name} staking info failed: ${e.message}',
+              );
               expect(e.type, isA<BlockchainErrorType>());
             } else {
               rethrow;
@@ -282,10 +291,10 @@ void main() {
           expect(result.hash, isNotEmpty);
           expect(result.success, isA<bool>());
 
-          print('✅ Staking operation completed: ${result.hash}');
+          debugPrint('✅ Staking operation completed: ${result.hash}');
         } catch (e) {
           if (e is BlockchainException) {
-            print('⚠️  Staking operation failed: ${e.message}');
+            debugPrint('⚠️  Staking operation failed: ${e.message}');
             expect(e.type, isA<BlockchainErrorType>());
           } else {
             rethrow;
@@ -309,10 +318,10 @@ void main() {
           expect(result.hash, isNotEmpty);
           expect(result.success, isA<bool>());
 
-          print('✅ Cross-chain transfer initiated: ${result.hash}');
+          debugPrint('✅ Cross-chain transfer initiated: ${result.hash}');
         } catch (e) {
           if (e is BlockchainException) {
-            print('⚠️  Cross-chain transfer failed: ${e.message}');
+            debugPrint('⚠️  Cross-chain transfer failed: ${e.message}');
             expect(e.type, isA<BlockchainErrorType>());
           } else {
             rethrow;
@@ -335,7 +344,7 @@ void main() {
             expect(ErrorHandler.isRetryable(e), isA<bool>());
             expect(ErrorHandler.getRetryDelay(e, 1), isA<Duration>());
 
-            print('✅ Error handling working correctly: ${e.type.name}');
+            debugPrint('✅ Error handling working correctly: ${e.type.name}');
           } else {
             rethrow;
           }
@@ -357,7 +366,7 @@ void main() {
               additionalData: {'test': 'error_logging'},
             );
 
-            print('✅ Error logging working correctly');
+            debugPrint('✅ Error logging working correctly');
           } else {
             rethrow;
           }
@@ -388,7 +397,7 @@ void main() {
             expect(result.chain, equals('Polkadot'));
           }
 
-          print('✅ Concurrent requests handled successfully');
+          debugPrint('✅ Concurrent requests handled successfully');
         } catch (e) {
           if (e is BlockchainException) {
             print('⚠️  Concurrent requests failed: ${e.message}');
@@ -409,13 +418,15 @@ void main() {
           );
 
           stopwatch.stop();
-          print('✅ Request completed in ${stopwatch.elapsedMilliseconds}ms');
+          debugPrint(
+            '✅ Request completed in ${stopwatch.elapsedMilliseconds}ms',
+          );
 
           // Requests should complete within reasonable time
           expect(stopwatch.elapsedMilliseconds, lessThan(30000)); // 30 seconds
         } catch (e) {
           stopwatch.stop();
-          print(
+          debugPrint(
             '⚠️  Request failed after ${stopwatch.elapsedMilliseconds}ms: $e',
           );
 

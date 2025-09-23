@@ -15,7 +15,7 @@ class DatabaseService {
   // In-memory mock storage
   static final List<Map<String, dynamic>> _mockNewsArticles = [];
   static final List<Map<String, dynamic>> _mockFeaturedProjects = [];
-  
+
   /// Initialize SQLite database
   static Future<void> initialize() async {
     if (mockEnabled) {
@@ -24,10 +24,10 @@ class DatabaseService {
       return;
     }
     if (_database != null) return;
-    
+
     final databasesPath = await getDatabasesPath();
     final path = join(databasesPath, 'kifepool.db');
-    
+
     _database = await openDatabase(path, version: 1, onCreate: _createTables);
   }
 
@@ -284,9 +284,9 @@ class DatabaseService {
       where: 'is_active = 1',
       limit: 1,
     );
-    
+
     if (maps.isEmpty) return null;
-    
+
     final map = maps.first;
     return WalletAccount()
       ..name = map['name'] as String
@@ -301,7 +301,7 @@ class DatabaseService {
   static Future<void> setActiveWalletAccount(String address) async {
     // First, set all accounts to inactive
     await database.update('wallet_accounts', {'is_active': 0});
-    
+
     // Then set the specified account as active
     await database.update(
       'wallet_accounts',
@@ -317,9 +317,9 @@ class DatabaseService {
       where: 'address = ?',
       whereArgs: [address],
     );
-    
+
     if (maps.isEmpty) return null;
-    
+
     final map = maps.first;
     return WalletAccount()
       ..name = map['name'] as String
@@ -361,8 +361,7 @@ class DatabaseService {
       'is_active': wallet.isActive ? 1 : 0,
       'created_at': wallet.createdAt.toIso8601String(),
       'updated_at': wallet.lastUsed.toIso8601String(),
-    },
-      conflictAlgorithm: ConflictAlgorithm.replace);
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   static Future<MnemonicWallet?> getMnemonicWallet(String name) async {
@@ -371,9 +370,9 @@ class DatabaseService {
       where: 'name = ?',
       whereArgs: [name],
     );
-    
+
     if (maps.isEmpty) return null;
-    
+
     final map = maps.first;
     return MnemonicWallet()
       ..encryptedMnemonic = map['encrypted_mnemonic'] as String
@@ -411,7 +410,7 @@ class DatabaseService {
       'token_transfers',
       orderBy: 'created_at DESC',
     );
-    
+
     return maps
         .map(
           (map) => TokenTransfer()
@@ -544,7 +543,7 @@ class DatabaseService {
       'nft_transfers',
       orderBy: 'created_at DESC',
     );
-    
+
     return maps
         .map(
           (map) => NftTransfer()
@@ -598,9 +597,9 @@ class DatabaseService {
       where: 'transaction_hash = ?',
       whereArgs: [hash],
     );
-    
+
     if (maps.isEmpty) return null;
-    
+
     final map = maps.first;
     return NftTransfer()
       ..fromAddress = map['from_address'] as String
@@ -667,11 +666,11 @@ class DatabaseService {
     // Combine token and NFT transfers
     final tokenTransfers = await getTokenTransfers();
     final nftTransfers = await getNftTransfers();
-    
+
     final allTransfers = <dynamic>[];
     allTransfers.addAll(tokenTransfers);
     allTransfers.addAll(nftTransfers);
-    
+
     // Sort by timestamp
     allTransfers.sort((a, b) {
       DateTime aTime, bTime;
@@ -682,7 +681,7 @@ class DatabaseService {
       } else {
         return 0;
       }
-      
+
       if (b is TokenTransfer) {
         bTime = b.timestamp;
       } else if (b is NftTransfer) {
@@ -690,10 +689,10 @@ class DatabaseService {
       } else {
         return 0;
       }
-      
+
       return bTime.compareTo(aTime);
     });
-    
+
     return allTransfers;
   }
 
@@ -725,7 +724,7 @@ class DatabaseService {
       'transaction_history',
       orderBy: 'timestamp DESC',
     );
-    
+
     return maps
         .map(
           (map) => TransactionHistory()
@@ -764,15 +763,15 @@ class DatabaseService {
       // Return null for mock mode - no cached transactions
       return null;
     }
-    
+
     final List<Map<String, dynamic>> maps = await database.query(
       'transaction_history',
       where: 'hash = ?',
       whereArgs: [hash],
     );
-    
+
     if (maps.isEmpty) return null;
-    
+
     final map = maps.first;
     return TransactionHistory()
       ..hash = map['hash'] as String
@@ -888,7 +887,7 @@ class DatabaseService {
       'xcm_transfers',
       orderBy: 'created_at DESC',
     );
-    
+
     return maps
         .map(
           (map) => XcmTransfer()
@@ -1122,33 +1121,33 @@ class DatabaseService {
 
     String whereClause = '';
     List<dynamic> whereArgs = [];
-    
+
     if (filter != null) {
       final conditions = <String>[];
-      
+
       if (filter.source != null) {
         conditions.add('news_source = ?');
         whereArgs.add(filter.source!.name);
       }
-      
+
       if (filter.category != null) {
         conditions.add('category = ?');
         whereArgs.add(filter.category!.name);
       }
-      
+
       if (filter.bookmarkedOnly == true) {
         conditions.add('is_bookmarked = 1');
       }
-      
+
       if (filter.unreadOnly == true) {
         conditions.add('is_read = 0');
       }
-      
+
       if (conditions.isNotEmpty) {
         whereClause = 'WHERE ${conditions.join(' AND ')}';
       }
     }
-    
+
     if (_database == null) {
       throw Exception('Database not initialized. Call initialize() first.');
     }
@@ -1157,7 +1156,7 @@ class DatabaseService {
       'SELECT * FROM news_articles $whereClause ORDER BY published_at DESC LIMIT ? OFFSET ?',
       [...whereArgs, filter?.limit ?? 50, filter?.offset ?? 0],
     );
-    
+
     return maps
         .map(
           (map) => NewsArticle()
@@ -1314,7 +1313,7 @@ class DatabaseService {
       where: 'is_active = 1',
       orderBy: 'priority ASC, featured_at DESC',
     );
-    
+
     return maps
         .map(
           (map) => FeaturedProject()

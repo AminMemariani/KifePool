@@ -21,7 +21,7 @@ class BlockchainService {
   final Map<BlockchainNetwork, StreamSubscription> _streamSubscriptions = {};
   final Map<String, Completer<String>> _pendingRequests = {};
   final Duration _timeout = const Duration(seconds: 30);
-  
+
   /// Flag to disable network connections (useful for testing)
   bool _disableNetworkConnections = false;
 
@@ -42,7 +42,7 @@ class BlockchainService {
   /// Initialize connection to a blockchain network
   Future<void> _connect(BlockchainNetwork network) async {
     if (_connections[network] != null) return;
-    
+
     // Skip connection if network is disabled (useful for testing)
     if (_disableNetworkConnections) {
       return;
@@ -184,7 +184,7 @@ class BlockchainService {
         decimals: 10,
       );
     }
-    
+
     try {
       // Get account info
       final accountInfo = await _sendRpcRequest(chain, 'system_account', [
@@ -232,7 +232,7 @@ class BlockchainService {
       // Return empty list in test mode
       return [];
     }
-    
+
     try {
       // Note: This is a simplified implementation
       // In practice, you'd need to query block data or use a block explorer API
@@ -284,7 +284,7 @@ class BlockchainService {
       // Return empty list in test mode
       return [];
     }
-    
+
     try {
       // This is a placeholder implementation
       // Different parachains have different NFT standards
@@ -462,7 +462,7 @@ class BlockchainService {
         validators: [],
       );
     }
-    
+
     try {
       // This would require calling the staking pallet
       // For now, return mock data

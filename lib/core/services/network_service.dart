@@ -3,26 +3,29 @@ import 'package:flutter/foundation.dart';
 
 class NetworkService {
   static Dio? _dio;
-  static const String _baseUrl = 'https://api.kifepool.com'; // Replace with actual API URL
+  static const String _baseUrl =
+      'https://api.kifepool.com'; // Replace with actual API URL
 
   static Dio get instance {
     if (_dio != null) return _dio!;
-    
+
     _dio = _createDio();
     return _dio!;
   }
 
   static Dio _createDio() {
-    final dio = Dio(BaseOptions(
-      baseUrl: _baseUrl,
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
-      sendTimeout: const Duration(seconds: 30),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    ));
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: _baseUrl,
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+        sendTimeout: const Duration(seconds: 30),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      ),
+    );
 
     // Add interceptors
     dio.interceptors.addAll([
@@ -63,7 +66,9 @@ class _LogInterceptor extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     if (kDebugMode) {
-      print('✅ RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}');
+      print(
+        '✅ RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}',
+      );
       print('Data: ${response.data}');
     }
     super.onResponse(response, handler);
@@ -72,7 +77,9 @@ class _LogInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (kDebugMode) {
-      print('❌ ERROR[${err.response?.statusCode}] => PATH: ${err.requestOptions.path}');
+      print(
+        '❌ ERROR[${err.response?.statusCode}] => PATH: ${err.requestOptions.path}',
+      );
       print('Message: ${err.message}');
       if (err.response?.data != null) {
         print('Error Data: ${err.response?.data}');
@@ -117,7 +124,7 @@ class _ErrorInterceptor extends Interceptor {
         // Handle unknown errors
         break;
     }
-    
+
     super.onError(err, handler);
   }
 }

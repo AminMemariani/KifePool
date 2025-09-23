@@ -75,30 +75,30 @@ class _StakingDashboardScreenState extends State<StakingDashboardScreen>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  Text(
-                    'Error loading staking data',
-                    style: AppTypography.headlineSmall,
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    stakingProvider.error!,
-                    style: AppTypography.bodyMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  ElevatedButton(
-                    onPressed: () {
-                      stakingProvider.refresh();
-                    },
-                    child: const Text('Retry'),
-                  ),
-                ],
+                    Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    Text(
+                      'Error loading staking data',
+                      style: AppTypography.headlineSmall,
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      stakingProvider.error!,
+                      style: AppTypography.bodyMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    ElevatedButton(
+                      onPressed: () {
+                        stakingProvider.refresh();
+                      },
+                      child: const Text('Retry'),
+                    ),
+                  ],
                 ),
               ),
             );

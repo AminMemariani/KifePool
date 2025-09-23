@@ -272,8 +272,7 @@ class _NewsScreenState extends State<NewsScreen> {
               color: Theme.of(context).colorScheme.error,
             ),
             const SizedBox(height: AppSpacing.lg),
-            Text(
-              'Error Loading News', style: AppTypography.headlineSmall),
+            Text('Error Loading News', style: AppTypography.headlineSmall),
             const SizedBox(height: AppSpacing.sm),
             Text(
               error,
@@ -303,8 +302,7 @@ class _NewsScreenState extends State<NewsScreen> {
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
             ),
             const SizedBox(height: AppSpacing.lg),
-            Text(
-              'No News Articles', style: AppTypography.headlineSmall),
+            Text('No News Articles', style: AppTypography.headlineSmall),
             const SizedBox(height: AppSpacing.sm),
             Text(
               'Pull down to refresh and load the latest news from the ecosystem.',
