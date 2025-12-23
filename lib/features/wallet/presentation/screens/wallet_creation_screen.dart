@@ -509,6 +509,7 @@ class _WalletCreationScreenState extends State<WalletCreationScreen> {
               backgroundColor: Colors.red,
             ),
           );
+          debugPrint('Failed to create wallet: ${result.error}');
         }
       }
     } catch (e) {
@@ -516,6 +517,9 @@ class _WalletCreationScreenState extends State<WalletCreationScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
         );
+        debugPrint('Error: $e');
+        debugPrint('Error type: ${e.runtimeType}');
+        debugPrint('Error details: ${e.toString()}');
       }
     }
   }

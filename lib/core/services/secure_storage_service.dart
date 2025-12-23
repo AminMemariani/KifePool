@@ -14,6 +14,7 @@ class SecureStorageService {
       accessibility: KeychainAccessibility.first_unlock_this_device,
       synchronizable: false,
     ),
+    mOptions: MacOsOptions(groupId: 'V4SXY52CG3.com.kifepool.app.kifepool'),
   );
 
   static const String _encryptionKeyKey = 'wallet_encryption_key';

@@ -329,7 +329,9 @@ class _AccountDashboardScreenState extends State<AccountDashboardScreen> {
                 CircleAvatar(
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   child: Text(
-                    account.name[0].toUpperCase(),
+                    account.name.isNotEmpty
+                        ? account.name[0].toUpperCase()
+                        : 'W',
                     style: AppTypography.bodyLarge.copyWith(
                       color: Theme.of(context).colorScheme.onPrimary,
                       fontWeight: FontWeight.bold,
