@@ -17,17 +17,7 @@ class StakingDashboardScreen extends StatefulWidget {
   const StakingDashboardScreen({super.key});
 
   @override
-  State<StakingDashboardScreen> createState() {
-    debugPrint('🟢 StakingDashboardScreen: createState() called');
-    try {
-      return _StakingDashboardScreenState();
-    } catch (e, stackTrace) {
-      debugPrint('❌ StakingDashboardScreen: Error in createState(): $e');
-      debugPrint('Stack trace: $stackTrace');
-      // Return a safe state that won't crash
-      return _StakingDashboardScreenState();
-    }
-  }
+  State<StakingDashboardScreen> createState() => _StakingDashboardScreenState();
 }
 
 class _StakingDashboardScreenState extends State<StakingDashboardScreen>
