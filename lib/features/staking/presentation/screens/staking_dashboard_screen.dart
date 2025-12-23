@@ -80,131 +80,161 @@ class _StakingDashboardScreenState extends State<StakingDashboardScreen>
         builder: (context) {
           return Consumer<StakingProvider>(
             builder: (context, stakingProvider, child) {
-          // Show loading only if we have no data
-          if (stakingProvider.isLoading && 
-              stakingProvider.validators.isEmpty && 
-              stakingProvider.nominationPools.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
+              try {
+                // Show loading only if we have no data
+                if (stakingProvider.isLoading && 
+                    stakingProvider.validators.isEmpty && 
+                    stakingProvider.nominationPools.isEmpty) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-          if (stakingProvider.error != null) {
-            return Center(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                if (stakingProvider.error != null) {
+                  return Center(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            size: 64,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          Text(
+                            'Error loading staking data',
+                            style: AppTypography.headlineSmall,
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            stakingProvider.error!,
+                            style: AppTypography.bodyMedium,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: AppSpacing.lg),
+                          ElevatedButton(
+                            onPressed: () {
+                              stakingProvider.refresh();
+                            },
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                return Column(
                   children: [
-                    Icon(
-                      Icons.error_outline,
-                      size: 64,
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    Text(
-                      'Error loading staking data',
-                      style: AppTypography.headlineSmall,
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      stakingProvider.error!,
-                      style: AppTypography.bodyMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    ElevatedButton(
-                      onPressed: () {
-                        stakingProvider.refresh();
+                    // Chain selector
+                    FutureBuilder<List<String>>(
+                      future: stakingProvider.getSupportedChains(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          debugPrint('Error loading supported chains: ${snapshot.error}');
+                          // Show chain selector with default chains
+                          return ChainSelectorWidget(
+                            onChainChanged: (chain) {
+                              stakingProvider.setSelectedChain(chain);
+                            },
+                            initialChain: stakingProvider.selectedChain,
+                          );
+                        }
+                        if (snapshot.hasData && snapshot.data != null) {
+                          return ChainSelectorWidget(
+                            onChainChanged: (chain) {
+                              stakingProvider.setSelectedChain(chain);
+                            },
+                            initialChain: stakingProvider.selectedChain,
+                            supportedChains: snapshot.data,
+                          );
+                        } else {
+                          return ChainSelectorWidget(
+                            onChainChanged: (chain) {
+                              stakingProvider.setSelectedChain(chain);
+                            },
+                            initialChain: stakingProvider.selectedChain,
+                          );
+                        }
                       },
-                      child: const Text('Retry'),
+                    ),
+
+                    // Search and filter bar
+                    Padding(
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      child: Column(
+                        children: [
+                          StakingSearchBar(
+                            onSearchChanged: (query) {
+                              stakingProvider.setSearchQuery(query);
+                            },
+                            initialValue: stakingProvider.searchQuery,
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: StakingFilterChips(
+                                  onFilterChanged: (filter) {
+                                    stakingProvider.setFilterType(filter);
+                                  },
+                                  initialFilter: stakingProvider.filterType,
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.sm),
+                              StakingSortDropdown(
+                                onSortChanged: (sortBy) {
+                                  stakingProvider.setSortBy(sortBy);
+                                },
+                                initialSort: stakingProvider.sortBy,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Tab content
+                    Expanded(
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          _buildOverviewTab(stakingProvider),
+                          _buildValidatorsTab(stakingProvider),
+                          _buildPoolsTab(stakingProvider),
+                        ],
+                      ),
                     ),
                   ],
-                ),
-              ),
-            );
-          }
-
-          return Column(
-            children: [
-              // Chain selector
-              FutureBuilder<List<String>>(
-                future: stakingProvider.getSupportedChains(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    debugPrint('Error loading supported chains: ${snapshot.error}');
-                    // Show chain selector with default chains
-                    return ChainSelectorWidget(
-                      onChainChanged: (chain) {
-                        stakingProvider.setSelectedChain(chain);
-                      },
-                      initialChain: stakingProvider.selectedChain,
-                    );
-                  }
-                  if (snapshot.hasData && snapshot.data != null) {
-                    return ChainSelectorWidget(
-                      onChainChanged: (chain) {
-                        stakingProvider.setSelectedChain(chain);
-                      },
-                      initialChain: stakingProvider.selectedChain,
-                      supportedChains: snapshot.data,
-                    );
-                  } else {
-                    return ChainSelectorWidget(
-                      onChainChanged: (chain) {
-                        stakingProvider.setSelectedChain(chain);
-                      },
-                      initialChain: stakingProvider.selectedChain,
-                    );
-                  }
-                },
-              ),
-
-              // Search and filter bar
-              Padding(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                child: Column(
-                  children: [
-                    StakingSearchBar(
-                      onSearchChanged: (query) {
-                        stakingProvider.setSearchQuery(query);
-                      },
-                      initialValue: stakingProvider.searchQuery,
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Row(
+                );
+              } catch (e, stackTrace) {
+                debugPrint('Error building staking dashboard: $e');
+                debugPrint('Stack trace: $stackTrace');
+                return Center(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Expanded(
-                          child: StakingFilterChips(
-                            onFilterChanged: (filter) {
-                              stakingProvider.setFilterType(filter);
-                            },
-                            initialFilter: stakingProvider.filterType,
-                          ),
+                        Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: Theme.of(context).colorScheme.error,
                         ),
-                        const SizedBox(width: AppSpacing.sm),
-                        StakingSortDropdown(
-                          onSortChanged: (sortBy) {
-                            stakingProvider.setSortBy(sortBy);
-                          },
-                          initialSort: stakingProvider.sortBy,
+                        const SizedBox(height: AppSpacing.md),
+                        Text(
+                          'Error loading staking dashboard',
+                          style: AppTypography.headlineSmall,
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(
+                          e.toString(),
+                          style: AppTypography.bodyMedium,
+                          textAlign: TextAlign.center,
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ),
-
-              // Tab content
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildOverviewTab(stakingProvider),
-                    _buildValidatorsTab(stakingProvider),
-                    _buildPoolsTab(stakingProvider),
-                  ],
-                ),
-              ),
-            ],
-          );
+                  ),
+                );
+              }
             },
           );
         },
@@ -461,7 +491,12 @@ class _StakingDashboardScreenState extends State<StakingDashboardScreen>
               ),
             ),
           ),
-          Expanded(child: Text(value, style: AppTypography.bodyMedium)),
+          Expanded(
+            child: Text(
+              value,
+              style: AppTypography.bodyMedium,
+            ),
+          ),
         ],
       ),
     );
