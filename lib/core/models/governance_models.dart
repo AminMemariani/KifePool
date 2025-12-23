@@ -195,6 +195,7 @@ class Track {
   final String? minApproval;
   final String? minSupport;
 
+  /// Create a new track
   const Track({
     required this.id,
     required this.name,
