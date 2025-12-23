@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:kifepool/core/models/staking_models.dart' as staking;
 import 'package:kifepool/core/services/staking_service.dart';
@@ -110,15 +112,17 @@ class StakingProvider with ChangeNotifier {
     _clearError();
 
     try {
+      // Use Future.wait with eagerError: false to prevent one failure from stopping others
       await Future.wait([
         loadValidators(),
         loadNominationPools(),
         loadStakingPositions(),
         loadStakingRewards(),
         loadStakingStats(),
-      ]);
+      ], eagerError: false);
     } catch (e) {
-      _setError('Failed to load staking data: $e');
+      debugPrint('Error in loadStakingData: $e');
+      // Don't set error here - individual methods handle their own errors
     } finally {
       _setLoading(false);
     }
@@ -146,7 +150,8 @@ class StakingProvider with ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('Failed to load nomination pools: $e');
-      // Don't set error here, just keep empty list
+      // Network errors are expected - just keep empty list and continue
+      // Don't crash the app or set a global error for network issues
       _nominationPools = [];
       notifyListeners();
     }
@@ -195,9 +200,11 @@ class StakingProvider with ChangeNotifier {
       const accountAddress = 'user_account_address';
       _stakingStats = await StakingService.getStakingStats(accountAddress);
       notifyListeners();
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Failed to load staking statistics: $e');
+      debugPrint('Stack trace: $stackTrace');
       // Don't set error here, just keep stats as null
+      // Network errors are expected and shouldn't crash the app
       _stakingStats = null;
       notifyListeners();
     }
@@ -423,10 +430,27 @@ class StakingProvider with ChangeNotifier {
 
   /// Get supported chains
   Future<List<String>> getSupportedChains() async {
+    debugPrint('🔵 StakingProvider: getSupportedChains() called');
     try {
-      return await StakingService.getSupportedChains();
-    } catch (e) {
-      debugPrint('Failed to get supported chains: $e');
+      debugPrint('🔵 StakingProvider: Calling StakingService.getSupportedChains()');
+      final chains = await StakingService.getSupportedChains()
+          .timeout(const Duration(seconds: 15), onTimeout: () {
+        debugPrint('⚠️ StakingProvider: getSupportedChains timed out');
+        return ['polkadot', 'kusama'];
+      });
+      debugPrint('✅ StakingProvider: getSupportedChains() returned: $chains');
+      return chains;
+    } on SocketException catch (e, stackTrace) {
+      debugPrint('❌ StakingProvider: SocketException getting supported chains: $e');
+      debugPrint('Stack trace: $stackTrace');
+      return ['polkadot', 'kusama'];
+    } on TimeoutException catch (e, stackTrace) {
+      debugPrint('❌ StakingProvider: TimeoutException getting supported chains: $e');
+      debugPrint('Stack trace: $stackTrace');
+      return ['polkadot', 'kusama'];
+    } catch (e, stackTrace) {
+      debugPrint('❌ StakingProvider: Failed to get supported chains: $e');
+      debugPrint('Stack trace: $stackTrace');
       // Return default chains if RPC fails
       return ['polkadot', 'kusama'];
     }

@@ -17,7 +17,17 @@ class StakingDashboardScreen extends StatefulWidget {
   const StakingDashboardScreen({super.key});
 
   @override
-  State<StakingDashboardScreen> createState() => _StakingDashboardScreenState();
+  State<StakingDashboardScreen> createState() {
+    debugPrint('🟢 StakingDashboardScreen: createState() called');
+    try {
+      return _StakingDashboardScreenState();
+    } catch (e, stackTrace) {
+      debugPrint('❌ StakingDashboardScreen: Error in createState(): $e');
+      debugPrint('Stack trace: $stackTrace');
+      // Return a safe state that won't crash
+      return _StakingDashboardScreenState();
+    }
+  }
 }
 
 class _StakingDashboardScreenState extends State<StakingDashboardScreen>
@@ -27,31 +37,67 @@ class _StakingDashboardScreenState extends State<StakingDashboardScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    try {
+      _tabController = TabController(length: 3, vsync: this);
+    } catch (e) {
+      debugPrint('Failed to create TabController: $e');
+      // Create a default controller if initialization fails
+      _tabController = TabController(length: 3, vsync: this);
+    }
 
-    // Initialize staking provider
+    // Initialize staking provider - delay to ensure context is ready
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
+      Future.microtask(() {
+        if (!mounted) return;
         try {
-          final provider = context.read<StakingProvider>();
+          final provider = Provider.of<StakingProvider>(context, listen: false);
           provider.initialize().catchError((error) {
             debugPrint('Failed to initialize staking provider: $error');
           });
         } catch (e) {
           debugPrint('Failed to access staking provider: $e');
         }
-      }
+      });
     });
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
+    debugPrint('🔵 StakingDashboardScreen: dispose() called');
+    try {
+      _tabController.dispose();
+    } catch (e) {
+      debugPrint('❌ StakingDashboardScreen: Error disposing TabController: $e');
+    }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('🔵 StakingDashboardScreen: build() called');
+
+    try {
+      // Verify TabController is valid
+      if (mounted && _tabController.length != 3) {
+        debugPrint(
+          '⚠️ StakingDashboardScreen: TabController length mismatch, recreating',
+        );
+        try {
+          _tabController.dispose();
+          _tabController = TabController(length: 3, vsync: this);
+        } catch (e) {
+          debugPrint(
+            '❌ StakingDashboardScreen: Failed to recreate TabController: $e',
+          );
+        }
+      }
+    } catch (e, stackTrace) {
+      debugPrint(
+        '❌ StakingDashboardScreen: Error in build() before Scaffold: $e',
+      );
+      debugPrint('Stack trace: $stackTrace');
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Staking'),
@@ -127,8 +173,41 @@ class _StakingDashboardScreenState extends State<StakingDashboardScreen>
                   children: [
                     // Chain selector
                     FutureBuilder<List<String>>(
-                      future: stakingProvider.getSupportedChains(),
+                      future: () async {
+                        debugPrint(
+                          '🔵 StakingDashboardScreen: FutureBuilder future started',
+                        );
+                        try {
+                          debugPrint(
+                            '🔵 StakingDashboardScreen: Calling getSupportedChains()',
+                          );
+                          final chains = await stakingProvider
+                              .getSupportedChains();
+                          debugPrint(
+                            '✅ StakingDashboardScreen: getSupportedChains() returned: $chains',
+                          );
+                          return chains;
+                        } catch (e, stackTrace) {
+                          debugPrint(
+                            '❌ StakingDashboardScreen: Error in FutureBuilder for supported chains: $e',
+                          );
+                          debugPrint('Stack trace: $stackTrace');
+                          // Return default chains on error
+                          debugPrint(
+                            '🔵 StakingDashboardScreen: Returning default chains',
+                          );
+                          return ['polkadot', 'kusama'];
+                        }
+                      }(),
                       builder: (context, snapshot) {
+                        debugPrint(
+                          '🔵 StakingDashboardScreen: FutureBuilder builder called, hasError: ${snapshot.hasError}, hasData: ${snapshot.hasData}',
+                        );
+                        if (snapshot.hasError) {
+                          debugPrint(
+                            '❌ StakingDashboardScreen: FutureBuilder snapshot has error: ${snapshot.error}',
+                          );
+                        }
                         if (snapshot.hasError) {
                           debugPrint('Error loading supported chains: ${snapshot.error}');
                           // Show chain selector with default chains

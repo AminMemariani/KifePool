@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -22,7 +24,43 @@ class StakingService {
         );
       }
 
-      final channel = WebSocketChannel.connect(Uri.parse(endpoint));
+      // Wrap WebSocket connection in a Future to catch synchronous exceptions
+      WebSocketChannel channel;
+      try {
+        // WebSocketChannel.connect can throw synchronously, so we wrap it
+        channel = await Future(() => WebSocketChannel.connect(Uri.parse(endpoint)))
+            .timeout(
+          const Duration(seconds: 10),
+          onTimeout: () {
+            throw TimeoutException('WebSocket connection timed out');
+          },
+        );
+      } on SocketException catch (e) {
+        debugPrint('WebSocket connection failed (SocketException): $e');
+        throw staking.StakingException(
+          type: staking.StakingErrorType.networkError,
+          message: 'Network connection failed. Please check your internet connection and try again.',
+        );
+      } on OSError catch (e) {
+        debugPrint('WebSocket connection failed (OSError): $e');
+        throw staking.StakingException(
+          type: staking.StakingErrorType.networkError,
+          message: 'Network connection failed. Please check your internet connection and try again.',
+        );
+      } on TimeoutException catch (e) {
+        debugPrint('WebSocket connection timeout: $e');
+        throw staking.StakingException(
+          type: staking.StakingErrorType.networkError,
+          message: 'Connection timed out. Please check your internet connection and try again.',
+        );
+      } catch (e, stackTrace) {
+        debugPrint('WebSocket connection error: $e');
+        debugPrint('Stack trace: $stackTrace');
+        throw staking.StakingException(
+          type: staking.StakingErrorType.networkError,
+          message: 'Failed to connect to RPC endpoint: $e',
+        );
+      }
 
       final request = {
         'jsonrpc': '2.0',
@@ -33,14 +71,31 @@ class StakingService {
 
       channel.sink.add(jsonEncode(request));
 
-      // Wait for response
-      final response = await channel.stream.first;
+      // Wait for response with timeout
+      final response = await channel.stream.first
+          .timeout(const Duration(seconds: 10), onTimeout: () {
+        throw TimeoutException('RPC request timed out after 10 seconds');
+      });
+      
       final responseData = jsonDecode(response) as Map<String, dynamic>;
 
       await channel.sink.close();
 
       return responseData;
+    } on TimeoutException catch (e) {
+      debugPrint('RPC request timeout: $e');
+      throw staking.StakingException(
+        type: staking.StakingErrorType.networkError,
+        message: 'RPC request timed out. Please check your internet connection.',
+      );
+    } on SocketException catch (e) {
+      debugPrint('Network connection error: $e');
+      throw staking.StakingException(
+        type: staking.StakingErrorType.networkError,
+        message: 'Network connection failed. Please check your internet connection and try again.',
+      );
     } catch (e) {
+      debugPrint('RPC request error: $e');
       throw staking.StakingException(
         type: staking.StakingErrorType.networkError,
         message: 'RPC request failed: $e',
@@ -600,18 +655,22 @@ class StakingService {
 
       // Get active parachains for Polkadot
       try {
-        final polkadotParachains = await _getActiveParachains('polkadot');
+        final polkadotParachains = await _getActiveParachains('polkadot')
+            .timeout(const Duration(seconds: 10));
         chains.addAll(polkadotParachains);
       } catch (e) {
         debugPrint('Failed to get Polkadot parachains: $e');
+        // Continue with basic chains if parachain fetch fails
       }
 
       // Get active parachains for Kusama
       try {
-        final kusamaParachains = await _getActiveParachains('kusama');
+        final kusamaParachains = await _getActiveParachains('kusama')
+            .timeout(const Duration(seconds: 10));
         chains.addAll(kusamaParachains);
       } catch (e) {
         debugPrint('Failed to get Kusama parachains: $e');
+        // Continue with basic chains if parachain fetch fails
       }
 
       return chains;
@@ -625,11 +684,16 @@ class StakingService {
   /// Get active parachains for a relay chain
   static Future<List<String>> _getActiveParachains(String relayChain) async {
     try {
-      // Get registered parachains
+      // Get registered parachains with timeout and error handling
       final registeredResponse = await _sendRpcRequest(
         relayChain,
         'api.query.paras.paraLifecycles',
         [],
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw TimeoutException('Parachain fetch timed out');
+        },
       );
 
       final parachains = <String>[];
@@ -668,8 +732,18 @@ class StakingService {
       }
 
       return parachains;
-    } catch (e) {
+    } on TimeoutException catch (e) {
+      debugPrint('Timeout getting parachains for $relayChain: $e');
+      return [];
+    } on SocketException catch (e) {
+      debugPrint('Network error getting parachains for $relayChain: $e');
+      return [];
+    } on staking.StakingException catch (e) {
+      debugPrint('Staking exception getting parachains for $relayChain: $e');
+      return [];
+    } catch (e, stackTrace) {
       debugPrint('Failed to get parachains for $relayChain: $e');
+      debugPrint('Stack trace: $stackTrace');
       return [];
     }
   }
@@ -840,7 +914,16 @@ class StakingService {
   ) async {
     try {
       // Get staking ratio from RPC for each supported chain
-      final supportedChains = await getSupportedChains();
+      // Wrap in try-catch to handle network errors gracefully
+      List<String> supportedChains;
+      try {
+        supportedChains = await getSupportedChains()
+            .timeout(const Duration(seconds: 15));
+      } catch (e) {
+        debugPrint('Failed to get supported chains for stats: $e');
+        // Fallback to basic chains if network fails
+        supportedChains = ['polkadot', 'kusama'];
+      }
       double totalStakingRatio = 0.0;
       int activePositions = 0;
       int totalStaked = 0;

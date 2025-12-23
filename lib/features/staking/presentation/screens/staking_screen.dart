@@ -6,6 +6,27 @@ class StakingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const StakingDashboardScreen();
+    debugPrint('🟢 StakingScreen: build() called - User clicked on Staking tab');
+    debugPrint('🟢 StakingScreen: Context: $context');
+    try {
+      debugPrint('🔵 StakingScreen: Creating StakingDashboardScreen');
+      return StakingDashboardScreen();
+    } catch (e, stackTrace) {
+      debugPrint('❌ StakingScreen: Error building StakingDashboardScreen: $e');
+      debugPrint('Stack trace: $stackTrace');
+      return Scaffold(
+        appBar: AppBar(title: const Text('Staking')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              const SizedBox(height: 16),
+              Text('Error loading staking screen: $e'),
+            ],
+          ),
+        ),
+      );
+    }
   }
 }

@@ -33,13 +33,36 @@ class _KifePoolAppState extends State<KifePoolApp>
   bool _isInitialized = false;
   late PageController _pageController;
 
-  final List<Widget> _screens = [
+  List<Widget> get _screens => [
     const AccountDashboardScreen(),
-    const StakingScreen(),
+    _buildStakingScreen(),
     const NFTsScreen(),
     const TransactionsScreen(),
     const NewsScreen(),
   ];
+
+  Widget _buildStakingScreen() {
+    debugPrint('🟢 App: Building StakingScreen widget');
+    try {
+      return const StakingScreen();
+    } catch (e, stackTrace) {
+      debugPrint('❌ App: Error creating StakingScreen: $e');
+      debugPrint('Stack trace: $stackTrace');
+      return Scaffold(
+        appBar: AppBar(title: const Text('Staking')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              const SizedBox(height: 16),
+              Text('Error loading staking screen: $e'),
+            ],
+          ),
+        ),
+      );
+    }
+  }
 
   @override
   void initState() {
@@ -108,26 +131,115 @@ class _KifePoolAppState extends State<KifePoolApp>
                     : !walletProvider.hasActiveWallet
                     ? const WalletSelectionScreen()
                     : Scaffold(
-                        body: PageView(
-                          controller: _pageController,
-                          onPageChanged: (index) {
-                            setState(() {
-                              _currentIndex = index;
-                            });
+                        body: Builder(
+                          builder: (context) {
+                            debugPrint('🟢 App: Building PageView');
+                            try {
+                              return PageView.builder(
+                                controller: _pageController,
+                                itemCount: 5,
+                                onPageChanged: (index) {
+                                  debugPrint('🟢 App: PageView onPageChanged called, index: $index');
+                                  if (index == 1) {
+                                    debugPrint('🟢 App: Page changed to Staking screen (index 1)');
+                                  }
+                                  try {
+                                    setState(() {
+                                      _currentIndex = index;
+                                    });
+                                    debugPrint('✅ App: State updated for page $index');
+                                  } catch (e, stackTrace) {
+                                    debugPrint('❌ App: Error in onPageChanged setState: $e');
+                                    debugPrint('Stack trace: $stackTrace');
+                                  }
+                                },
+                                itemBuilder: (context, index) {
+                                  debugPrint('🔵 App: PageView building page $index');
+                                  try {
+                                    Widget screen;
+                                    switch (index) {
+                                      case 0:
+                                        screen = const AccountDashboardScreen();
+                                        break;
+                                      case 1:
+                                        debugPrint('🔵 App: Building StakingScreen (index 1)');
+                                        screen = _buildStakingScreen();
+                                        break;
+                                      case 2:
+                                        screen = const NFTsScreen();
+                                        break;
+                                      case 3:
+                                        screen = const TransactionsScreen();
+                                        break;
+                                      case 4:
+                                        screen = const NewsScreen();
+                                        break;
+                                      default:
+                                        screen = const Scaffold(body: Center(child: Text('Unknown page')));
+                                    }
+                                    debugPrint('✅ App: Successfully created screen for index $index');
+                                    return screen;
+                                  } catch (e, stackTrace) {
+                                    debugPrint('❌ App: Error building page $index: $e');
+                                    debugPrint('Stack trace: $stackTrace');
+                                    return Scaffold(
+                                      appBar: AppBar(title: Text('Page $index')),
+                                      body: Center(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                                            const SizedBox(height: 16),
+                                            Text('Error loading page $index: $e'),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+                              );
+                            } catch (e, stackTrace) {
+                              debugPrint('❌ App: Error building PageView: $e');
+                              debugPrint('Stack trace: $stackTrace');
+                              return Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                                    const SizedBox(height: 16),
+                                    Text('Error building PageView: $e'),
+                                  ],
+                                ),
+                              );
+                            }
                           },
-                          children: _screens,
                         ),
                         bottomNavigationBar: AppBottomNavigation(
                           currentIndex: _currentIndex,
                           onTap: (index) {
-                            setState(() {
-                              _currentIndex = index;
-                            });
-                            _pageController.animateToPage(
-                              index,
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
+                            debugPrint('🟢 App: Bottom navigation tapped, index: $index');
+                            if (index == 1) {
+                              debugPrint('🟢 App: Staking tab pressed!');
+                            }
+                            try {
+                              setState(() {
+                                _currentIndex = index;
+                              });
+                              debugPrint('🔵 App: State updated, animating to page $index');
+                              _pageController.animateToPage(
+                                index,
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              ).then((_) {
+                                debugPrint('✅ App: Successfully navigated to page $index');
+                              }).catchError((error, stackTrace) {
+                                debugPrint('❌ App: Error navigating to page $index: $error');
+                                debugPrint('Stack trace: $stackTrace');
+                              });
+                            } catch (e, stackTrace) {
+                              debugPrint('❌ App: Error in onTap handler: $e');
+                              debugPrint('Stack trace: $stackTrace');
+                            }
                           },
                         ),
                       ),
