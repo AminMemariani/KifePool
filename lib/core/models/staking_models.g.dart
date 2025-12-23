@@ -22,20 +22,20 @@ Validator _$ValidatorFromJson(Map<String, dynamic> json) => Validator()
   ..description = json['description'] as String;
 
 Map<String, dynamic> _$ValidatorToJson(Validator instance) => <String, dynamic>{
-  'address': instance.address,
-  'name': instance.name,
-  'chain': instance.chain,
-  'commission': instance.commission,
-  'apy': instance.apy,
-  'totalStake': instance.totalStake,
-  'nominatorCount': instance.nominatorCount,
-  'isActive': instance.isActive,
-  'isOversubscribed': instance.isOversubscribed,
-  'lastUpdated': instance.lastUpdated.toIso8601String(),
-  'identity': instance.identity,
-  'website': instance.website,
-  'description': instance.description,
-};
+      'address': instance.address,
+      'name': instance.name,
+      'chain': instance.chain,
+      'commission': instance.commission,
+      'apy': instance.apy,
+      'totalStake': instance.totalStake,
+      'nominatorCount': instance.nominatorCount,
+      'isActive': instance.isActive,
+      'isOversubscribed': instance.isOversubscribed,
+      'lastUpdated': instance.lastUpdated.toIso8601String(),
+      'identity': instance.identity,
+      'website': instance.website,
+      'description': instance.description,
+    };
 
 NominationPool _$NominationPoolFromJson(Map<String, dynamic> json) =>
     NominationPool()
@@ -133,34 +133,34 @@ Map<String, dynamic> _$StakingRewardToJson(StakingReward instance) =>
     };
 
 StakingOperationResult _$StakingOperationResultFromJson(
-  Map<String, dynamic> json,
-) => StakingOperationResult(
-  success: json['success'] as bool,
-  transactionHash: json['transactionHash'] as String?,
-  error: json['error'] as String?,
-  data: json['data'] as Map<String, dynamic>?,
-);
+        Map<String, dynamic> json) =>
+    StakingOperationResult(
+      success: json['success'] as bool,
+      transactionHash: json['transactionHash'] as String?,
+      error: json['error'] as String?,
+      data: json['data'] as Map<String, dynamic>?,
+    );
 
 Map<String, dynamic> _$StakingOperationResultToJson(
-  StakingOperationResult instance,
-) => <String, dynamic>{
-  'success': instance.success,
-  'transactionHash': instance.transactionHash,
-  'error': instance.error,
-  'data': instance.data,
-};
+        StakingOperationResult instance) =>
+    <String, dynamic>{
+      'success': instance.success,
+      'transactionHash': instance.transactionHash,
+      'error': instance.error,
+      'data': instance.data,
+    };
 
 StakingStats _$StakingStatsFromJson(Map<String, dynamic> json) => StakingStats(
-  totalStaked: (json['totalStaked'] as num).toInt(),
-  totalRewards: (json['totalRewards'] as num).toInt(),
-  pendingRewards: (json['pendingRewards'] as num).toInt(),
-  averageApy: (json['averageApy'] as num).toDouble(),
-  activePositions: (json['activePositions'] as num).toInt(),
-  supportedChains: (json['supportedChains'] as List<dynamic>)
-      .map((e) => e as String)
-      .toList(),
-  stakingRatio: (json['stakingRatio'] as num).toDouble(),
-);
+      totalStaked: (json['totalStaked'] as num).toInt(),
+      totalRewards: (json['totalRewards'] as num).toInt(),
+      pendingRewards: (json['pendingRewards'] as num).toInt(),
+      averageApy: (json['averageApy'] as num).toDouble(),
+      activePositions: (json['activePositions'] as num).toInt(),
+      supportedChains: (json['supportedChains'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList(),
+      stakingRatio: (json['stakingRatio'] as num).toDouble(),
+    );
 
 Map<String, dynamic> _$StakingStatsToJson(StakingStats instance) =>
     <String, dynamic>{

@@ -7,13 +7,13 @@ part of 'wallet_models.dart';
 // **************************************************************************
 
 ChainBalance _$ChainBalanceFromJson(Map<String, dynamic> json) => ChainBalance(
-  chain: json['chain'] as String,
-  symbol: json['symbol'] as String,
-  balance: json['balance'] as String,
-  usdValue: json['usdValue'] as String,
-  decimals: (json['decimals'] as num).toInt(),
-  logoUrl: json['logoUrl'] as String?,
-);
+      chain: json['chain'] as String,
+      symbol: json['symbol'] as String,
+      balance: json['balance'] as String,
+      usdValue: json['usdValue'] as String,
+      decimals: (json['decimals'] as num).toInt(),
+      logoUrl: json['logoUrl'] as String?,
+    );
 
 Map<String, dynamic> _$ChainBalanceToJson(ChainBalance instance) =>
     <String, dynamic>{
@@ -26,26 +26,26 @@ Map<String, dynamic> _$ChainBalanceToJson(ChainBalance instance) =>
     };
 
 WalletCreationResult _$WalletCreationResultFromJson(
-  Map<String, dynamic> json,
-) => WalletCreationResult(
-  address: json['address'] as String,
-  publicKey: json['publicKey'] as String,
-  mnemonic: json['mnemonic'] as String,
-  derivationPath: json['derivationPath'] as String,
-  success: json['success'] as bool,
-  error: json['error'] as String?,
-);
+        Map<String, dynamic> json) =>
+    WalletCreationResult(
+      address: json['address'] as String,
+      publicKey: json['publicKey'] as String,
+      mnemonic: json['mnemonic'] as String,
+      derivationPath: json['derivationPath'] as String,
+      success: json['success'] as bool,
+      error: json['error'] as String?,
+    );
 
 Map<String, dynamic> _$WalletCreationResultToJson(
-  WalletCreationResult instance,
-) => <String, dynamic>{
-  'address': instance.address,
-  'publicKey': instance.publicKey,
-  'mnemonic': instance.mnemonic,
-  'derivationPath': instance.derivationPath,
-  'success': instance.success,
-  'error': instance.error,
-};
+        WalletCreationResult instance) =>
+    <String, dynamic>{
+      'address': instance.address,
+      'publicKey': instance.publicKey,
+      'mnemonic': instance.mnemonic,
+      'derivationPath': instance.derivationPath,
+      'success': instance.success,
+      'error': instance.error,
+    };
 
 WalletImportResult _$WalletImportResultFromJson(Map<String, dynamic> json) =>
     WalletImportResult(

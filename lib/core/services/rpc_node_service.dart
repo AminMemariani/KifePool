@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:kifepool/core/constants/rpc_config.dart';
@@ -83,10 +84,11 @@ class RpcNodeService {
 
   /// Check the health of an RPC node
   static Future<RpcNodeHealth> checkNodeHealth(RpcNode node) async {
+    WebSocketChannel? channel;
     try {
       final stopwatch = Stopwatch()..start();
 
-      final channel = WebSocketChannel.connect(Uri.parse(node.url));
+      channel = WebSocketChannel.connect(Uri.parse(node.url));
 
       final request = {
         'jsonrpc': '2.0',
@@ -101,7 +103,6 @@ class RpcNodeService {
       final response = await channel.stream.first.timeout(
         const Duration(seconds: 10),
         onTimeout: () {
-          channel.sink.close();
           throw TimeoutException(
             'RPC request timed out',
             const Duration(seconds: 10),
@@ -111,6 +112,7 @@ class RpcNodeService {
 
       stopwatch.stop();
       await channel.sink.close();
+      channel = null;
 
       final responseData = jsonDecode(response) as Map<String, dynamic>;
 
@@ -129,7 +131,42 @@ class RpcNodeService {
           error: 'Invalid response from RPC node',
         );
       }
+    } on TimeoutException catch (e) {
+      // Ensure channel is closed on timeout
+      try {
+        await channel?.sink.close();
+      } catch (_) {
+        // Ignore errors when closing
+      }
+      return RpcNodeHealth(
+        isHealthy: false,
+        latency: 0,
+        lastChecked: DateTime.now(),
+        error: 'Connection timeout: ${e.message}',
+      );
+    } on SocketException catch (e) {
+      // Handle DNS resolution failures and network errors
+      try {
+        await channel?.sink.close();
+      } catch (_) {
+        // Ignore errors when closing
+      }
+      final errorMessage = e.message.contains('Failed host lookup')
+          ? 'DNS resolution failed: ${Uri.parse(node.url).host}'
+          : 'Network error: ${e.message}';
+      return RpcNodeHealth(
+        isHealthy: false,
+        latency: 0,
+        lastChecked: DateTime.now(),
+        error: errorMessage,
+      );
     } catch (e) {
+      // Ensure channel is closed on any other error
+      try {
+        await channel?.sink.close();
+      } catch (_) {
+        // Ignore errors when closing
+      }
       return RpcNodeHealth(
         isHealthy: false,
         latency: 0,
@@ -173,14 +210,19 @@ class RpcNodeService {
     _healthCheckTimers[network] = Timer.periodic(
       const Duration(minutes: 5), // Check every 5 minutes
       (timer) async {
-        final node = _selectedNodes[network];
-        if (node != null) {
-          final health = await checkNodeHealth(node);
-          if (!health.isHealthy) {
-            debugPrint('RPC node $network is unhealthy: ${health.error}');
-            // Optionally switch to a backup node
-            await _switchToBackupNode(network);
+        try {
+          final node = _selectedNodes[network];
+          if (node != null) {
+            final health = await checkNodeHealth(node);
+            if (!health.isHealthy) {
+              debugPrint('RPC node $network is unhealthy: ${health.error}');
+              // Optionally switch to a backup node
+              await _switchToBackupNode(network);
+            }
           }
+        } catch (e) {
+          // Prevent errors from propagating and causing unhandled exceptions
+          debugPrint('Error during health check for $network: $e');
         }
       },
     );
@@ -188,21 +230,27 @@ class RpcNodeService {
 
   /// Switch to a backup node if the current one is unhealthy
   static Future<void> _switchToBackupNode(String network) async {
-    final availableNodes = getAvailableNodes(network);
-    final currentNode = _selectedNodes[network];
+    try {
+      final availableNodes = getAvailableNodes(network);
+      final currentNode = _selectedNodes[network];
 
-    if (currentNode == null) return;
+      if (currentNode == null) return;
 
-    // Find a healthy backup node
-    for (final node in availableNodes) {
-      if (node.url != currentNode.url) {
-        final health = await checkNodeHealth(node);
-        if (health.isHealthy) {
-          await setSelectedNode(network, node);
-          debugPrint('Switched to backup RPC node for $network: ${node.name}');
-          break;
+      // Find a healthy backup node
+      for (final node in availableNodes) {
+        if (node.url != currentNode.url) {
+          final health = await checkNodeHealth(node);
+          if (health.isHealthy) {
+            await setSelectedNode(network, node);
+            debugPrint(
+              'Switched to backup RPC node for $network: ${node.name}',
+            );
+            break;
+          }
         }
       }
+    } catch (e) {
+      debugPrint('Error switching to backup node for $network: $e');
     }
   }
 

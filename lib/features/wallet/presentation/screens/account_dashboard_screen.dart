@@ -5,6 +5,8 @@ import 'package:kifepool/core/theme/app_typography.dart';
 import 'package:kifepool/shared/providers/wallet_provider.dart';
 import 'package:kifepool/core/models/wallet_models.dart';
 import 'package:kifepool/shared/widgets/loading_widgets.dart';
+import 'package:kifepool/core/services/governance_service.dart';
+import 'package:kifepool/features/governance/presentation/screens/governance_screen.dart';
 
 /// Account dashboard screen with multi-chain balances
 class AccountDashboardScreen extends StatefulWidget {
@@ -129,11 +131,127 @@ class _AccountDashboardScreenState extends State<AccountDashboardScreen> {
 
                   // Quick actions
                   _buildQuickActionsSection(),
+
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // OpenGov section (only for Polkadot/Kusama)
+                  if (_hasOpenGovChain(walletProvider.balances))
+                    _buildOpenGovSection(walletProvider.balances),
                 ],
               ),
             ),
           );
         },
+      ),
+    );
+  }
+
+  bool _hasOpenGovChain(List<ChainBalance> balances) {
+    return balances.any((balance) =>
+        GovernanceService.supportsOpenGov(balance.chain));
+  }
+
+  Widget _buildOpenGovSection(List<ChainBalance> balances) {
+    final openGovChains = balances
+        .where((balance) => GovernanceService.supportsOpenGov(balance.chain))
+        .toList();
+
+    if (openGovChains.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'OpenGov Voting',
+              style: AppTypography.bodyLarge.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                // Navigate to governance screen for the first OpenGov chain
+                final chain = openGovChains.first.chain;
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => GovernanceScreen(chain: chain),
+                  ),
+                );
+              },
+              child: const Text('View All'),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.md),
+        ...openGovChains.map((chainBalance) => _buildOpenGovChainCard(
+              chainBalance.chain,
+            )),
+      ],
+    );
+  }
+
+  Widget _buildOpenGovChainCard(String chain) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => GovernanceScreen(chain: chain),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                ),
+                child: Icon(
+                  Icons.how_to_vote,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'OpenGov - $chain',
+                      style: AppTypography.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      'View and vote on active proposals',
+                      style: AppTypography.bodySmall.copyWith(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.7),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

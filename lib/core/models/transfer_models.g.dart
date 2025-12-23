@@ -198,9 +198,8 @@ Map<String, dynamic> _$TransferQrDataToJson(TransferQrData instance) =>
 TransferValidation _$TransferValidationFromJson(Map<String, dynamic> json) =>
     TransferValidation(
       isValid: json['isValid'] as bool,
-      errors: (json['errors'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList(),
+      errors:
+          (json['errors'] as List<dynamic>).map((e) => e as String).toList(),
       estimatedGasFee: json['estimatedGasFee'] as String?,
       estimatedGasUsed: json['estimatedGasUsed'] as String?,
     );
