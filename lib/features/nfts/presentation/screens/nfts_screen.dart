@@ -10,7 +10,7 @@ class NFTsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
 
     return Scaffold(
       appBar: AppBar(

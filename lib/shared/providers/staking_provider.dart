@@ -130,7 +130,10 @@ class StakingProvider with ChangeNotifier {
       _validators = await StakingService.getValidators(_selectedChain);
       notifyListeners();
     } catch (e) {
-      _setError('Failed to load validators: $e');
+      debugPrint('Failed to load validators: $e');
+      // Don't set error here, just keep empty list
+      _validators = [];
+      notifyListeners();
     }
   }
 
@@ -142,7 +145,10 @@ class StakingProvider with ChangeNotifier {
       );
       notifyListeners();
     } catch (e) {
-      _setError('Failed to load nomination pools: $e');
+      debugPrint('Failed to load nomination pools: $e');
+      // Don't set error here, just keep empty list
+      _nominationPools = [];
+      notifyListeners();
     }
   }
 
@@ -157,7 +163,10 @@ class StakingProvider with ChangeNotifier {
       );
       notifyListeners();
     } catch (e) {
-      _setError('Failed to load staking positions: $e');
+      debugPrint('Failed to load staking positions: $e');
+      // Don't set error here, just keep empty list
+      _stakingPositions = [];
+      notifyListeners();
     }
   }
 
@@ -172,7 +181,10 @@ class StakingProvider with ChangeNotifier {
       );
       notifyListeners();
     } catch (e) {
-      _setError('Failed to load staking rewards: $e');
+      debugPrint('Failed to load staking rewards: $e');
+      // Don't set error here, just keep empty list
+      _stakingRewards = [];
+      notifyListeners();
     }
   }
 
@@ -184,7 +196,10 @@ class StakingProvider with ChangeNotifier {
       _stakingStats = await StakingService.getStakingStats(accountAddress);
       notifyListeners();
     } catch (e) {
-      _setError('Failed to load staking statistics: $e');
+      debugPrint('Failed to load staking statistics: $e');
+      // Don't set error here, just keep stats as null
+      _stakingStats = null;
+      notifyListeners();
     }
   }
 
@@ -408,7 +423,13 @@ class StakingProvider with ChangeNotifier {
 
   /// Get supported chains
   Future<List<String>> getSupportedChains() async {
-    return await StakingService.getSupportedChains();
+    try {
+      return await StakingService.getSupportedChains();
+    } catch (e) {
+      debugPrint('Failed to get supported chains: $e');
+      // Return default chains if RPC fails
+      return ['polkadot', 'kusama'];
+    }
   }
 
   /// Set loading state

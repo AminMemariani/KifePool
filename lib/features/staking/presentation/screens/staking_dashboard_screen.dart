@@ -31,7 +31,16 @@ class _StakingDashboardScreenState extends State<StakingDashboardScreen>
 
     // Initialize staking provider
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<StakingProvider>().initialize();
+      if (mounted) {
+        try {
+          final provider = context.read<StakingProvider>();
+          provider.initialize().catchError((error) {
+            debugPrint('Failed to initialize staking provider: $error');
+          });
+        } catch (e) {
+          debugPrint('Failed to access staking provider: $e');
+        }
+      }
     });
   }
 
@@ -58,14 +67,23 @@ class _StakingDashboardScreenState extends State<StakingDashboardScreen>
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              context.read<StakingProvider>().refresh();
+              try {
+                context.read<StakingProvider>().refresh();
+              } catch (e) {
+                debugPrint('Failed to refresh staking data: $e');
+              }
             },
           ),
         ],
       ),
-      body: Consumer<StakingProvider>(
-        builder: (context, stakingProvider, child) {
-          if (stakingProvider.isLoading && stakingProvider.validators.isEmpty) {
+      body: Builder(
+        builder: (context) {
+          return Consumer<StakingProvider>(
+            builder: (context, stakingProvider, child) {
+          // Show loading only if we have no data
+          if (stakingProvider.isLoading && 
+              stakingProvider.validators.isEmpty && 
+              stakingProvider.nominationPools.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
 
@@ -110,7 +128,17 @@ class _StakingDashboardScreenState extends State<StakingDashboardScreen>
               FutureBuilder<List<String>>(
                 future: stakingProvider.getSupportedChains(),
                 builder: (context, snapshot) {
-                  if (snapshot.hasData) {
+                  if (snapshot.hasError) {
+                    debugPrint('Error loading supported chains: ${snapshot.error}');
+                    // Show chain selector with default chains
+                    return ChainSelectorWidget(
+                      onChainChanged: (chain) {
+                        stakingProvider.setSelectedChain(chain);
+                      },
+                      initialChain: stakingProvider.selectedChain,
+                    );
+                  }
+                  if (snapshot.hasData && snapshot.data != null) {
                     return ChainSelectorWidget(
                       onChainChanged: (chain) {
                         stakingProvider.setSelectedChain(chain);
@@ -176,6 +204,8 @@ class _StakingDashboardScreenState extends State<StakingDashboardScreen>
                 ),
               ),
             ],
+          );
+            },
           );
         },
       ),
@@ -257,8 +287,12 @@ class _StakingDashboardScreenState extends State<StakingDashboardScreen>
     return ValidatorListWidget(
       validators: stakingProvider.filteredValidators,
       onValidatorSelected: (validator) {
-        // Navigate to validator details
-        _showValidatorDetails(context, validator);
+        try {
+          // Navigate to validator details
+          _showValidatorDetails(context, validator);
+        } catch (e) {
+          debugPrint('Failed to show validator details: $e');
+        }
       },
     );
   }
@@ -267,13 +301,19 @@ class _StakingDashboardScreenState extends State<StakingDashboardScreen>
     return NominationPoolListWidget(
       pools: stakingProvider.filteredNominationPools,
       onPoolSelected: (pool) {
-        // Navigate to pool details
-        _showPoolDetails(context, pool);
+        try {
+          // Navigate to pool details
+          _showPoolDetails(context, pool);
+        } catch (e) {
+          debugPrint('Failed to show pool details: $e');
+        }
       },
     );
   }
 
   void _showValidatorDetails(BuildContext context, dynamic validator) {
+    if (validator == null) return;
+    
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -286,10 +326,13 @@ class _StakingDashboardScreenState extends State<StakingDashboardScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(validator.name, style: AppTypography.headlineMedium),
+              Text(
+                validator.name ?? 'Unknown Validator',
+                style: AppTypography.headlineMedium,
+              ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'APY: ${validator.apy.toStringAsFixed(2)}%',
+                'APY: ${(validator.apy ?? 0.0).toStringAsFixed(2)}%',
                 style: AppTypography.bodyLarge.copyWith(
                   color: Colors.green,
                   fontWeight: FontWeight.w600,
@@ -302,18 +345,18 @@ class _StakingDashboardScreenState extends State<StakingDashboardScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildDetailRow('Address', validator.address),
+                      _buildDetailRow('Address', validator.address ?? 'N/A'),
                       _buildDetailRow(
                         'Commission',
-                        '${validator.commission.toStringAsFixed(2)}%',
+                        '${(validator.commission ?? 0.0).toStringAsFixed(2)}%',
                       ),
                       _buildDetailRow(
                         'Total Stake',
-                        '${validator.totalStake} DOT',
+                        '${validator.totalStake ?? 0} DOT',
                       ),
                       _buildDetailRow(
                         'Status',
-                        validator.isActive ? 'Active' : 'Inactive',
+                        (validator.isActive ?? false) ? 'Active' : 'Inactive',
                       ),
                       const SizedBox(height: AppSpacing.lg),
                       SizedBox(
@@ -338,6 +381,8 @@ class _StakingDashboardScreenState extends State<StakingDashboardScreen>
   }
 
   void _showPoolDetails(BuildContext context, dynamic pool) {
+    if (pool == null) return;
+    
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -350,10 +395,13 @@ class _StakingDashboardScreenState extends State<StakingDashboardScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(pool.name, style: AppTypography.headlineMedium),
+              Text(
+                pool.name ?? 'Unknown Pool',
+                style: AppTypography.headlineMedium,
+              ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'APY: ${pool.apy.toStringAsFixed(2)}%',
+                'APY: ${(pool.apy ?? 0.0).toStringAsFixed(2)}%',
                 style: AppTypography.bodyLarge.copyWith(
                   color: Colors.green,
                   fontWeight: FontWeight.w600,
@@ -366,15 +414,15 @@ class _StakingDashboardScreenState extends State<StakingDashboardScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildDetailRow('Pool ID', pool.poolId.toString()),
-                      _buildDetailRow('Total Stake', '${pool.totalStake} DOT'),
+                      _buildDetailRow('Pool ID', (pool.poolId ?? 0).toString()),
+                      _buildDetailRow('Total Stake', '${pool.totalStake ?? 0} DOT'),
                       _buildDetailRow(
                         'Member Count',
-                        pool.memberCount.toString(),
+                        (pool.memberCount ?? 0).toString(),
                       ),
                       _buildDetailRow(
                         'Status',
-                        pool.isActive ? 'Active' : 'Inactive',
+                        (pool.isActive ?? false) ? 'Active' : 'Inactive',
                       ),
                       const SizedBox(height: AppSpacing.lg),
                       SizedBox(
