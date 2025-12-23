@@ -60,7 +60,13 @@ class WalletService {
   static Uint8List mnemonicToSeed(String mnemonic, {String passphrase = ''}) {
     try {
       final seedHex = mnemonicToSeedHex(mnemonic, passphrase: passphrase);
-      return Uint8List.fromList(seedHex.codeUnits);
+      // Convert hex string to bytes (2 hex chars = 1 byte)
+      final seedBytes = <int>[];
+      for (int i = 0; i < seedHex.length; i += 2) {
+        final hexByte = seedHex.substring(i, i + 2);
+        seedBytes.add(int.parse(hexByte, radix: 16));
+      }
+      return Uint8List.fromList(seedBytes);
     } catch (e) {
       throw WalletException(
         type: WalletErrorType.mnemonicInvalid,
@@ -92,19 +98,31 @@ class WalletService {
   /// Derive Ed25519 key pair (for Polkadot/Substrate)
   static KeyPair _deriveEd25519KeyPair(Uint8List seed, String derivationPath) {
     // Simplified derivation - in production, use proper HD key derivation
-    final random = Random.secure();
-    final privateKeyBytes = Uint8List.fromList([
-      ...seed,
-      ...utf8.encode(derivationPath),
-      ...List.generate(
-        32 - seed.length - utf8.encode(derivationPath).length,
-        (i) => random.nextInt(256),
-      ),
-    ]);
+    // Use first 32 bytes of seed, or hash seed + derivationPath if needed
+    Uint8List privateKeyBytes;
+    
+    if (seed.length >= 32) {
+      // Use first 32 bytes of seed
+      privateKeyBytes = seed.sublist(0, 32);
+    } else {
+      // If seed is shorter than 32 bytes, extend it with derivation path
+      final derivationBytes = utf8.encode(derivationPath);
+      final combined = Uint8List.fromList([...seed, ...derivationBytes]);
+      
+      // Hash to get 32 bytes if needed
+      if (combined.length >= 32) {
+        privateKeyBytes = combined.sublist(0, 32);
+      } else {
+        // Pad with zeros if still too short (shouldn't happen with proper seed)
+        privateKeyBytes = Uint8List(32);
+        privateKeyBytes.setRange(0, combined.length, combined);
+      }
+    }
 
-    final privateKey = ed25519.PrivateKey(privateKeyBytes.sublist(0, 32));
+    final privateKey = ed25519.PrivateKey(privateKeyBytes);
     // For now, use a simplified approach - in production, derive actual public key
-    final publicKeyBytes = privateKeyBytes.sublist(0, 32);
+    // The ed25519_edwards package requires proper key derivation which we'll implement later
+    final publicKeyBytes = privateKeyBytes; // Simplified - replace with proper derivation
 
     return KeyPair(
       privateKey: base64Encode(privateKey.bytes),
