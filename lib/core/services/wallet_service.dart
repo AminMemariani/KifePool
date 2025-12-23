@@ -20,7 +20,24 @@ class WalletService {
     }
 
     try {
-      return generateMnemonic();
+      // Convert word count to entropy strength in bits
+      // 12 words = 128 bits, 24 words = 256 bits
+      final strength = wordCount == 12 ? 128 : 256;
+      
+      // Generate random entropy
+      final random = Random.secure();
+      final entropyBytes = List<int>.generate(
+        strength ~/ 8,
+        (_) => random.nextInt(256),
+      );
+      
+      // Convert entropy bytes to hex string
+      final entropyHex = entropyBytes
+          .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
+          .join('');
+      
+      // Convert entropy to mnemonic using bip39
+      return entropyToMnemonic(entropyHex);
     } catch (e) {
       throw WalletException(
         type: WalletErrorType.mnemonicInvalid,

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:kifepool/core/theme/app_spacing.dart';
 import 'package:kifepool/core/theme/app_typography.dart';
 import 'package:kifepool/shared/providers/wallet_provider.dart';
+import 'package:kifepool/core/services/wallet_service.dart';
 import 'package:kifepool/features/wallet/presentation/widgets/rpc_node_selector_widget.dart';
 import 'package:kifepool/features/wallet/presentation/screens/rpc_node_management_screen.dart';
 import 'package:kifepool/shared/widgets/dynamic_chain_selector.dart';
@@ -450,15 +451,27 @@ class _WalletCreationScreenState extends State<WalletCreationScreen> {
       _isCreating = true;
     });
 
-    // Simulate mnemonic generation
-    Future.delayed(const Duration(seconds: 1), () {
+    // Generate mnemonic with selected word count
+    Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) {
-        setState(() {
-          _generatedMnemonic =
-              'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
-          _showMnemonic = true;
-          _isCreating = false;
-        });
+        try {
+          final mnemonic = WalletService.generateMnemonic(wordCount: _wordCount);
+          setState(() {
+            _generatedMnemonic = mnemonic;
+            _showMnemonic = true;
+            _isCreating = false;
+          });
+        } catch (e) {
+          setState(() {
+            _isCreating = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to generate mnemonic: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     });
   }
